@@ -4,26 +4,26 @@
 </script>
 
 <template>
-  <!-- <h1 class="text-3xl font-bold underline bg-black">
+    <!-- <h1 class="text-3xl font-bold underline bg-black">
       Hello world!
-  </h1> -->
-  <div>
-    <!-- <p>
+  </h1>-->
+    <div>
+        <!-- <p>
       <router-link to="/">go to login</router-link>
       <br>
       <router-link to="/test">go to test</router-link>
-    </p> -->
-    <router-view />
-  </div>
+    </p>-->
+        <router-view />
+    </div>
 </template>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 60px;
 }
 </style>

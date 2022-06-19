@@ -3,13 +3,13 @@ import Login from "../components/Login.vue";
 import Test from "../components/Test.vue";
 
 const routes = [
-	{path: "/", component: Login},
-	{path: "/test", component: Test}
+    {path: "/", component: Login},
+    {path: "/test", component: Test}
 ];
 
 const router = createRouter({
-	history: createWebHashHistory(),
-	routes
+    history: createWebHashHistory(),
+    routes
 });
 
 export default router;
