@@ -1,10 +1,13 @@
 import {createRouter, createWebHashHistory} from "vue-router";
 import Login from "../components/Login.vue";
-import Test from "../components/Test.vue";
+import Register from "../components/Register.vue";
+import FriendList from "../components/FriendList.vue";
 
 const routes = [
     {path: "/", component: Login},
-    {path: "/test", component: Test}
+    {path: "/login", component: Login},
+    {path: "/register", component: Register},
+    {path: "/friendlist", component: FriendList}
 ];
 
 const router = createRouter({
