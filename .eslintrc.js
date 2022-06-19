@@ -43,6 +43,7 @@ module.exports = {
         "no-debugger": "off",
         "no-undef": "error",
         "vue/multi-word-component-names": "off",
+        "@typescript-eslint/no-namespace": "off",
 
         // 下面这些属性是因为插件不支持，先关闭
         "no-dupe-else-if": "off",
