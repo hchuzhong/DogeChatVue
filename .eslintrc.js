@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 module.exports = {
 	"env": {
 		"browser": true,
@@ -13,6 +14,7 @@ module.exports = {
 		"parser": "@typescript-eslint/parser",
 		"sourceType": "module"
 	},
+	"parser": "vue-eslint-parser",
 	"plugins": [
 		"vue",
 		"@typescript-eslint"
@@ -33,6 +35,7 @@ module.exports = {
 		"semi": [
 			"error",
 			"always"
-		]
+		],
+		"vue/multi-word-component-names": "off"
 	}
 };
