@@ -1,26 +1,26 @@
 export namespace GlobalType {
     export enum messageType {
-        text = "text",
-        join = "join",
-        image = "image",
-        video = "video",
-        livePhoto = "livePhoto",
-        draw = "draw",
-        track = "track",
-        voice = "voice",
-        location = "location"
+        text = 'text',
+        join = 'join',
+        image = 'image',
+        video = 'video',
+        livePhoto = 'livePhoto',
+        draw = 'draw',
+        track = 'track',
+        voice = 'voice',
+        location = 'location'
     }
 
     export const messageTypeToChinese = {
-        [messageType.text]: "文本",
-        [messageType.join]: "撤回",
-        [messageType.image]: "图片",
-        [messageType.video]: "视频",
-        [messageType.livePhoto]: "图片",
-        [messageType.draw]: "Draw",
-        [messageType.track]: "Tracks",
-        [messageType.voice]: "语音",
-        [messageType.location]: "位置"
+        [messageType.text]: '文本',
+        [messageType.join]: '撤回',
+        [messageType.image]: '图片',
+        [messageType.video]: '视频',
+        [messageType.livePhoto]: '图片',
+        [messageType.draw]: 'Draw',
+        [messageType.track]: 'Tracks',
+        [messageType.voice]: '语音',
+        [messageType.location]: '位置'
     };
 
     export type FriendMessageHistoryType = {

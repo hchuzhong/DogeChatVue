@@ -1,6 +1,6 @@
-import JSEncrypt from "jsencrypt";
-import {GlobalValue} from "../global/GlobalValue";
-import {API} from "./api";
+import JSEncrypt from 'jsencrypt';
+import {GlobalValue} from '../global/GlobalValue';
+import {API} from './api';
 
 export let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
@@ -8,25 +8,25 @@ export let clientEncryptor: JSEncrypt;
 export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageStore: any) {
     clientEncryptor = new JSEncrypt(); // 新建JSEncrypt对象
     websocket = new WebSocket(`${GlobalValue.wssBaseUrl}?deviceType=6`);
-    console.log("websocket init");
+    console.log('websocket init');
     // Connection opened
-    websocket.addEventListener("open", function (event) {
+    websocket.addEventListener('open', function (event) {
         // websocket.send("ping");
-        console.log("connect success");
+        console.log('connect success');
         API.postGetPublicKey((privateKey: string, publicKey: string) => {
             // 自己的公钥和私钥也要存起来
             AuthStore.setClientKey(privateKey, publicKey);
 
-            send({method: "publicKey", key: publicKey});
-            send({method: "getPublicUnreadMessage", id: 0});
+            send({method: 'publicKey', key: publicKey});
+            send({method: 'getPublicUnreadMessage', id: 0});
             clientEncryptor.setPublicKey(publicKey); // 设置公钥
             clientEncryptor.setPrivateKey(privateKey);
         });
     });
 
     // Listen for messages
-    websocket.addEventListener("message", function (event) {
-        console.log("websocket message from server ");
+    websocket.addEventListener('message', function (event) {
+        console.log('websocket message from server ');
         const json = JSON.parse(event.data);
         const method = json?.method;
         const data = json?.data;
@@ -36,16 +36,16 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
 
         if (method) {
             switch (method) {
-                case "publicKey":
+                case 'publicKey':
                     AuthStore.setServerPubliKey(data);
                     break;
-                case "getPublicUnreadMessage":
+                case 'getPublicUnreadMessage':
                     FriendStore.setUnreadMessage(data);
                     break;
-                case "getHistory":
+                case 'getHistory':
                     hadRecords = data?.records?.length > 0;
                     if (!hadRecords) {
-                        console.log("当前用户无聊天信息");
+                        console.log('当前用户无聊天信息');
                     } else {
                         const recrods = data?.records;
                         if (FriendMessageStore.values.records.length === 0) {
@@ -61,53 +61,53 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
                         }
                     }
                     break;
-                case "PublicNewMessage":
+                case 'PublicNewMessage':
                     // TODO
                     break;
-                case "readMessage":
-                    console.log("处理已读消息 ========");
+                case 'readMessage':
+                    console.log('处理已读消息 ========');
                     break;
-                case "sendPersonalMessageSuccess":
-                    console.log("处理自己发的单条私聊消息");
+                case 'sendPersonalMessageSuccess':
+                    console.log('处理自己发的单条私聊消息');
                     console.log(FriendMessageStore);
                     FriendMessageStore.pushOneFriendMessage(data);
                     break;
-                case "sendToAllSuccess":
-                    console.log("处理自己发的单条群聊消息");
+                case 'sendToAllSuccess':
+                    console.log('处理自己发的单条群聊消息');
                     console.log(FriendMessageStore);
                     FriendMessageStore.pushOneFriendMessage(data);
                     break;
-                case "PersonalNewMessage":
-                    console.log("处理其他人发的单条私聊消息");
+                case 'PersonalNewMessage':
+                    console.log('处理其他人发的单条私聊消息');
                     FriendMessageStore.pushOneFriendMessage(data[0]);
             }
         }
     });
 
     // Listen fo error
-    websocket.addEventListener("error", function (event) {
-        console.log("check websocket error", event);
+    websocket.addEventListener('error', function (event) {
+        console.log('check websocket error', event);
     });
 }
 
 export function getHistoryMessages(friendUserId: string, pageNum: number, pageSize?: number, uuid?: string, type?: string, beginDate?: string, keyWord?: string) {
-    const paras: any = {method: "getHistory", friend: friendUserId, pageNum: pageNum};
+    const paras: any = {method: 'getHistory', friend: friendUserId, pageNum: pageNum};
     if (pageSize) {
-        paras["pageSize"] = pageSize;
+        paras['pageSize'] = pageSize;
     }
     if (uuid) {
-        paras["uuid"] = uuid;
+        paras['uuid'] = uuid;
     }
     if (type) {
-        paras["type"] = type;
+        paras['type'] = type;
     }
     if (beginDate) {
-        paras["beginDate"] = beginDate;
+        paras['beginDate'] = beginDate;
     }
     if (keyWord) {
-        paras["keyWord"] = keyWord;
+        paras['keyWord'] = keyWord;
     }
-    console.log("check getHistoryMessages params ==================");
+    console.log('check getHistoryMessages params ==================');
     console.log(paras);
     send(paras);
 }
@@ -115,7 +115,7 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
 function send(data: any) {
     if (!websocket) {
         // 目前先返回登陆页面，后面再看看要不要自动登录
-        return console.error("请先登陆");
+        return console.error('请先登陆');
     }
     websocket.send(JSON.stringify(data));
 }

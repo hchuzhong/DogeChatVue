@@ -1,29 +1,29 @@
 export namespace GlobalValue {
-    export const httpBaseUrl = "https://121.5.152.193";
-    export const wssBaseUrl = "ws://localhost/webSocket";
+    export const httpBaseUrl = 'https://121.5.152.193';
+    export const wssBaseUrl = 'ws://localhost/webSocket';
 
     export function getRsaKeys(callback: any) {
         return window.crypto.subtle
             .generateKey(
                 {
-                    name: "RSA-OAEP",
+                    name: 'RSA-OAEP',
                     modulusLength: 1024, //can be 1024, 2048, or 4096
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                    hash: {name: "SHA-512"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                    hash: {name: 'SHA-512'} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
                 true, //whether the key is extractable (i.e. can be used in exportKey)
-                ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
+                ['encrypt', 'decrypt'] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
             )
             .then(function (key) {
-                console.log("window.crypto.subtle.exportKey =====1", key);
+                console.log('window.crypto.subtle.exportKey =====1', key);
                 window.crypto.subtle
-                    .exportKey("pkcs8", key.privateKey)
+                    .exportKey('pkcs8', key.privateKey)
                     .then(function (keydata1) {
-                        console.log("window.crypto.subtle.exportKey =====2", keydata1);
+                        console.log('window.crypto.subtle.exportKey =====2', keydata1);
                         window.crypto.subtle
-                            .exportKey("spki", key.publicKey)
+                            .exportKey('spki', key.publicKey)
                             .then(function (keydata2) {
-                                console.log("window.crypto.subtle.exportKey =====3", keydata2);
+                                console.log('window.crypto.subtle.exportKey =====3', keydata2);
                                 const privateKey = RSA2text(keydata1);
                                 const publicKey = RSA2text(keydata2);
                                 console.log(privateKey);
@@ -44,7 +44,7 @@ export namespace GlobalValue {
     }
 
     export function RSA2text(buffer: any) {
-        let binary = "";
+        let binary = '';
         const bytes = new Uint8Array(buffer);
         const len = bytes.byteLength;
         for (let i = 0; i < len; i++) {

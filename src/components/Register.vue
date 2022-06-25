@@ -1,14 +1,14 @@
 <script lang="ts">
-import {mapActions, mapState, mapStores} from "pinia";
-import {useCounterStore} from "../store/module/counter";
+import {mapActions, mapState, mapStores} from 'pinia';
+import {useCounterStore} from '../store/module/counter';
 
 export default {
     computed: {
         ...mapStores(useCounterStore),
-        ...mapState(useCounterStore, ["count"])
+        ...mapState(useCounterStore, ['count'])
     },
     methods: {
-        ...mapActions(useCounterStore, ["increment"]),
+        ...mapActions(useCounterStore, ['increment']),
         actionAdd() {
             this.increment();
         }

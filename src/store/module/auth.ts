@@ -1,26 +1,26 @@
-import {defineStore} from "pinia";
-import {API} from "../../request/api";
-import {GlobalType} from "../../global/GlobalType";
-import {useFriendStore} from "./friend";
-import {initWebSocket, websocket} from "../../request/websocket";
+import {defineStore} from 'pinia';
+import {API} from '../../request/api';
+import {GlobalType} from '../../global/GlobalType';
+import {useFriendStore} from './friend';
+import {initWebSocket, websocket} from '../../request/websocket';
 
-export const useAuthStore = defineStore("auth", {
+export const useAuthStore = defineStore('auth', {
     state: () => {
         return {
-            username: "",
-            password: "",
-            clientPrivateKey: "",
-            clientPubliKey: "",
-            serverPubliKey: "",
+            username: '',
+            password: '',
+            clientPrivateKey: '',
+            clientPubliKey: '',
+            serverPubliKey: '',
             selfData: {
-                avatarUrl: "",
-                createdTime: "",
-                data: "",
-                email: "",
+                avatarUrl: '',
+                createdTime: '',
+                data: '',
+                email: '',
                 online: false,
-                track: "",
-                userId: "",
-                username: ""
+                track: '',
+                userId: '',
+                username: ''
             }
         };
     },
@@ -52,16 +52,16 @@ export const useAuthStore = defineStore("auth", {
             return new Promise((resolve, reject) => {
                 API.login({username: this.username, password: this.password})
                     .then(data => {
-                        console.log("axios return data");
+                        console.log('axios return data');
                         console.log(data);
                         this.setSelfData(data?.data?.userInfo);
                         // 请求好友列表，然后跳转到好友列表界面
                         API.getFriendList().then(data => {
                             const friendStore = useFriendStore();
                             friendStore.setFriendList(data?.data?.friends);
-                            console.log("getFriendList result");
+                            console.log('getFriendList result');
                             console.log(data);
-                            console.log("check websocket state");
+                            console.log('check websocket state');
                             if (!websocket) {
                                 initWebSocket(this, friendStore, null);
                             }

@@ -1,12 +1,12 @@
-import {defineStore} from "pinia";
-import {GlobalType} from "../../global/GlobalType";
+import {defineStore} from 'pinia';
+import {GlobalType} from '../../global/GlobalType';
 
 type FriendStoreType = {
     friendList: GlobalType.FriendInfoType[];
     unreadMessage: GlobalType.FriendMessageType[];
 };
 
-export const useFriendStore = defineStore("friend", {
+export const useFriendStore = defineStore('friend', {
     state: (): FriendStoreType => {
         return {
             friendList: [],

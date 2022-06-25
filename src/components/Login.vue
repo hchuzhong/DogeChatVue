@@ -1,15 +1,15 @@
 <script lang="ts">
-import {mapActions, mapStores} from "pinia";
-import {useAuthStore} from "../store/module/auth";
+import {mapActions, mapStores} from 'pinia';
+import {useAuthStore} from '../store/module/auth';
 
 // TODO 重置密码和创建账号页面还没搞
 export default {
     data() {
         return {
             form: {
-                username: "",
-                password: "",
-                confirmPassword: ""
+                username: '',
+                password: '',
+                confirmPassword: ''
             }
         };
     },
@@ -17,21 +17,22 @@ export default {
         ...mapStores(useAuthStore)
     },
     methods: {
-        ...mapActions(useAuthStore, ["setUsername"]),
-        ...mapActions(useAuthStore, ["setPassword"]),
-        ...mapActions(useAuthStore, ["login"]),
+        ...mapActions(useAuthStore, ['setUsername']),
+        ...mapActions(useAuthStore, ['setPassword']),
+        ...mapActions(useAuthStore, ['login']),
         submit() {
-            console.log("登陆按钮被点击了 ==== ");
-            if (this.form.username === "") {
-                return alert("请输入用户名");
+            console.log('登陆按钮被点击了 ==== ');
+            if (this.form.username === '') {
+                return alert('请输入用户名');
             }
-            if (this.form.password === "") {
-                return alert("请输入密码");
+            if (this.form.password === '') {
+                return alert('请输入密码');
             }
             this.setUsername(this.form.username);
             this.setPassword(this.form.password);
             const callback = () => {
-                this.$router.push("/friendlist");
+                console.log('查看路由跳转 ==== ');
+                this.$router.push('/friendlist');
             };
             this.login(callback);
         }
