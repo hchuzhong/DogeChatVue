@@ -18,6 +18,7 @@ export default {
 
 <template>
     <div>
+        这里是好友列表页面
         <span>this is a login page</span>
         <div>{{ count }}</div>
         <button @click="increment()">add 1</button>
