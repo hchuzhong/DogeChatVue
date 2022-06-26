@@ -1,7 +1,8 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
-import {GlobalType} from '../../global/GlobalType';
+import {SelfDataType} from '../../global/GlobalType';
 import {useFriendStore} from './friend';
+import {useFriendMessageStore} from './friendMessage';
 import {initWebSocket, websocket} from '../../request/websocket';
 
 export const useAuthStore = defineStore('auth', {
@@ -46,7 +47,7 @@ export const useAuthStore = defineStore('auth', {
             this.serverPubliKey = publicKey;
         },
 
-        setSelfData(data: GlobalType.SelfDataType) {
+        setSelfData(data: SelfDataType) {
             this.selfData = data;
         },
 
@@ -60,12 +61,13 @@ export const useAuthStore = defineStore('auth', {
                         // 请求好友列表，然后跳转到好友列表界面
                         API.getFriendList().then(data => {
                             const friendStore = useFriendStore();
+                            const friendMessageStore = useFriendMessageStore();
                             friendStore.setFriendList(data?.data?.friends);
                             console.log('getFriendList result');
                             console.log(data);
                             console.log('check websocket state');
                             if (!websocket) {
-                                initWebSocket(this, friendStore, null);
+                                initWebSocket(this, friendStore, friendMessageStore);
                             }
                             callback();
                             resolve(data);

@@ -2,9 +2,10 @@
 import {mapState, mapStores} from 'pinia';
 import {useFriendStore} from '../../store/module/friend';
 import FrirendItem from './components/FrirendItem.vue';
+import FriendChat from './components/FriendChat.vue';
 
 export default {
-    components: {FrirendItem},
+    components: {FrirendItem, FriendChat},
     computed: {
         ...mapStores(useFriendStore),
         ...mapState(useFriendStore, ['friendList'])
@@ -15,8 +16,8 @@ export default {
         };
     },
     methods: {
-        // ...mapActions(useCounterStore, ['increment']),
         actionChoose(chooseItemId: string) {
+            console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         }
     }
@@ -48,7 +49,7 @@ export default {
             </div>
             <!-- {/* 聊天界面 */} -->
             <div class="h-screen col-span-2 bg-white">
-                <FriendChat chooseItemId="{chooseItemId}" />
+                <FriendChat :chooseItemId="chooseItemId" />
             </div>
         </div>
     </div>

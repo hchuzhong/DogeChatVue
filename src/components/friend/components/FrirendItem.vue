@@ -16,7 +16,15 @@ export default {
             messageContent: ''
         };
     },
+    watch: {
+        chooseItemId: function (chooseItemId: string, oldVal: string) {
+            if (chooseItemId === oldVal) return;
+            this.isChoose = this.friendItemInfo?.userId === this.chooseItemId;
+        }
+    },
     created() {
+        console.log('check friend item ===== ');
+        console.log(this.chooseItemId);
         if (this.friendItemInfo?.message?.messageContent) {
             const {type, messageContent} = this.friendItemInfo.message;
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
