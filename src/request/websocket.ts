@@ -1,5 +1,5 @@
 import JSEncrypt from 'jsencrypt';
-import {GlobalValue} from '../global/GlobalValue';
+import {wssBaseUrl} from '../global/GlobalValue';
 import {API} from './api';
 
 export let websocket: WebSocket;
@@ -7,7 +7,7 @@ export let clientEncryptor: JSEncrypt;
 
 export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageStore: any) {
     clientEncryptor = new JSEncrypt(); // 新建JSEncrypt对象
-    websocket = new WebSocket(`${GlobalValue.wssBaseUrl}?deviceType=6`);
+    websocket = new WebSocket(`${wssBaseUrl}?deviceType=6`);
     console.log('websocket init');
     // Connection opened
     websocket.addEventListener('open', function (event) {

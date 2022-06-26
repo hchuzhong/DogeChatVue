@@ -1,9 +1,9 @@
 import {defineStore} from 'pinia';
-import {GlobalType} from '../../global/GlobalType';
+import {FriendInfoType, FriendMessageType} from '../../global/GlobalType';
 
 type FriendStoreType = {
-    friendList: GlobalType.FriendInfoType[];
-    unreadMessage: GlobalType.FriendMessageType[];
+    friendList: FriendInfoType[];
+    unreadMessage: FriendMessageType[];
 };
 
 export const useFriendStore = defineStore('friend', {
@@ -14,11 +14,11 @@ export const useFriendStore = defineStore('friend', {
         };
     },
     actions: {
-        setFriendList(friendList: GlobalType.FriendInfoType[]) {
+        setFriendList(friendList: FriendInfoType[]) {
             // 考虑在这里遍历一下然后把 content 给解密
             this.friendList = friendList;
         },
-        setUnreadMessage(unreadMessage: GlobalType.FriendMessageType[]) {
+        setUnreadMessage(unreadMessage: FriendMessageType[]) {
             this.unreadMessage = unreadMessage;
         },
         // 切换好友和最开始获取好友消息的时候使用这个逻辑，后面如果再点击这个好友的时候就检查有无数据同时数据的长度大于 1

@@ -28,6 +28,9 @@ export default {
             if (this.form.password === '') {
                 return alert('请输入密码');
             }
+            this.beforeLogin();
+        },
+        beforeLogin() {
             this.setUsername(this.form.username);
             this.setPassword(this.form.password);
             const callback = () => {
@@ -35,6 +38,16 @@ export default {
                 this.$router.push({path: '/friendlist'});
             };
             this.login(callback);
+        }
+    },
+    created() {
+        const username = localStorage.getItem('dogeChatUserName');
+        const password = localStorage.getItem('dogeChatPassword');
+        if (username && password) {
+            console.log('自动登陆');
+            this.form.username = username;
+            this.form.password = password;
+            this.beforeLogin();
         }
     }
 };

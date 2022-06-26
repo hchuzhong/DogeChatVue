@@ -29,10 +29,12 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         setUsername(username: string) {
             this.username = username;
+            localStorage.setItem('dogeChatUserName', username);
         },
 
         setPassword(password: string) {
             this.password = password;
+            localStorage.setItem('dogeChatPassword', password);
         },
 
         setClientKey(privateKey: string, publicKey: string) {

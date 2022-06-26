@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {GlobalValue} from '../global/GlobalValue';
+import {getRsaKeys} from '../global/GlobalValue';
 
 export namespace API {
     axios.defaults.withCredentials = true;
@@ -27,7 +27,7 @@ export namespace API {
 
     // /message/getPublicKey
     export async function postGetPublicKey(callback: any) {
-        return await GlobalValue.getRsaKeys((privateKey: string, publicKey: string) => {
+        return await getRsaKeys((privateKey: string, publicKey: string) => {
             console.log('GlobalValue.getRsaKeys callback');
             console.log(privateKey);
             console.log(publicKey);

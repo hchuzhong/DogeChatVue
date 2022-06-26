@@ -1,7 +1,7 @@
 import {createRouter, createWebHashHistory} from 'vue-router';
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
-import FriendList from '../components/FriendList.vue';
+import FriendList from '../components/friend/FriendList.vue';
 
 const routes = [
     {path: '/', component: Login},
