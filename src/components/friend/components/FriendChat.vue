@@ -7,6 +7,7 @@ import MessageItem from './MessageItem.vue';
 import {FriendInfoType, FriendMessageType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
+import FriendChatInput from './FriendChatInput.vue';
 
 type dataType = {
     oldChooseItemId: string;
@@ -20,7 +21,7 @@ export default {
     props: {
         chooseItemId: String
     },
-    components: {MessageItem},
+    components: {MessageItem, FriendChatInput},
     computed: {
         ...mapStores(useFriendMessageStore),
         ...mapStores(useFriendStore),
@@ -60,16 +61,6 @@ export default {
             this.messageRecords = this.values.records;
         }
     }
-    // created() {
-    //     if (this.chooseItem) {
-    //         this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === this.chooseItemId);
-    //         this.chooseItemId !== this.oldChooseItemId && getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
-    //         this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
-    //     }
-    //     this.oldChooseItemId = this.chooseItemId as string;
-    //     console.log('check data in friedn chat ==== ');
-    //     console.log(this.chooseItem);
-    // }
 };
 </script>
 
@@ -89,7 +80,7 @@ export default {
             <div v-else>暂无数据</div>
 
             <div>
-                <!-- <FriendChatInput chooseFriendInfo="{curChooseFriendInfo}" /> -->
+                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" />
             </div>
         </div>
     </div>
