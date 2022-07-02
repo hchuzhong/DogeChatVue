@@ -48,6 +48,8 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
                         console.log('当前用户无聊天信息');
                     } else {
                         const recrods = data?.records;
+                        console.log('查看历史消息 ==== ');
+                        console.log(data);
                         if (FriendMessageStore.values.records.length === 0) {
                             FriendMessageStore.setFriendMessage(data);
                         } else {

@@ -16,7 +16,7 @@ export default {
         return {
             isText: this.message?.type === messageType.text,
             isPicture: PictureArr.includes((this.message as FriendMessageType).type),
-            imageSrc: ''
+            content: ''
         };
     },
     methods: {
@@ -28,22 +28,25 @@ export default {
         if (this.isPicture) {
             switch (this.message?.type) {
                 case messageType.image:
-                    this.imageSrc = API.getPictureUrl(clientDecrypt(this.message.messageContent));
+                    this.content = API.getPictureUrl(clientDecrypt(this.message.messageContent));
                     break;
                 case messageType.draw:
-                    this.imageSrc = API.getPictureUrl(this.message.drawImage as string);
+                    this.content = API.getPictureUrl(this.message.drawImage as string);
                     break;
             }
+        }
+        if (this.isText) {
+            this.content = clientDecrypt((this.message as FriendMessageType).messageContent);
         }
     }
 };
 </script>
 
 <template>
-    <div class="`w-full flex" :class="isSelf ? 'justify-end' : 'justify-start'">
+    <div class="w-full flex" :class="isSelf ? 'justify-end' : 'justify-start'">
         <div class="bg-gray-100 rounded px-5 py-2 my-2 text-gray-700 relative max-w-[300px]">
-            <span v-if="isText" class="block">{{ clientDecrypt(message.messageContent) }}</span>
-            <img v-if="isPicture" class="object-cover" :src="imageSrc" alt="" />
+            <span v-if="isText" class="block">{{ content }}</span>
+            <img v-if="isPicture" class="object-cover" :src="content" alt="" />
             <span class="block text-xs text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
         </div>
     </div>

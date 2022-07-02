@@ -4,7 +4,7 @@ import {useFriendMessageStore} from '../../../store/module/friendMessage';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
-import {FriendInfoType} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
 
@@ -12,6 +12,7 @@ type dataType = {
     oldChooseItemId: string;
     chooseItem: boolean;
     curChooseFriendInfo: undefined | FriendInfoType;
+    messageRecords: undefined | FriendMessageType[];
     imageSrc: string;
 };
 
@@ -33,6 +34,7 @@ export default {
             oldChooseItemId: '',
             chooseItem: this.chooseItemId !== '',
             curChooseFriendInfo: undefined,
+            messageRecords: undefined,
             imageSrc: ''
         };
     },
@@ -47,6 +49,15 @@ export default {
                 this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
             }
             this.oldChooseItemId = chooseItemId;
+            console.log('check choose item info data 99999 ');
+            console.log(this.chooseItem);
+            console.log(this.curChooseFriendInfo);
+            console.log(this.values.records);
+        },
+        values: function () {
+            console.log('监听到了数据变化 ==== ');
+            console.log(this.values.records);
+            this.messageRecords = this.values.records;
         }
     }
     // created() {
@@ -69,12 +80,13 @@ export default {
                 <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
                 <span class="block ml-2 font-bold text-base text-gray-600"> {{ curChooseFriendInfo?.username }} </span>
             </div>
-            <div id="chat" class="w-full h-screen overflow-y-auto p-10 relative">
+            <div v-if="!!messageRecords" id="chat" class="w-full h-screen overflow-y-auto p-10 relative">
                 <ul>
-                    <MessageItem v-for="message in [values.records]" :key="message.uuid" :isSelf="message.messageSenderId === selfData.userId" :message="message" />
+                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="message.messageSenderId === selfData.userId" :message="message" />
                     <!-- <li class="clearfix2">{{ FriendMessageStore.values.records.map(message => <MessageItem key={message.uuid} isSelf={message.messageSenderId === selfData.userId} message={message} />) }}</li> -->
                 </ul>
             </div>
+            <div v-else>暂无数据</div>
 
             <div>
                 <!-- <FriendChatInput chooseFriendInfo="{curChooseFriendInfo}" /> -->
