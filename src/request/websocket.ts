@@ -1,12 +1,15 @@
-import JSEncrypt from 'jsencrypt';
+import JSEncrypt from 'encryptlong';
 import {wssBaseUrl} from '../global/GlobalValue';
 import {API} from './api';
 
 export let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
+export let serverEncryptor: JSEncrypt;
 
 export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageStore: any) {
     clientEncryptor = new JSEncrypt(); // 新建JSEncrypt对象
+    serverEncryptor = new JSEncrypt();
+
     websocket = new WebSocket(`${wssBaseUrl}?deviceType=6`);
     console.log('websocket init');
     // Connection opened
@@ -38,6 +41,7 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
             switch (method) {
                 case 'publicKey':
                     AuthStore.setServerPubliKey(data);
+                    serverEncryptor.setPublicKey(data);
                     break;
                 case 'getPublicUnreadMessage':
                     FriendStore.setUnreadMessage(data);
@@ -65,8 +69,11 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
                         FriendStore.setFriendMessageHistory(friendId, FriendMessageStore.values);
                     }
                     break;
+                // 需要处理一下，把对应的消息 push 到对应的 records 中，还需要更新外面展示列表的数据
                 case 'PublicNewMessage':
                     // TODO
+                    console.log('接收到了群聊的消息 ===== ');
+                    FriendMessageStore.pushOneFriendMessage(data[0]);
                     break;
                 case 'readMessage':
                     console.log('处理已读消息 ========');
@@ -125,6 +132,10 @@ function send(data: any) {
 }
 
 export function clientDecrypt(data: string) {
-    const a = clientEncryptor.decrypt(data);
+    const a = clientEncryptor.decryptLong(data);
     return decodeURIComponent(a as string);
+}
+
+export function serverEncrypt(data: string) {
+    return serverEncryptor.encryptLong(data);
 }

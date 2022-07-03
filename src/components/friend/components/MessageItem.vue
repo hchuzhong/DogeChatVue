@@ -37,6 +37,12 @@ export default {
         }
         if (this.isText) {
             this.content = clientDecrypt((this.message as FriendMessageType).messageContent);
+            // if (!this.content) {
+            console.log('查看消息显示内容是否为空 ===== ');
+            console.log(this.message);
+            console.log(this.message?.messageContent);
+            console.log(clientDecrypt((this.message as FriendMessageType).messageContent));
+            // }
         }
     }
 };
@@ -46,7 +52,7 @@ export default {
     <div class="w-full flex" :class="isSelf ? 'justify-end' : 'justify-start'">
         <div class="bg-gray-100 rounded px-5 py-2 my-2 text-gray-700 relative max-w-[300px]">
             <span v-if="!isSelf" class="block text-xs text-gray-700 text-left">{{ message.messageSender }}</span>
-            <span v-if="isText" class="block">{{ content }}</span>
+            <span v-if="isText" class="block break-words">{{ content }}</span>
             <img v-if="isPicture" class="object-cover" :src="content" alt="" />
             <span class="block text-xs text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
         </div>

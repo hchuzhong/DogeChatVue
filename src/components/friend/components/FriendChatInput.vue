@@ -3,10 +3,9 @@
 // import {API} from '../../../request/api';
 // import dayjs from 'dayjs';
 import {FriendInfoType} from '../../../global/GlobalType';
-import {websocket} from '../../../request/websocket';
+import {serverEncrypt, websocket} from '../../../request/websocket';
 import {mapState, mapStores} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
-import JSEncrypt from 'jsencrypt';
 import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
 
@@ -33,9 +32,7 @@ export default {
             console.log(selfData);
             console.log(this.chooseFriendInfo);
 
-            const encryptor = new JSEncrypt();
-            encryptor.setPublicKey(this.serverPubliKey);
-            const msg = encryptor.encrypt(this.inputMessage);
+            const msg = serverEncrypt(this.inputMessage);
 
             const messageData = {
                 method: this.chooseFriendInfo?.isGroup === '1' ? 'PublicNewMessage' : 'PersonalNewMessage',
@@ -75,7 +72,7 @@ export default {
             </svg>
         </button>
 
-        <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required />
+        <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendMessage" />
 
         <button class="outline-none focus:outline-none" type="submit" @click="sendMessage">
             <svg class="text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
