@@ -59,8 +59,10 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
                             } else {
                                 FriendMessageStore.updateFriendMessage(data);
                             }
-                            FriendStore.setFriendMessageHistory(recrods[0].messageReceiverId, FriendMessageStore.values);
                         }
+                        const isSelf = recrods[0].messageReceiverId === AuthStore.selfData.userId;
+                        const friendId = isSelf ? recrods[0].messageSenderId : recrods[0].messageReceiverId;
+                        FriendStore.setFriendMessageHistory(friendId, FriendMessageStore.values);
                     }
                     break;
                 case 'PublicNewMessage':

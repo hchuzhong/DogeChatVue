@@ -1,5 +1,5 @@
 <script lang="ts">
-import {mapState, mapStores} from 'pinia';
+import {mapActions, mapState, mapStores} from 'pinia';
 import {useFriendMessageStore} from '../../../store/module/friendMessage';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
@@ -46,19 +46,51 @@ export default {
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
-                chooseItemId !== this.oldChooseItemId && getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
+                if (this.curChooseFriendInfo?.messageHistory) {
+                    console.log('直接拿缓存的聊天数据，不同再发起请求 ==== ');
+                    this.resetFriendMessage();
+                    this.setFriendMessage(this.curChooseFriendInfo.messageHistory);
+                } else {
+                    chooseItemId !== this.oldChooseItemId && getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
+                }
                 this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
             }
             this.oldChooseItemId = chooseItemId;
             console.log('check choose item info data 99999 ');
-            console.log(this.chooseItem);
+            console.log(this.curChooseFriendInfo?.messageHistory);
             console.log(this.curChooseFriendInfo);
             console.log(this.values.records);
+            console.log('查看 friend list 中的数据 ==== ');
+            console.log(this.friendList);
         },
         values: function () {
             console.log('监听到了数据变化 ==== ');
             console.log(this.values.records);
             this.messageRecords = this.values.records;
+            this.scrollToBottom();
+        }
+    },
+    created() {
+        console.log('查看 created 时的顺序 ==== ');
+        const friendMessageStore = useFriendMessageStore();
+        friendMessageStore.$subscribe(
+            () => {
+                console.log('监听到了 friendMessageStore 变化');
+                this.scrollToBottom();
+            },
+            {detached: true}
+        );
+    },
+    methods: {
+        ...mapActions(useFriendMessageStore, ['setFriendMessage']),
+        ...mapActions(useFriendMessageStore, ['resetFriendMessage']),
+        scrollToBottom() {
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    let msg = document.getElementById('chat');
+                    msg && (msg.scrollTop = 9999);
+                });
+            }, 100);
         }
     }
 };

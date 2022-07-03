@@ -1,5 +1,6 @@
 import {defineStore} from 'pinia';
 import {FriendMessageHistoryType, FriendMessageType} from '../../global/GlobalType';
+import {useAuthStore} from './auth';
 
 export const useFriendMessageStore = defineStore('friendMessage', {
     state: (): {values: FriendMessageHistoryType} => {
@@ -18,8 +19,11 @@ export const useFriendMessageStore = defineStore('friendMessage', {
     actions: {
         setFriendMessage(data: FriendMessageHistoryType) {
             if (data.records.length !== 0) {
-                data.records.reverse();
-                this.values.userId = data.records[0].messageReceiverId;
+                data.records.sort((a, b) => a.timeStamp - b.timeStamp);
+
+                const isSelf = useAuthStore().selfData.userId === data.records[0].messageReceiverId;
+                const friendId = isSelf ? data.records[0].messageSenderId : data.records[0].messageReceiverId;
+                this.values.userId = friendId;
             }
             this.values = data;
         },

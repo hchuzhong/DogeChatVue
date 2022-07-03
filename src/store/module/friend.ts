@@ -31,6 +31,10 @@ export const useFriendStore = defineStore('friend', {
                 }
             }
         },
+        // TODO 应该统一在这里拿数据 后面再做
+        getFriendMessageHistory(friendId: string) {
+            console.log('获取数据的地方');
+        },
         resetFriendList() {
             this.friendList = [];
         },

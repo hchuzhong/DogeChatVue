@@ -76,7 +76,7 @@ export type FriendInfoType = {
     nickName: string;
     isMuted: string;
     message: FriendMessageType;
-    messageHistory: FriendMessageType[];
+    messageHistory: FriendMessageHistoryType;
 
     password?: string;
     email?: string;

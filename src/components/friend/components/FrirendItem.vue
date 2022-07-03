@@ -23,8 +23,6 @@ export default {
         }
     },
     created() {
-        console.log('check friend item ===== ');
-        console.log(this.chooseItemId);
         if (this.friendItemInfo?.message?.messageContent) {
             const {type, messageContent} = this.friendItemInfo.message;
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
