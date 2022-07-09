@@ -84,6 +84,7 @@ export default {
     methods: {
         ...mapActions(useFriendMessageStore, ['setFriendMessage']),
         ...mapActions(useFriendMessageStore, ['resetFriendMessage']),
+        ...mapActions(useAuthStore, ['isSelf']),
         scrollToBottom() {
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -105,8 +106,7 @@ export default {
             </div>
             <div v-if="!!messageRecords" id="chat" class="w-full h-screen overflow-y-auto p-10 relative">
                 <ul>
-                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="message.messageSenderId === selfData.userId" :message="message" />
-                    <!-- <li class="clearfix2">{{ FriendMessageStore.values.records.map(message => <MessageItem key={message.uuid} isSelf={message.messageSenderId === selfData.userId} message={message} />) }}</li> -->
+                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" />
                 </ul>
             </div>
             <div v-else>暂无数据</div>

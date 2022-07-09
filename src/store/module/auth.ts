@@ -98,6 +98,10 @@ export const useAuthStore = defineStore('auth', {
             // UserStore.resetUser()
             // HistoryStore.reset()
             // ImageStore.reset()
+        },
+
+        isSelf(id: string) {
+            return id === this.selfData.userId;
         }
     }
 });
