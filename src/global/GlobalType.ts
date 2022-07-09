@@ -95,3 +95,10 @@ export type SelfDataType = {
     userId: string;
     username: string;
 };
+
+export type FriendStoreType = {
+    friendList: FriendInfoType[];
+    unreadMessage: FriendMessageType[];
+    friendListObj: {[key: string]: FriendInfoType};
+    unreadMessageObj: {[key: string]: FriendMessageType};
+};

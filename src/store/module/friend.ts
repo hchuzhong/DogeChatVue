@@ -1,49 +1,64 @@
 import {defineStore} from 'pinia';
-import {FriendInfoType, FriendMessageType} from '../../global/GlobalType';
-
-type FriendStoreType = {
-    friendList: FriendInfoType[];
-    unreadMessage: FriendMessageType[];
-};
+import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType} from '../../global/GlobalType';
+import {useAuthStore} from './auth';
 
 export const useFriendStore = defineStore('friend', {
     state: (): FriendStoreType => {
         return {
+            // 同时维护数组和对象
+            // friendList and unreadMessage should use object, the key is friend id
             friendList: [],
-            unreadMessage: []
+            unreadMessage: [],
+            friendListObj: {},
+            unreadMessageObj: {}
         };
     },
     actions: {
         setFriendList(friendList: FriendInfoType[]) {
-            // 考虑在这里遍历一下然后把 content 给解密
             this.friendList = friendList;
+            friendList.forEach(friendInfo => {
+                this.friendListObj[friendInfo.userId] = friendInfo;
+            });
         },
         setUnreadMessage(unreadMessage: FriendMessageType[]) {
-            this.unreadMessage = unreadMessage;
+            // TODO 未读相关的逻辑还没做
+            // this.unreadMessage = unreadMessage;
         },
-        // 切换好友和最开始获取好友消息的时候使用这个逻辑，后面如果再点击这个好友的时候就检查有无数据同时数据的长度大于 1
-        // 有的话就不需要重复请求了
-        setFriendMessageHistory(friendId: string, messageHistory: any) {
-            for (const friendInfo of this.friendList) {
-                if (friendInfo.userId === friendId) {
-                    friendInfo.messageHistory = messageHistory;
-                    break;
-                }
+        setFriendMessageHistory(messageHistory: FriendMessageHistoryType) {
+            // messageHistory 只在 friendListObj 中维护
+            const records = messageHistory?.records;
+            if (!records || records.length === 0) return;
+            const AuthStore = useAuthStore();
+            const isSelf = AuthStore.isSelf(records[0].messageReceiverId);
+            const friendId = isSelf ? records[0].messageSenderId : records[0].messageReceiverId;
+            if (messageHistory.records.length !== 0) {
+                messageHistory.records.sort((a, b) => a.timeStamp - b.timeStamp);
+                messageHistory.userId = friendId;
             }
+            this.friendListObj[friendId].messageHistory = messageHistory;
         },
-        // TODO 应该统一在这里拿数据 后面再做
         getFriendMessageHistory(friendId: string) {
             console.log('获取数据的地方');
+            return this.friendListObj[friendId].messageHistory.records;
+        },
+        pushOneFriendMessage(data: FriendMessageType) {
+            console.log('更新单条消息 ------', data);
+            const AuthStore = useAuthStore();
+            const isSelf = AuthStore.isSelf(data.messageReceiverId);
+            const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
+            this.friendListObj[friendId].messageHistory.records.push(data);
         },
         resetFriendList() {
             this.friendList = [];
+            this.friendListObj = {};
         },
         resetUnreadMessage() {
             this.unreadMessage = [];
+            this.unreadMessageObj = {};
         },
         reset() {
-            this.friendList = [];
-            this.unreadMessage = [];
+            this.resetFriendList();
+            this.resetUnreadMessage();
         }
     }
 });

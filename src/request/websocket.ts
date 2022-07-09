@@ -1,12 +1,17 @@
 import JSEncrypt from 'encryptlong';
 import {wssBaseUrl} from '../global/GlobalValue';
+import {useAuthStore} from '../store/module/auth';
+import {useFriendStore} from '../store/module/friend';
 import {API} from './api';
 
 export let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
 export let serverEncryptor: JSEncrypt;
 
-export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageStore: any) {
+export function initWebSocket() {
+    const AuthStore = useAuthStore();
+    const FriendStore = useFriendStore();
+
     clientEncryptor = new JSEncrypt(); // 新建JSEncrypt对象
     serverEncryptor = new JSEncrypt();
 
@@ -53,46 +58,30 @@ export function initWebSocket(AuthStore: any, FriendStore: any, FriendMessageSto
                     if (!hadRecords) {
                         console.log('当前用户无聊天信息');
                     } else {
-                        const recrods = data?.records;
                         console.log('查看历史消息 ==== ');
                         console.log(data);
-                        if (FriendMessageStore.values.records.length === 0) {
-                            FriendMessageStore.setFriendMessage(data);
-                        } else {
-                            if (FriendMessageStore.values.userId !== recrods[0].messageReceiverId) {
-                                FriendMessageStore.resetFriendMessage();
-                                FriendMessageStore.setFriendMessage(data);
-                            } else {
-                                FriendMessageStore.updateFriendMessage(data);
-                            }
-                        }
-                        const isSelf = AuthStore.isSelf(recrods[0].messageReceiverId);
-                        const friendId = isSelf ? recrods[0].messageSenderId : recrods[0].messageReceiverId;
-                        FriendStore.setFriendMessageHistory(friendId, FriendMessageStore.values);
+                        FriendStore.setFriendMessageHistory(data);
                     }
                     break;
-                // 需要处理一下，把对应的消息 push 到对应的 records 中，还需要更新外面展示列表的数据
                 case 'PublicNewMessage':
-                    // TODO 把所有 friendmessagestore 相关的都移除掉，改为 friend Store 中
                     console.log('接收到了群聊的消息 ===== ');
-                    FriendMessageStore.pushOneFriendMessage(data[0]);
+                    FriendStore.pushOneFriendMessage(data[0]);
                     break;
                 case 'readMessage':
                     console.log('处理已读消息 ========');
                     break;
                 case 'sendPersonalMessageSuccess':
                     console.log('处理自己发的单条私聊消息');
-                    console.log(FriendMessageStore);
-                    FriendMessageStore.pushOneFriendMessage(data);
+                    FriendStore.pushOneFriendMessage(data);
                     break;
                 case 'sendToAllSuccess':
                     console.log('处理自己发的单条群聊消息');
-                    console.log(FriendMessageStore);
-                    FriendMessageStore.pushOneFriendMessage(data);
+                    FriendStore.pushOneFriendMessage(data);
                     break;
                 case 'PersonalNewMessage':
                     console.log('处理其他人发的单条私聊消息');
-                    FriendMessageStore.pushOneFriendMessage(data[0]);
+                    FriendStore.pushOneFriendMessage(data[0]);
+                    break;
             }
         }
     });
