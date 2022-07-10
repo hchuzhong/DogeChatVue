@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
+import {useRouter} from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -48,15 +49,21 @@ export const useAuthStore = defineStore('auth', {
             this.selfData = data;
         },
 
-        login(callback: any) {
+        login(username: string, password: string) {
+            this.setUsername(username);
+            this.setPassword(password);
             return new Promise((resolve, reject) => {
-                API.login({username: this.username, password: this.password})
+                API.login({username, password})
                     .then(data => {
                         console.log('axios return data');
                         console.log(data);
-                        this.setSelfData(data?.data?.userInfo);
-                        localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
-                        callback();
+                        const loginSuccess = !!data?.data?.userInfo;
+                        if (loginSuccess) {
+                            this.setSelfData(data?.data?.userInfo);
+                            localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
+                            window.location.href = '/#/friendlist';
+                        }
+                        resolve(data);
                     })
                     .catch(err => {
                         reject(err);
@@ -87,6 +94,14 @@ export const useAuthStore = defineStore('auth', {
 
         isSelf(id: string) {
             return id === this.selfData.userId;
+        },
+
+        autoLogin() {
+            const username = localStorage.getItem('dogeChatUserName');
+            const password = localStorage.getItem('dogeChatPassword');
+            if (username && password) {
+                this.login(username, password);
+            }
         }
     }
 });
