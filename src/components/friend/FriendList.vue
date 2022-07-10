@@ -1,18 +1,17 @@
 <script lang="ts">
-import {mapState, mapStores} from 'pinia';
 import {useFriendStore} from '../../store/module/friend';
 import FrirendItem from './components/FrirendItem.vue';
 import FriendChat from './components/FriendChat.vue';
+import {API} from '../../request/api';
+import {initWebSocket, websocket} from '../../request/websocket';
+import {useAuthStore} from '../../store/module/auth';
 
 export default {
     components: {FrirendItem, FriendChat},
-    computed: {
-        ...mapStores(useFriendStore),
-        ...mapState(useFriendStore, ['friendList'])
-    },
     data() {
         return {
-            chooseItemId: ''
+            chooseItemId: '',
+            friendList: []
         };
     },
     methods: {
@@ -20,6 +19,21 @@ export default {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         }
+    },
+    created() {
+        API.getFriendList().then(data => {
+            // 检查有无自身数据
+            const authStore = useAuthStore();
+            if (!authStore.selfData.userId) {
+                authStore.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
+            }
+            const friendStore = useFriendStore();
+            friendStore.setFriendList(data?.data?.friends);
+            this.friendList = data?.data?.friends;
+            if (!websocket) {
+                initWebSocket();
+            }
+        });
     }
 };
 </script>

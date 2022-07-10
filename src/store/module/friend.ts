@@ -39,7 +39,7 @@ export const useFriendStore = defineStore('friend', {
         },
         getFriendMessageHistory(friendId: string) {
             console.log('获取数据的地方');
-            return this.friendListObj[friendId].messageHistory.records;
+            return this.friendListObj[friendId]?.messageHistory?.records || [];
         },
         pushOneFriendMessage(data: FriendMessageType) {
             console.log('更新单条消息 ------', data);

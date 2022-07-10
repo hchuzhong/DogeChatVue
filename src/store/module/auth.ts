@@ -1,8 +1,6 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
-import {useFriendStore} from './friend';
-import {initWebSocket, websocket} from '../../request/websocket';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -57,19 +55,8 @@ export const useAuthStore = defineStore('auth', {
                         console.log('axios return data');
                         console.log(data);
                         this.setSelfData(data?.data?.userInfo);
-                        // 请求好友列表，然后跳转到好友列表界面
-                        API.getFriendList().then(data => {
-                            const friendStore = useFriendStore();
-                            friendStore.setFriendList(data?.data?.friends);
-                            console.log('getFriendList result');
-                            console.log(data);
-                            console.log('check websocket state');
-                            if (!websocket) {
-                                initWebSocket();
-                            }
-                            callback();
-                            resolve(data);
-                        });
+                        localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
+                        callback();
                     })
                     .catch(err => {
                         reject(err);

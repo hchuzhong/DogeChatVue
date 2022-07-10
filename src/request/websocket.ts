@@ -140,9 +140,10 @@ export function serverEncrypt(data: string) {
 }
 
 function startPingTimer() {
+    gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            if (websocket && gotPong) {
+            if (websocket && websocket.readyState <= WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
             } else {
