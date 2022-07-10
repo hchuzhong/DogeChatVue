@@ -12,6 +12,8 @@ let gotPong = false;
 const delayTime = 5000;
 
 export function initWebSocket() {
+    pingTimer = null;
+
     const AuthStore = useAuthStore();
     const FriendStore = useFriendStore();
 
@@ -20,9 +22,9 @@ export function initWebSocket() {
 
     websocket = new WebSocket(`${wssBaseUrl}?deviceType=6`);
     console.log('websocket init');
-    startPingTimer();
     // Connection opened
     websocket.addEventListener('open', function (event) {
+        startPingTimer();
         websocket.send('ping');
         console.log('connect success');
         API.postGetPublicKey((privateKey: string, publicKey: string) => {
@@ -143,7 +145,7 @@ function startPingTimer() {
     gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            if (websocket && websocket.readyState <= WebSocket.OPEN && gotPong) {
+            if (websocket && websocket.readyState === WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
             } else {
