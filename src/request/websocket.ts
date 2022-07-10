@@ -9,10 +9,19 @@ export let clientEncryptor: JSEncrypt;
 export let serverEncryptor: JSEncrypt;
 let pingTimer: number | null = null;
 let gotPong = false;
+let retryTime = 0;
 const delayTime = 5000;
+const maxRetryTime = 10;
 
 export function initWebSocket() {
-    pingTimer = null;
+    retryTime++;
+    if (pingTimer) {
+        console.log('清除旧的计时器 ==== ');
+        clearInterval(pingTimer);
+        console.log(pingTimer);
+        pingTimer = null;
+    }
+    if (retryTime >= maxRetryTime) return console.error('重连超过十次，请重新登陆');
 
     const AuthStore = useAuthStore();
     const FriendStore = useFriendStore();
@@ -145,7 +154,8 @@ function startPingTimer() {
     gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            if (websocket && websocket.readyState === WebSocket.OPEN && gotPong) {
+            console.error('check websocket state', websocket.readyState, pingTimer);
+            if (websocket.readyState === WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
             } else {
