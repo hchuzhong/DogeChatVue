@@ -3,7 +3,6 @@ import {getRsaKeys} from '../global/GlobalValue';
 
 export namespace API {
     axios.defaults.withCredentials = true;
-    // const trueBaseUrl = "https://121.5.152.193";
     const baseUrl = '/api';
 
     export function login(data: {username: string; password: string}) {

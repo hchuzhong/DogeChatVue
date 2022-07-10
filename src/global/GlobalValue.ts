@@ -1,5 +1,4 @@
-export const httpBaseUrl = 'https://121.5.152.193';
-export const wssBaseUrl = 'ws://localhost/webSocket';
+export const wssBaseUrl = import.meta.env.PROD ? 'wss://121.5.152.193/webSocket' : 'ws://localhost/webSocket';
 
 export function getRsaKeys(callback: any) {
     return window.crypto.subtle
