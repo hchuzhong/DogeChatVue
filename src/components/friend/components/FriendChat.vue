@@ -43,7 +43,11 @@ export default {
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
-                if (!this.curChooseFriendInfo?.messageHistory && chooseItemId !== this.oldChooseItemId) getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
+                if (!this.curChooseFriendInfo?.messageHistory && chooseItemId !== this.oldChooseItemId) {
+                    getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
+                } else {
+                    this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
+                }
                 this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
             }
             this.oldChooseItemId = chooseItemId;
