@@ -7,6 +7,9 @@ import {API} from './api';
 export let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
 export let serverEncryptor: JSEncrypt;
+let pingTimer: number | null = null;
+let gotPong = false;
+const delayTime = 5000;
 
 export function initWebSocket() {
     const AuthStore = useAuthStore();
@@ -17,9 +20,10 @@ export function initWebSocket() {
 
     websocket = new WebSocket(`${wssBaseUrl}?deviceType=6`);
     console.log('websocket init');
+    startPingTimer();
     // Connection opened
     websocket.addEventListener('open', function (event) {
-        // websocket.send("ping");
+        websocket.send('ping');
         console.log('connect success');
         API.postGetPublicKey((privateKey: string, publicKey: string) => {
             // 自己的公钥和私钥也要存起来
@@ -34,6 +38,10 @@ export function initWebSocket() {
 
     // Listen for messages
     websocket.addEventListener('message', function (event) {
+        if (event.data === 'pong') {
+            gotPong = true;
+            return;
+        }
         console.log('websocket message from server ');
         const json = JSON.parse(event.data);
         const method = json?.method;
@@ -129,4 +137,18 @@ export function clientDecrypt(data: string) {
 
 export function serverEncrypt(data: string) {
     return serverEncryptor.encryptLong(data);
+}
+
+function startPingTimer() {
+    if (!pingTimer) {
+        pingTimer = setInterval(() => {
+            if (websocket && gotPong) {
+                gotPong = false;
+                websocket.send('ping');
+            } else {
+                console.log('重新连接中 ==== ');
+                initWebSocket();
+            }
+        }, delayTime);
+    }
 }

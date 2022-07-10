@@ -46,6 +46,7 @@ export const useFriendStore = defineStore('friend', {
             const AuthStore = useAuthStore();
             const isSelf = AuthStore.isSelf(data.messageReceiverId);
             const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
+            if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
         },
         resetFriendList() {
