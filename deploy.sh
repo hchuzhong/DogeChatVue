@@ -1,13 +1,5 @@
 #!/usr/bin/env sh
 
-# 当发生错误时中止脚本
-set -e
-
-# 构建
-yarn build
-
-#!/usr/bin/env sh
-
 # abort on errors
 set -e
 
@@ -21,7 +13,6 @@ cd dist
 # echo 'www.example.com' > CNAME
 
 git init
-git checkout -b main
 git add -A
 git commit -m 'deploy'
 
