@@ -12,9 +12,8 @@ type dataType = {
     messageContent: string;
     unReadMessageList: FriendMessageType[];
     hadUnreadMessage: boolean;
+    maxUnreadMessageNum: number;
 };
-
-const maxUnreadMessageNum = 99;
 
 export default {
     props: {
@@ -27,7 +26,8 @@ export default {
             imageSrc: API.getPictureUrl(this.friendItemInfo?.avatarUrl),
             messageContent: '',
             unReadMessageList: [],
-            hadUnreadMessage: false
+            hadUnreadMessage: false,
+            maxUnreadMessageNum: 99
         };
     },
     watch: {
