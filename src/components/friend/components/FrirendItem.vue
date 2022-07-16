@@ -14,6 +14,8 @@ type dataType = {
     hadUnreadMessage: boolean;
 };
 
+const maxUnreadMessageNum = 99;
+
 export default {
     props: {
         friendItemInfo: {} as PropType<FriendInfoType>,
@@ -67,7 +69,7 @@ export default {
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
                 <span class="block ml-2 text-sm text-gray-600">{{ messageContent }}</span>
             </div>
-            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm">{{ unReadMessageList.length }}</div>
+            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm">{{ unReadMessageList.length > maxUnreadMessageNum ? maxUnreadMessageNum : unReadMessageList.length }}</div>
         </a>
     </div>
 </template>
