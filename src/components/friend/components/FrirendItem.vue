@@ -1,25 +1,40 @@
 <script lang="ts">
 import {API} from '../../../request/api';
-import {FriendInfoType, messageType, messageTypeToChinese} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType, messageType, messageTypeToChinese} from '../../../global/GlobalType';
 import type {PropType} from 'vue';
+import {mapActions} from 'pinia';
+import {useFriendStore} from '../../../store/module/friend';
+import {clientDecrypt} from '../../../request/websocket';
+
+type dataType = {
+    isChoose: boolean;
+    imageSrc: string;
+    messageContent: string;
+    unReadMessageList: FriendMessageType[];
+    hadUnreadMessage: boolean;
+};
 
 export default {
-    // props: ['chooseItemId', 'friendItemInfo'],
     props: {
         friendItemInfo: {} as PropType<FriendInfoType>,
         chooseItemId: String
     },
-    data() {
+    data(): dataType {
         return {
             isChoose: this.friendItemInfo?.userId === this.chooseItemId,
             imageSrc: API.getPictureUrl(this.friendItemInfo?.avatarUrl),
-            messageContent: ''
+            messageContent: '',
+            unReadMessageList: [],
+            hadUnreadMessage: false
         };
     },
     watch: {
         chooseItemId: function (chooseItemId: string, oldVal: string) {
             if (chooseItemId === oldVal) return;
             this.isChoose = this.friendItemInfo?.userId === this.chooseItemId;
+            this.unReadMessageList = [];
+            this.hadUnreadMessage = false;
+            // TODO 还需要发送消息给服务端表示已读
         }
     },
     created() {
@@ -27,6 +42,19 @@ export default {
             const {type, messageContent} = this.friendItemInfo.message;
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
         }
+        this.unReadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string) || [];
+        const friendStore = useFriendStore();
+        friendStore.$subscribe(() => {
+            const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
+            this.hadUnreadMessage = newUnreadMessageList.length !== 0 && !this.isChoose;
+            if (newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
+            this.unReadMessageList = newUnreadMessageList;
+            const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
+            this.messageContent = type === messageType.text ? clientDecrypt(messageContent) : `[${messageTypeToChinese[type]}]`;
+        });
+    },
+    methods: {
+        ...mapActions(useFriendStore, ['getFriendUnreadMessage'])
     }
 };
 </script>
@@ -39,6 +67,7 @@ export default {
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
                 <span class="block ml-2 text-sm text-gray-600">{{ messageContent }}</span>
             </div>
+            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm">{{ unReadMessageList.length }}</div>
         </a>
     </div>
 </template>

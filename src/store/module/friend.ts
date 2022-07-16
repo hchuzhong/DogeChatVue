@@ -23,6 +23,18 @@ export const useFriendStore = defineStore('friend', {
         setUnreadMessage(unreadMessage: FriendMessageType[]) {
             // TODO 未读相关的逻辑还没做
             // this.unreadMessage = unreadMessage;
+            const unreadMessageObj: {[key: string]: FriendMessageType[]} = {};
+            for (const message of unreadMessage) {
+                if (!unreadMessageObj[message.messageSenderId]) unreadMessageObj[message.messageSenderId] = [];
+                unreadMessageObj[message.messageSenderId].push(message);
+            }
+            console.log('check unread message object 11111 ');
+            console.log(unreadMessageObj);
+            for (const userId in unreadMessageObj) {
+                if (!this.friendListObj[userId]) return console.log(`userId: ${userId} donest exit in friend list`);
+                unreadMessageObj[userId].sort((a, b) => a.timeStamp - b.timeStamp);
+                this.friendListObj[userId].unreadMessageHistory = unreadMessageObj[userId];
+            }
         },
         setFriendMessageHistory(messageHistory: FriendMessageHistoryType) {
             // messageHistory 只在 friendListObj 中维护
@@ -38,7 +50,7 @@ export const useFriendStore = defineStore('friend', {
             this.friendListObj[friendId].messageHistory = messageHistory;
         },
         getFriendMessageHistory(friendId: string) {
-            console.log('获取数据的地方');
+            console.log('获取好友历史消息的地方');
             return this.friendListObj[friendId]?.messageHistory?.records || [];
         },
         pushOneFriendMessage(data: FriendMessageType) {
@@ -48,6 +60,10 @@ export const useFriendStore = defineStore('friend', {
             const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
             if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
+        },
+        getFriendUnreadMessage(friendId: string) {
+            console.log('获取好友未读消息的地方');
+            return this.friendListObj[friendId]?.unreadMessageHistory || [];
         },
         resetFriendList() {
             this.friendList = [];
