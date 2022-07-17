@@ -1,8 +1,7 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
-import {useFriendStore} from './friend';
-import {initWebSocket, websocket} from '../../request/websocket';
+import {useRouter} from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -50,26 +49,21 @@ export const useAuthStore = defineStore('auth', {
             this.selfData = data;
         },
 
-        login(callback: any) {
+        login(username: string, password: string) {
+            this.setUsername(username);
+            this.setPassword(password);
             return new Promise((resolve, reject) => {
-                API.login({username: this.username, password: this.password})
+                API.login({username, password})
                     .then(data => {
                         console.log('axios return data');
                         console.log(data);
-                        this.setSelfData(data?.data?.userInfo);
-                        // 请求好友列表，然后跳转到好友列表界面
-                        API.getFriendList().then(data => {
-                            const friendStore = useFriendStore();
-                            friendStore.setFriendList(data?.data?.friends);
-                            console.log('getFriendList result');
-                            console.log(data);
-                            console.log('check websocket state');
-                            if (!websocket) {
-                                initWebSocket();
-                            }
-                            callback();
-                            resolve(data);
-                        });
+                        const loginSuccess = !!data?.data?.userInfo;
+                        if (loginSuccess) {
+                            this.setSelfData(data?.data?.userInfo);
+                            localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
+                            window.location.href = '/#/friendlist';
+                        }
+                        resolve(data);
                     })
                     .catch(err => {
                         reject(err);
@@ -100,6 +94,14 @@ export const useAuthStore = defineStore('auth', {
 
         isSelf(id: string) {
             return id === this.selfData.userId;
+        },
+
+        autoLogin() {
+            const username = localStorage.getItem('dogeChatUserName');
+            const password = localStorage.getItem('dogeChatPassword');
+            if (username && password) {
+                this.login(username, password);
+            }
         }
     }
 });

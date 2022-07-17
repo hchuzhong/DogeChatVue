@@ -1,9 +1,35 @@
 import axios from 'axios';
 import {getRsaKeys} from '../global/GlobalValue';
+import {useAuthStore} from '../store/module/auth';
+
+// 添加响应拦截器
+axios.interceptors.response.use(
+    function (response) {
+        // 2xx 范围内的状态码都会触发该函数。
+        // 对响应数据做点什么
+        console.log('请求拦截的地方 ==== ');
+        console.log(response);
+        return response;
+    },
+    function (error) {
+        // 超出 2xx 范围的状态码都会触发该函数。
+        // 对响应错误做点什么
+        console.log('响应拦截的地方 ==== ');
+        console.log();
+        if (error.response.status === 401) {
+            window.location.href = '/';
+            return console.log('重定向到登陆页面');
+        } else {
+            // 自动登录
+            const AuthStore = useAuthStore();
+            AuthStore.autoLogin();
+        }
+        return Promise.reject(error);
+    }
+);
 
 export namespace API {
     axios.defaults.withCredentials = true;
-    // const trueBaseUrl = "https://121.5.152.193";
     const baseUrl = '/api';
 
     export function login(data: {username: string; password: string}) {
@@ -18,6 +44,15 @@ export namespace API {
     export function getFriendList() {
         // /friendship/getAllFriends
         return axios.get(`${baseUrl}/friendship/getAllFriends`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function getStar() {
+        return axios.get(`${baseUrl}/star/getStar`, {
             headers: {
                 'Content-Type': 'application/json'
             },

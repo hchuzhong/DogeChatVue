@@ -1,7 +1,6 @@
 <script lang="ts">
 import {PropType} from 'vue-demi';
 import {FriendMessageType, messageType} from '../../../global/GlobalType';
-import {clientDecrypt} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import dayjs from 'dayjs';
 
@@ -21,14 +20,14 @@ export default {
     },
     methods: {
         parseTimeStamp(timeStamp: number) {
-            return dayjs(new Date(timeStamp)).format('YYYY-MM-DD HH:mm:ss');
+            return dayjs(new Date(timeStamp)).format('YYYY-MM-DD HH:mm');
         }
     },
     created() {
         if (this.isPicture) {
             switch (this.message?.type) {
                 case messageType.image:
-                    this.content = API.getPictureUrl(clientDecrypt(this.message.messageContent));
+                    this.content = API.getPictureUrl(this.message.messageContent);
                     break;
                 case messageType.draw:
                     this.content = API.getPictureUrl(this.message.drawImage as string);
@@ -36,12 +35,11 @@ export default {
             }
         }
         if (this.isText) {
-            this.content = clientDecrypt((this.message as FriendMessageType).messageContent);
+            this.content = (this.message as FriendMessageType).messageContent;
             // if (!this.content) {
             console.log('查看消息显示内容是否为空 ===== ');
             console.log(this.message);
             console.log(this.message?.messageContent);
-            console.log(clientDecrypt((this.message as FriendMessageType).messageContent));
             // }
         }
     }
@@ -53,7 +51,7 @@ export default {
         <div class="bg-gray-100 rounded px-5 py-2 my-2 text-gray-700 relative max-w-[300px]">
             <span v-if="!isSelf" class="block text-xs text-gray-700 text-left">{{ message.messageSender }}</span>
             <span v-if="isText" class="block break-words">{{ content }}</span>
-            <img v-if="isPicture" class="object-cover" :src="content" alt="" />
+            <img v-if="isPicture" class="object-cover rounded" :src="content" alt="" />
             <span class="block text-xs text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
         </div>
     </div>
