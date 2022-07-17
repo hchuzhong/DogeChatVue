@@ -1,4 +1,4 @@
-type Fn = (data: unknown) => void;
+type Fn = (data: any) => void;
 class EventHub {
     private cache: {[key: string]: Array<(data: unknown) => void>} = {};
     public dispatchEvent(eventName: string, data?: unknown) {

@@ -1,3 +1,5 @@
+import EventHub from './EventHub';
+
 export const wssBaseUrl = import.meta.env.PROD ? 'wss://124.223.58.61/webSocket' : 'ws://localhost/webSocket';
 
 export function getRsaKeys(callback: any) {
@@ -54,3 +56,14 @@ export function RSA2text(buffer: any) {
 }
 
 // export function encrpypt(params: any) {}
+
+let eventBus: EventHub | null = null;
+export function EventBus(): EventHub {
+    if (!eventBus) eventBus = new EventHub();
+    return eventBus;
+}
+
+export const EventName = {
+    UnreadMessage: 'UnreadMessage',
+    UpdateMessageHistory: 'UpdateMessageHistory'
+};

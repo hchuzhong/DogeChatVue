@@ -4,7 +4,7 @@ import {FriendInfoType, FriendMessageType, messageType, messageTypeToChinese} fr
 import type {PropType} from 'vue';
 import {mapActions} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
-import {clientDecrypt} from '../../../request/websocket';
+import {EventBus, EventName} from '../../../global/GlobalValue';
 
 type dataType = {
     isChoose: boolean;
@@ -45,18 +45,22 @@ export default {
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
         }
         this.unReadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string) || [];
-        const friendStore = useFriendStore();
-        friendStore.$subscribe(() => {
+        EventBus().addEventListener(EventName.UnreadMessage, this.checkUnreadMessage);
+    },
+    unmounted() {
+        EventBus().removeEventListener(EventName.UnreadMessage, this.checkUnreadMessage);
+    },
+    methods: {
+        ...mapActions(useFriendStore, ['getFriendUnreadMessage']),
+        checkUnreadMessage(friendId?: string) {
+            if (friendId && friendId !== this.friendItemInfo?.userId) return;
             const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
             this.hadUnreadMessage = newUnreadMessageList.length !== 0 && !this.isChoose;
             if (newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
             this.unReadMessageList = newUnreadMessageList;
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
-            this.messageContent = type === messageType.text ? clientDecrypt(messageContent) : `[${messageTypeToChinese[type]}]`;
-        });
-    },
-    methods: {
-        ...mapActions(useFriendStore, ['getFriendUnreadMessage'])
+            this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+        }
     }
 };
 </script>

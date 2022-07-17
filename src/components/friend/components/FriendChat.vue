@@ -7,6 +7,7 @@ import {FriendInfoType, FriendMessageType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
+import {EventBus, EventName} from '../../../global/GlobalValue';
 
 type dataType = {
     oldChooseItemId: string;
@@ -59,13 +60,7 @@ export default {
         }
     },
     created() {
-        console.log('查看 created 时的顺序 ==== ');
-        const friendStore = useFriendStore();
-        friendStore.$subscribe(() => {
-            console.log('监听到了 friendStore 变化 ==== ');
-            this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
-            this.scrollToBottom();
-        });
+        EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
     },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
@@ -77,6 +72,11 @@ export default {
                     msg && (msg.scrollTop = 9999);
                 });
             }, 100);
+        },
+        updateMessageHistory(friendId: string) {
+            if (friendId && friendId !== this.chooseItemId) return;
+            this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
+            this.scrollToBottom();
         }
     }
 };
