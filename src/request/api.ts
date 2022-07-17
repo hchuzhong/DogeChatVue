@@ -51,6 +51,15 @@ export namespace API {
         });
     }
 
+    export function getStar() {
+        return axios.get(`${baseUrl}/star/getStar`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
     // /message/getPublicKey
     export async function postGetPublicKey(callback: any) {
         return await getRsaKeys((privateKey: string, publicKey: string) => {

@@ -1,13 +1,11 @@
 <script lang="ts">
-// import {PropType} from 'vue-demi';
-// import {API} from '../../../request/api';
-// import dayjs from 'dayjs';
 import {FriendInfoType} from '../../../global/GlobalType';
 import {serverEncrypt, websocket} from '../../../request/websocket';
 import {mapState, mapStores} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
+import {API} from '../../../request/api';
 
 export default {
     props: {
@@ -54,13 +52,25 @@ export default {
             websocket.send(JSON.stringify(messageData));
             this.inputMessage = '';
         }
+    },
+    created() {
+        console.error('获取表情包的地方');
+        API.getStar().then(data => {
+            console.log('获取表情包数据 ==== ');
+            console.log(data);
+        });
     }
-    // created() {}
 };
 </script>
 
 <template>
     <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
+        <button class="outline-none focus:outline-none">
+            <svg class="text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                <use xlink:href="#icon-biaoqing"></use>
+            </svg>
+        </button>
+
         <button class="outline-none focus:outline-none">
             <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
