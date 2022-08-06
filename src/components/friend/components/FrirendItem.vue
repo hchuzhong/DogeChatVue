@@ -67,11 +67,11 @@ export default {
 
 <template>
     <div>
-        <a class="border-b border-gray-300 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" :class="isChoose ? 'bg-gray-100' : 'hover:bg-gray-100'">
+        <a class="border-b max-h-20 border-gray-300 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" :class="isChoose ? 'bg-gray-100' : 'hover:bg-gray-100'">
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avtar" />
             <div class="pb-2 w-48">
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
-                <span class="block ml-2 text-sm text-gray-600">{{ messageContent }}</span>
+                <span class="block ml-2 text-sm text-gray-600 truncate">{{ messageContent }}</span>
             </div>
             <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm">{{ unReadMessageList.length > maxUnreadMessageNum ? maxUnreadMessageNum : unReadMessageList.length }}</div>
         </a>

@@ -69,7 +69,7 @@ export default {
             setTimeout(() => {
                 this.$nextTick(() => {
                     let msg = document.getElementById('chat');
-                    msg && (msg.scrollTop = 9999);
+                    msg && (msg.scrollTop = (msg?.scrollHeight || 0) + 9999);
                 });
             }, 100);
         },
