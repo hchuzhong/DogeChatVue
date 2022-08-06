@@ -41,7 +41,7 @@ export default {
 <template>
     <div class="w-screen h-screen">
         <div class="grid grid-cols-3 min-w-full border rounded min-h-[80vh] max-h-[100vh]">
-            <div class="col-span-1 bg-white border-r border-gray-300 max-w-[256px]">
+            <div class="col-span-1 bg-white border-r border-gray-300 max-w-[256px] h-screen overflow-auto">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
                     <div class="relative text-gray-600 focus-within:text-gray-400">
@@ -55,10 +55,8 @@ export default {
                 </div>
 
                 <!-- {/* 好友列表 */} -->
-                <ul class="overflow-auto">
-                    <!-- <div v-for="item in friendList" :key="item.userId" @click="actionChoose(item.userId)"> -->
+                <ul>
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
-                    <!-- </div> -->
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->

@@ -42,7 +42,7 @@ export default {
                     messageSender: selfData.username,
                     notifiedParty: [],
                     messageReceiver: this.chooseFriendInfo?.username,
-                    isGroup: true,
+                    isGroup: this.chooseFriendInfo?.isGroup || false,
                     messageReceiverId: this.chooseFriendInfo?.userId,
                     uuid: uuidv4()
                 }

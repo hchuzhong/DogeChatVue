@@ -50,7 +50,7 @@ export default {
     <div class="w-full flex" :class="isSelf ? 'justify-end' : 'justify-start'">
         <div class="bg-gray-100 rounded px-5 py-2 my-2 text-gray-700 relative max-w-[300px]">
             <span v-if="!isSelf" class="block text-xs text-gray-700 text-left">{{ message.messageSender }}</span>
-            <span v-if="isText" class="block break-words">{{ content }}</span>
+            <span v-if="isText" class="block break-words whitespace-pre-line">{{ content }}</span>
             <img v-if="isPicture" class="object-cover rounded" :src="content" alt="" />
             <span class="block text-xs text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
         </div>
