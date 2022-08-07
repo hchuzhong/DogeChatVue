@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
-import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType} from '../../global/GlobalType';
+import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType, EmojiType} from '../../global/GlobalType';
 import {EventBus, EventName} from '../../global/GlobalValue';
+import {API} from '../../request/api';
 import {clientDecrypt} from '../../request/websocket';
 import {useAuthStore} from './auth';
 
@@ -12,7 +13,8 @@ export const useFriendStore = defineStore('friend', {
             friendList: [],
             unreadMessage: [],
             friendListObj: {},
-            unreadMessageObj: {}
+            unreadMessageObj: {},
+            emojiArr: []
         };
     },
     actions: {
@@ -88,6 +90,12 @@ export const useFriendStore = defineStore('friend', {
         reset() {
             this.resetFriendList();
             this.resetUnreadMessage();
+        },
+        setEmojiArr(data: EmojiType[]) {
+            if (data && data.length !== 0) {
+                data.forEach(item => (item.content = API.getPictureUrl(clientDecrypt(item.content))));
+            }
+            this.emojiArr = data || [];
         }
     }
 });

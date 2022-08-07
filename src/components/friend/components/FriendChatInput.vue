@@ -1,11 +1,12 @@
 <script lang="ts">
-import {FriendInfoType} from '../../../global/GlobalType';
+import {FriendInfoType, messageType} from '../../../global/GlobalType';
 import {serverEncrypt, websocket} from '../../../request/websocket';
-import {mapState, mapStores} from 'pinia';
+import {mapActions, mapState, mapStores} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
 import {API} from '../../../request/api';
+import {useFriendStore} from '../../../store/module/friend';
 
 export default {
     props: {
@@ -14,28 +15,32 @@ export default {
     computed: {
         ...mapStores(useAuthStore),
         ...mapState(useAuthStore, ['serverPubliKey']),
-        ...mapState(useAuthStore, ['selfData'])
+        ...mapState(useAuthStore, ['selfData']),
+        ...mapState(useFriendStore, ['emojiArr'])
     },
     data() {
         return {
-            inputMessage: ''
+            inputMessage: '',
+            showEmoji: false
         };
     },
     methods: {
-        sendMessage() {
+        ...mapActions(useFriendStore, ['setEmojiArr']),
+        sendTextMessage() {
             if (!this.inputMessage) return alert('请输入信息');
-            // Public/PersonalNewMessage
-            console.log('click send message button');
+            this.sendMessage(this.inputMessage);
+            this.inputMessage = '';
+        },
+        sendEmojiMessage(url: string) {
+            this.sendMessage(url.replaceAll('%2B', '+'), messageType.image);
+        },
+        sendMessage(content: string, type = messageType.text) {
             const selfData = this.selfData;
-            console.log(selfData);
-            console.log(this.chooseFriendInfo);
-
-            const msg = serverEncrypt(this.inputMessage);
-
+            const msg = serverEncrypt(content);
             const messageData = {
                 method: this.chooseFriendInfo?.isGroup === '1' ? 'PublicNewMessage' : 'PersonalNewMessage',
                 message: {
-                    type: 'text',
+                    type,
                     messageSenderId: selfData.userId,
                     // 只有 messageContent 需要加密
                     messageContent: msg,
@@ -47,47 +52,58 @@ export default {
                     uuid: uuidv4()
                 }
             };
-            console.log('fakeData');
+            console.log('send data');
             console.log(messageData);
             websocket.send(JSON.stringify(messageData));
-            this.inputMessage = '';
         }
     },
     created() {
         console.error('获取表情包的地方');
-        API.getStar().then(data => {
-            console.log('获取表情包数据 ==== ');
-            console.log(data);
-        });
+        console.log(this.emojiArr);
+        if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
+            API.getStar().then(data => {
+                console.log('获取表情包数据 ==== ');
+                console.log(data);
+                this.setEmojiArr(data?.data?.data);
+                console.log(this.emojiArr);
+            });
+        }
     }
 };
 </script>
 
 <template>
-    <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
-        <button class="outline-none focus:outline-none">
-            <svg class="text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
-                <use xlink:href="#icon-biaoqing"></use>
-            </svg>
-        </button>
+    <div>
+        <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
+            <button class="outline-none focus:outline-none" @click="showEmoji = !showEmoji">
+                <svg class="text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                    <use xlink:href="#icon-biaoqing"></use>
+                </svg>
+            </button>
 
-        <button class="outline-none focus:outline-none">
-            <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-        </button>
-        <button class="outline-none focus:outline-none ml-1">
-            <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-            </svg>
-        </button>
+            <!-- <button class="outline-none focus:outline-none">
+                <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </button>
+            <button class="outline-none focus:outline-none ml-1">
+                <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+            </button> -->
 
-        <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendMessage" />
+            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" />
 
-        <button class="outline-none focus:outline-none" type="submit" @click="sendMessage">
-            <svg class="text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-            </svg>
-        </button>
+            <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
+                <svg class="text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+            </button>
+        </div>
+        <div v-show="showEmoji" class="w-full h-32 overflow-y-auto flex flex-wrap justify-center">
+            <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
+                <img :id="item.starId" :src="item.content" alt="" class="max-w-[80px] max-h-20" />
+            </span>
+        </div>
     </div>
 </template>
