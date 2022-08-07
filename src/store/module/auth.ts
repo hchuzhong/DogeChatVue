@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
                         if (loginSuccess) {
                             this.setSelfData(data?.data?.userInfo);
                             localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
-                            window.location.href = '/#/friendlist';
+                            window.location.href = '#/friendlist';
                         }
                         resolve(data);
                     })
