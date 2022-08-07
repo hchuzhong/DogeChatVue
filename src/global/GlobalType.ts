@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export enum messageType {
     text = 'text',
     join = 'join',
@@ -9,7 +10,7 @@ export enum messageType {
     voice = 'voice',
     location = 'location'
 }
-
+/* eslint-enable */
 export const messageTypeToChinese = {
     [messageType.text]: '文本',
     [messageType.join]: '撤回',
@@ -97,9 +98,21 @@ export type SelfDataType = {
     username: string;
 };
 
+export type EmojiType = {
+    content: string;
+    heat: number;
+    starId: string;
+    starTime: string;
+    starType: string;
+    type: string;
+    userId: string;
+    username: string;
+};
+
 export type FriendStoreType = {
     friendList: FriendInfoType[];
     unreadMessage: FriendMessageType[];
     friendListObj: {[key: string]: FriendInfoType};
     unreadMessageObj: {[key: string]: FriendMessageType};
+    emojiArr: EmojiType[];
 };

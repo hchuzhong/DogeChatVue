@@ -5,6 +5,7 @@ import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
+import {mapActions} from 'pinia';
 
 export default {
     components: {FrirendItem, FriendChat},
@@ -15,6 +16,7 @@ export default {
         };
     },
     methods: {
+        ...mapActions(useFriendStore, ['setFriendList']),
         actionChoose(chooseItemId: string) {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
@@ -27,8 +29,7 @@ export default {
             if (!authStore.selfData.userId) {
                 authStore.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
             }
-            const friendStore = useFriendStore();
-            friendStore.setFriendList(data?.data?.friends);
+            this.setFriendList(data?.data?.friends);
             this.friendList = data?.data?.friends;
             if (!websocket) {
                 initWebSocket();
@@ -40,7 +41,7 @@ export default {
 
 <template>
     <div class="w-screen h-screen">
-        <div class="grid grid-cols-3 min-w-full border rounded min-h-[80vh] max-h-[100vh]">
+        <div class="flex min-w-full border rounded min-h-[80vh] max-h-[100vh]">
             <div class="col-span-1 bg-white border-r border-gray-300 max-w-[256px] h-screen overflow-auto">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
@@ -60,7 +61,7 @@ export default {
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->
-            <div class="h-screen col-span-2 bg-white">
+            <div class="w-full h-screen col-span-2 bg-white">
                 <FriendChat :chooseItemId="chooseItemId" />
             </div>
         </div>

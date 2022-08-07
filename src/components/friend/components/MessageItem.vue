@@ -37,9 +37,9 @@ export default {
         if (this.isText) {
             this.content = (this.message as FriendMessageType).messageContent;
             // if (!this.content) {
-            console.log('查看消息显示内容是否为空 ===== ');
-            console.log(this.message);
-            console.log(this.message?.messageContent);
+            // console.log('查看消息显示内容是否为空 ===== ');
+            // console.log(this.message);
+            // console.log(this.message?.messageContent);
             // }
         }
     }

@@ -62,6 +62,9 @@ export default {
     created() {
         EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
     },
+    mounted() {
+        this.scrollToBottom();
+    },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory']),
@@ -83,7 +86,7 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="w-full">
         <div v-if="chooseItem" class="w-full h-screen flex flex-col">
             <div class="flex items-center border-b border-gray-300 pl-3 py-3">
                 <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
@@ -94,9 +97,9 @@ export default {
                     <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" />
                 </ul>
             </div>
-            <div v-else>暂无数据</div>
+            <div v-else class="h-screen m-auto text-center">暂无数据</div>
 
-            <div>
+            <div class="sticky bottom-0">
                 <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" />
             </div>
         </div>
