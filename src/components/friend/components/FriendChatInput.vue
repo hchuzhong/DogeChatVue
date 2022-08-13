@@ -81,17 +81,6 @@ export default {
                 </svg>
             </button>
 
-            <!-- <button class="outline-none focus:outline-none">
-                <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            </button>
-            <button class="outline-none focus:outline-none ml-1">
-                <svg class="text-gray-400 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-            </button> -->
-
             <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
@@ -100,7 +89,7 @@ export default {
                 </svg>
             </button>
         </div>
-        <div v-show="showEmoji" class="w-full h-32 overflow-y-auto flex flex-wrap justify-center">
+        <div v-show="showEmoji" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
             <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
                 <img :id="item.starId" :src="item.content" alt="" class="max-w-[80px] max-h-20" />
             </span>
