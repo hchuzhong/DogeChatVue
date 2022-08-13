@@ -42,7 +42,7 @@ export default {
 <template>
     <div class="w-screen h-screen">
         <div class="flex min-w-full border rounded min-h-[80vh] max-h-[100vh]">
-            <div class="col-span-1 bg-white border-r border-gray-300 max-w-[256px] h-screen overflow-auto">
+            <div class="col-span-1 bg-white border-r border-gray-300 w-64 h-screen overflow-y-auto">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
                     <div class="relative text-gray-600 focus-within:text-gray-400">
@@ -61,7 +61,7 @@ export default {
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->
-            <div class="w-full h-screen col-span-2 bg-white">
+            <div class="flex-1 h-screen col-span-2 bg-white">
                 <FriendChat :chooseItemId="chooseItemId" />
             </div>
         </div>
