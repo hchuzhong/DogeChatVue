@@ -6,13 +6,23 @@ import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions} from 'pinia';
+import {FriendInfoType} from '../../global/GlobalType';
+
+interface dataType {
+    chooseItemId: string;
+    friendList: FriendInfoType[];
+    resizeTimer: null | ReturnType<typeof setTimeout>;
+    isMobile: boolean;
+}
 
 export default {
     components: {FrirendItem, FriendChat},
-    data() {
+    data(): dataType {
         return {
             chooseItemId: '',
-            friendList: []
+            friendList: [],
+            resizeTimer: null,
+            isMobile: false
         };
     },
     methods: {
@@ -20,6 +30,9 @@ export default {
         actionChoose(chooseItemId: string) {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
+        },
+        hadChooseItem() {
+            return this.chooseItemId !== '';
         }
     },
     created() {
@@ -35,6 +48,17 @@ export default {
                 initWebSocket();
             }
         });
+    },
+    mounted() {
+        this.isMobile = document.body.clientWidth < 768;
+        window.addEventListener('resize', () => {
+            if (this.resizeTimer) clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(() => {
+                this.isMobile = document.body.clientWidth < 768;
+                console.log('check timer result ==== ', this.isMobile);
+                this.resizeTimer = null;
+            }, 100);
+        });
     }
 };
 </script>
@@ -42,7 +66,7 @@ export default {
 <template>
     <div class="w-screen h-screen">
         <div class="flex min-w-full border rounded min-h-[80vh] max-h-[100vh]">
-            <div class="col-span-1 bg-white border-r border-gray-300 w-64 h-screen overflow-y-auto">
+            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-64 '">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
                     <div class="relative text-gray-600 focus-within:text-gray-400">
@@ -54,14 +78,18 @@ export default {
                         <input aria-placeholder="目前还不能搜索" placeholder="目前还不能搜索" class="py-2 pl-10 block w-full rounded bg-gray-100 outline-none focus:text-gray-700" type="search" name="search" required autoComplete="search" />
                     </div>
                 </div>
-
                 <!-- {/* 好友列表 */} -->
                 <ul>
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->
-            <div class="flex-1 h-screen col-span-2 bg-white">
+            <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-screen col-span-2 bg-white">
+                <button v-if="isMobile" class="cursor-pointer absolute left-2 top-4" @click="chooseItemId = ''">
+                    <svg class="text-gray-400 h-5 w-5" aria-hidden="true">
+                        <use xlink:href="#icon-xiangzuojiantou"></use>
+                    </svg>
+                </button>
                 <FriendChat :chooseItemId="chooseItemId" />
             </div>
         </div>
