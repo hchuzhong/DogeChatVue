@@ -52,7 +52,7 @@ export default {
                 this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
             }
             this.oldChooseItemId = chooseItemId;
-            console.log('check choose item info data 99999 ');
+            console.log('check choose item info data 99999 ', this.chooseItem);
             console.log(this.curChooseFriendInfo?.messageHistory);
             console.log(this.curChooseFriendInfo);
             console.log('查看 friend list 中的数据 ==== ');
@@ -88,7 +88,7 @@ export default {
 <template>
     <div class="w-full">
         <div v-if="chooseItem" class="w-full h-screen flex flex-col">
-            <div class="flex items-center border-b border-gray-300 pl-3 py-3">
+            <div class="flex justify-center items-center border-b border-gray-300 py-2">
                 <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
                 <span class="block ml-2 font-bold text-base text-gray-600"> {{ curChooseFriendInfo?.username }} </span>
             </div>
