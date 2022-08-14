@@ -91,7 +91,7 @@ export default {
         </div>
         <div v-show="showEmoji" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
             <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
-                <img :id="item.starId" :src="item.content" alt="" class="max-w-[80px] max-h-20" />
+                <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
             </span>
         </div>
     </div>
