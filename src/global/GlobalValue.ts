@@ -65,5 +65,6 @@ export function EventBus(): EventHub {
 
 export const EventName = {
     UnreadMessage: 'UnreadMessage',
-    UpdateMessageHistory: 'UpdateMessageHistory'
+    UpdateMessageHistory: 'UpdateMessageHistory',
+    UpdateOneMessage: 'UpdateOneMessage'
 };
