@@ -52,12 +52,20 @@ export const useFriendStore = defineStore('friend', {
                 messageHistory.records.forEach(message => (message.messageContent = clientDecrypt(message.messageContent)));
                 messageHistory.userId = friendId;
             }
-            this.friendListObj[friendId].messageHistory = messageHistory;
+            if (!this.friendListObj[friendId].messageHistory) this.friendListObj[friendId].messageHistory = messageHistory;
+            else {
+                const oldRecords = this.friendListObj[friendId].messageHistory.records;
+                this.friendListObj[friendId].messageHistory = messageHistory;
+                this.friendListObj[friendId].messageHistory.records = messageHistory.records.concat(oldRecords);
+            }
             EventBus().dispatchEvent(EventName.UpdateMessageHistory);
         },
         getFriendMessageHistory(friendId: string) {
             console.log('获取好友历史消息的地方');
             return this.friendListObj[friendId]?.messageHistory?.records || [];
+        },
+        getFriendMessagePage(friendId: string) {
+            return this.friendListObj[friendId]?.messageHistory?.current || 1;
         },
         pushOneFriendMessage(data: FriendMessageType) {
             console.log('更新单条消息 ------', data);
@@ -68,7 +76,8 @@ export const useFriendStore = defineStore('friend', {
             this.pushOneUnreadMessage(friendId, data);
             if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
-            EventBus().dispatchEvent(EventName.UpdateMessageHistory, friendId);
+            const eventData = {friendId, needScroll: true};
+            EventBus().dispatchEvent(EventName.UpdateOneMessage, eventData);
         },
         pushOneUnreadMessage(friendId: string, data: FriendMessageType) {
             if (!this.friendListObj[friendId].unreadMessageHistory) this.friendListObj[friendId].unreadMessageHistory = [];

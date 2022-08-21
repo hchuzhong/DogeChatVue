@@ -15,7 +15,11 @@ type dataType = {
     curChooseFriendInfo: undefined | FriendInfoType;
     messageRecords: undefined | FriendMessageType[];
     imageSrc: string;
+    isLoading: boolean;
+    currentScrollHeight: number;
 };
+
+const pageSize = 10;
 
 export default {
     props: {
@@ -34,7 +38,9 @@ export default {
             chooseItem: this.chooseItemId !== '',
             curChooseFriendInfo: undefined,
             messageRecords: undefined,
-            imageSrc: ''
+            imageSrc: '',
+            isLoading: false,
+            currentScrollHeight: 0
         };
     },
     watch: {
@@ -45,7 +51,7 @@ export default {
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
                 if (!this.curChooseFriendInfo?.messageHistory && chooseItemId !== this.oldChooseItemId) {
-                    getHistoryMessages((this.curChooseFriendInfo as FriendInfoType).userId, 1, 10);
+                    this.getHistoryMessages(true);
                 } else {
                     this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
                 }
@@ -61,25 +67,55 @@ export default {
     },
     created() {
         EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
+        EventBus().addEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
     },
     mounted() {
-        this.scrollToBottom();
+        this.scrollToBottom(2000);
     },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory']),
-        scrollToBottom() {
+        ...mapActions(useFriendStore, ['getFriendMessagePage']),
+        scrollToBottom(delayTime = 0) {
             setTimeout(() => {
                 this.$nextTick(() => {
                     let msg = document.getElementById('chat');
-                    msg && (msg.scrollTop = (msg?.scrollHeight || 0) + 9999);
+                    msg && msg.scrollTo(0, (msg?.scrollHeight || 0) + 9999);
                 });
-            }, 100);
+            }, delayTime);
         },
-        updateMessageHistory(friendId: string) {
-            if (friendId && friendId !== this.chooseItemId) return;
+        updateMessageHistory(eventData?: {friendId?: string; needScroll?: boolean}) {
+            if (eventData && eventData.friendId && eventData.friendId !== this.chooseItemId) return;
+            this.isLoading = false;
             this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
-            this.scrollToBottom();
+            const chat = this.$refs.chat as HTMLDivElement;
+            if (chat) {
+                const {scrollTop, clientHeight, scrollHeight} = chat;
+                if (eventData && eventData.needScroll && scrollHeight - scrollTop - 100 < clientHeight) this.scrollToBottom();
+                if (!eventData) {
+                    // 请求数据后滚动到原来的位置而不是最上方
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            chat.scrollTo(0, chat.scrollHeight - this.currentScrollHeight);
+                        });
+                    }, 0);
+                }
+            }
+        },
+        scrollChat(e: any) {
+            let el = e.target;
+            if (el.scrollTop <= 0) {
+                // 请求上一页聊天消息的数据
+                this.getHistoryMessages();
+                const chat = this.$refs.chat as HTMLDivElement;
+                this.currentScrollHeight = chat.scrollHeight;
+            }
+        },
+        getHistoryMessages(isFirst = false) {
+            this.isLoading = true;
+            const curChooseFriendInfo = this.curChooseFriendInfo as FriendInfoType;
+            const page = isFirst ? 1 : this.getFriendMessagePage(this.chooseItemId as string) + 1;
+            getHistoryMessages(curChooseFriendInfo.userId, page, pageSize);
         }
     }
 };
@@ -90,9 +126,9 @@ export default {
         <div v-if="chooseItem" class="w-full h-screen flex flex-col">
             <div class="flex justify-center items-center border-b border-gray-300 py-2">
                 <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
-                <span class="block ml-2 font-bold text-base text-gray-600"> {{ curChooseFriendInfo?.username }} </span>
+                <span class="block ml-2 font-bold text-base text-gray-600"> {{ isLoading ? '加载数据中' : curChooseFriendInfo?.username }} </span>
             </div>
-            <div v-if="!!messageRecords" id="chat" class="w-full h-screen overflow-y-auto p-10 relative">
+            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto p-10 relative" @scroll="scrollChat">
                 <ul>
                     <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" />
                 </ul>
