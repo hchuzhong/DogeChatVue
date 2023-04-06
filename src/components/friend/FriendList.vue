@@ -64,7 +64,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-screen h-screen">
+    <div class="w-screen h-screen overflow-hidden">
         <div class="flex min-w-full border rounded min-h-[80vh] max-h-[100vh]">
             <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-64 '">
                 <!-- {/* 搜索框 */} -->

@@ -8,7 +8,8 @@ export enum messageType {
     draw = 'draw',
     track = 'track',
     voice = 'voice',
-    location = 'location'
+    location = 'location',
+    sticker = 'sticker'
 }
 /* eslint-enable */
 export const messageTypeToChinese = {
@@ -20,7 +21,8 @@ export const messageTypeToChinese = {
     [messageType.draw]: 'Draw',
     [messageType.track]: 'Tracks',
     [messageType.voice]: '语音',
-    [messageType.location]: '位置'
+    [messageType.location]: '位置',
+    [messageType.sticker]: '表情符号'
 };
 
 export type FriendMessageHistoryType = {
@@ -62,7 +64,7 @@ export type FriendMessageType = {
     avatarUrl: string;
     emojis: FriendEmojisInfoType[];
     fontSize: number;
-    referMessage?: string;
+    referMessage?: Partial<FriendMessageType>;
     notifiedParty: string;
     drawImage?: string;
 };
