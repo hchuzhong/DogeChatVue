@@ -117,4 +117,5 @@ export type FriendStoreType = {
     friendListObj: {[key: string]: FriendInfoType};
     unreadMessageObj: {[key: string]: FriendMessageType};
     emojiArr: EmojiType[];
+    emojiVisible: boolean;
 };

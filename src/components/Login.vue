@@ -1,5 +1,5 @@
 <script lang="ts">
-import {mapActions, mapStores} from 'pinia';
+import {mapActions} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 
 // TODO 重置密码和创建账号页面还没搞
@@ -13,13 +13,8 @@ export default {
             }
         };
     },
-    computed: {
-        ...mapStores(useAuthStore)
-    },
     methods: {
-        ...mapActions(useAuthStore, ['setUsername']),
-        ...mapActions(useAuthStore, ['setPassword']),
-        ...mapActions(useAuthStore, ['login']),
+        ...mapActions(useAuthStore, ['setUsername', 'setPassword', 'login']),
         submit() {
             console.log('登陆按钮被点击了 ==== ');
             if (this.form.username === '') {

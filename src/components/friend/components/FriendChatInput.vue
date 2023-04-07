@@ -1,7 +1,7 @@
 <script lang="ts">
 import {FriendInfoType, messageType} from '../../../global/GlobalType';
 import {serverEncrypt, websocket} from '../../../request/websocket';
-import {mapActions, mapState, mapStores} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
@@ -13,19 +13,16 @@ export default {
         chooseFriendInfo: {} as PropType<FriendInfoType>
     },
     computed: {
-        ...mapStores(useAuthStore),
-        ...mapState(useAuthStore, ['serverPubliKey']),
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr'])
+        ...mapState(useFriendStore, ['emojiArr', 'emojiVisible'])
     },
     data() {
         return {
-            inputMessage: '',
-            showEmoji: false
+            inputMessage: ''
         };
     },
     methods: {
-        ...mapActions(useFriendStore, ['setEmojiArr']),
+        ...mapActions(useFriendStore, ['setEmojiArr', 'setEmojiVisible']),
         sendTextMessage() {
             if (!this.inputMessage) return alert('请输入信息');
             this.sendMessage(this.inputMessage);
@@ -75,7 +72,7 @@ export default {
 <template>
     <div>
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
-            <button class="outline-none focus:outline-none" @click="showEmoji = !showEmoji">
+            <button id="emoji-button" class="outline-none focus:outline-none" @click="setEmojiVisible(true)">
                 <svg class="text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-biaoqing"></use>
                 </svg>
@@ -89,7 +86,7 @@ export default {
                 </svg>
             </button>
         </div>
-        <div v-show="showEmoji" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
+        <div v-show="emojiVisible" id="emojis" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
             <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
                 <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
             </span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import {mapActions, mapState, mapStores} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
@@ -27,8 +27,6 @@ export default {
     },
     components: {MessageItem, FriendChatInput},
     computed: {
-        ...mapStores(useFriendStore),
-        ...mapStores(useAuthStore),
         ...mapState(useFriendStore, ['friendList']),
         ...mapState(useAuthStore, ['selfData'])
     },
@@ -74,8 +72,7 @@ export default {
     },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
-        ...mapActions(useFriendStore, ['getFriendMessageHistory']),
-        ...mapActions(useFriendStore, ['getFriendMessagePage']),
+        ...mapActions(useFriendStore, ['getFriendMessageHistory', 'getFriendMessagePage']),
         scrollToBottom(delayTime = 0) {
             setTimeout(() => {
                 this.$nextTick(() => {
