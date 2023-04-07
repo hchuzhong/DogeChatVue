@@ -9,7 +9,8 @@ export enum messageType {
     track = 'track',
     voice = 'voice',
     location = 'location',
-    sticker = 'sticker'
+    sticker = 'sticker',
+    photo = 'photo'
 }
 /* eslint-enable */
 export const messageTypeToChinese = {
@@ -22,7 +23,8 @@ export const messageTypeToChinese = {
     [messageType.track]: 'Tracks',
     [messageType.voice]: '语音',
     [messageType.location]: '位置',
-    [messageType.sticker]: '表情符号'
+    [messageType.sticker]: '表情符号',
+    [messageType.photo]: '图片'
 };
 
 export type FriendMessageHistoryType = {

@@ -44,7 +44,7 @@ export default {
             const {type, messageContent} = this.friendItemInfo.message;
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
         }
-        this.unReadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string) || [];
+        this.checkUnreadMessage(this.friendItemInfo?.userId);
         EventBus().addEventListener(EventName.UnreadMessage, this.checkUnreadMessage);
     },
     unmounted() {
@@ -56,7 +56,7 @@ export default {
             if (friendId && friendId !== this.friendItemInfo?.userId) return;
             const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
             this.hadUnreadMessage = newUnreadMessageList.length !== 0 && !this.isChoose;
-            if (newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
+            if (!this.hadUnreadMessage || newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
             this.unReadMessageList = newUnreadMessageList;
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
@@ -69,11 +69,11 @@ export default {
     <div>
         <a class="border-b max-h-20 border-gray-300 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" :class="isChoose ? 'bg-gray-100' : 'hover:bg-gray-100'">
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avtar" />
-            <div class="pb-2 w-48">
+            <div class="pb-2 flex-1">
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
                 <span class="block ml-2 text-sm text-gray-600 truncate">{{ messageContent }}</span>
             </div>
-            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
+            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center text-white">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
         </a>
     </div>
 </template>

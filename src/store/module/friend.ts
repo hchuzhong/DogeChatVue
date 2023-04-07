@@ -28,9 +28,12 @@ export const useFriendStore = defineStore('friend', {
         setUnreadMessage(unreadMessage: FriendMessageType[]) {
             const unreadMessageObj: {[key: string]: FriendMessageType[]} = {};
             for (const message of unreadMessage) {
-                if (!unreadMessageObj[message.messageSenderId]) unreadMessageObj[message.messageSenderId] = [];
+                const AuthStore = useAuthStore();
+                const isSelf = AuthStore.isSelf(message.messageReceiverId);
+                const friendId = isSelf ? message.messageSenderId : message.messageReceiverId;
+                if (!unreadMessageObj[friendId]) unreadMessageObj[friendId] = [];
                 this.decryptMessageContent(message);
-                unreadMessageObj[message.messageSenderId].push(message);
+                unreadMessageObj[friendId].push(message);
             }
             console.log('check unread message object 11111 ');
             console.log(unreadMessageObj);

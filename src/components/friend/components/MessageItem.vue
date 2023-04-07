@@ -4,7 +4,7 @@ import {FriendMessageType, messageType} from '../../../global/GlobalType';
 import {API} from '../../../request/api';
 import dayjs from 'dayjs';
 
-const PictureArr = [messageType.image, messageType.livePhoto, messageType.draw, messageType.sticker];
+const PictureArr = [messageType.image, messageType.livePhoto, messageType.draw, messageType.sticker, messageType.photo];
 
 export default {
     props: {
@@ -30,6 +30,7 @@ export default {
             if (isPicture) {
                 switch (message?.type) {
                     case messageType.sticker:
+                    case messageType.photo:
                     case messageType.image:
                         content = API.getPictureUrl(message.messageContent);
                         break;
