@@ -42,20 +42,21 @@ export default {
         };
     },
     watch: {
-        chooseItemId: function (chooseItemId: string, oldVal: string) {
+        chooseItemId: async function (chooseItemId: string, oldVal: string) {
             console.log('friend chat 中的 chooseItemId 发生了变化 ==== ');
             console.log(`new: ${chooseItemId}, old: ${oldVal}`);
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
                 if (!this.curChooseFriendInfo?.messageHistory && chooseItemId !== this.oldChooseItemId) {
-                    this.getHistoryMessages(true);
+                    await this.getHistoryMessages(true);
                 } else {
                     this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
                 }
-                this.imageSrc = API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
+                this.imageSrc = await API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
             }
             this.oldChooseItemId = chooseItemId;
+            this.scrollToBottom(1000);
             console.log('check choose item info data 99999 ', this.chooseItem);
             console.log(this.curChooseFriendInfo?.messageHistory);
             console.log(this.curChooseFriendInfo);
@@ -67,9 +68,6 @@ export default {
         EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
         EventBus().addEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
     },
-    mounted() {
-        this.scrollToBottom(2000);
-    },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory', 'getFriendMessagePage']),
@@ -77,26 +75,26 @@ export default {
             setTimeout(() => {
                 this.$nextTick(() => {
                     let msg = document.getElementById('chat');
-                    msg && msg.scrollTo(0, (msg?.scrollHeight || 0) + 9999);
+                    msg &&
+                        msg.scrollTo({
+                            left: 0,
+                            top: (msg?.scrollHeight || 0) + 99999,
+                            behavior: 'smooth'
+                        });
                 });
             }, delayTime);
         },
-        updateMessageHistory(eventData?: {friendId?: string; needScroll?: boolean}) {
-            if (eventData && eventData.friendId && eventData.friendId !== this.chooseItemId) return;
+        updateMessageHistory() {
             this.isLoading = false;
             this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
             const chat = this.$refs.chat as HTMLDivElement;
             if (chat) {
-                const {scrollTop, clientHeight, scrollHeight} = chat;
-                if (eventData && eventData.needScroll && scrollHeight - scrollTop - 100 < clientHeight) this.scrollToBottom();
-                if (!eventData) {
-                    // 请求数据后滚动到原来的位置而不是最上方
-                    setTimeout(() => {
-                        this.$nextTick(() => {
-                            chat.scrollTo(0, chat.scrollHeight - this.currentScrollHeight);
-                        });
-                    }, 0);
-                }
+                // 请求数据后滚动到原来的位置而不是最上方
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        chat.scrollTo(0, chat.scrollHeight - this.currentScrollHeight);
+                    });
+                }, 0);
             }
         },
         scrollChat(e: any) {
