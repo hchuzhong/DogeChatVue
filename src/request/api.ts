@@ -15,7 +15,6 @@ axios.interceptors.response.use(
         // 超出 2xx 范围的状态码都会触发该函数。
         // 对响应错误做点什么
         console.log('响应拦截的地方 ==== ');
-        console.log();
         if (error.response.status === 401) {
             window.location.href = '/';
             return console.log('重定向到登陆页面');

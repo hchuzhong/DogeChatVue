@@ -1,10 +1,9 @@
 <script lang="ts">
-import {mapActions, mapState, mapStores} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {useCounterStore} from '../store/module/counter';
 
 export default {
     computed: {
-        ...mapStores(useCounterStore),
         ...mapState(useCounterStore, ['count'])
     },
     methods: {

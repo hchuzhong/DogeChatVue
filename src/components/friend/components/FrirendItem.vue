@@ -73,7 +73,7 @@ export default {
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
                 <span class="block ml-2 text-sm text-gray-600 truncate">{{ messageContent }}</span>
             </div>
-            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm">{{ unReadMessageList.length > maxUnreadMessageNum ? maxUnreadMessageNum : unReadMessageList.length }}</div>
+            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
         </a>
     </div>
 </template>

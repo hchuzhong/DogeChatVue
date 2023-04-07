@@ -14,7 +14,8 @@ export const useFriendStore = defineStore('friend', {
             unreadMessage: [],
             friendListObj: {},
             unreadMessageObj: {},
-            emojiArr: []
+            emojiArr: [],
+            emojiVisible: false
         };
     },
     actions: {
@@ -28,13 +29,13 @@ export const useFriendStore = defineStore('friend', {
             const unreadMessageObj: {[key: string]: FriendMessageType[]} = {};
             for (const message of unreadMessage) {
                 if (!unreadMessageObj[message.messageSenderId]) unreadMessageObj[message.messageSenderId] = [];
-                message.messageContent = clientDecrypt(message.messageContent);
+                this.decryptMessageContent(message);
                 unreadMessageObj[message.messageSenderId].push(message);
             }
             console.log('check unread message object 11111 ');
             console.log(unreadMessageObj);
             for (const friendId in unreadMessageObj) {
-                if (!this.friendListObj[friendId]) return console.log(`userId: ${friendId} donest exit in friend list`);
+                if (!this.friendListObj[friendId]) return console.log(`userId: ${friendId} dones't exit in friend list`);
                 unreadMessageObj[friendId].sort((a, b) => a.timeStamp - b.timeStamp);
                 this.friendListObj[friendId].unreadMessageHistory = unreadMessageObj[friendId];
             }
@@ -49,7 +50,7 @@ export const useFriendStore = defineStore('friend', {
             const friendId = isSelf ? records[0].messageSenderId : records[0].messageReceiverId;
             if (messageHistory.records.length !== 0) {
                 messageHistory.records.sort((a, b) => a.timeStamp - b.timeStamp);
-                messageHistory.records.forEach(message => (message.messageContent = clientDecrypt(message.messageContent)));
+                messageHistory.records.forEach(message => this.decryptMessageContent(message));
                 messageHistory.userId = friendId;
             }
             if (!this.friendListObj[friendId].messageHistory) this.friendListObj[friendId].messageHistory = messageHistory;
@@ -64,6 +65,9 @@ export const useFriendStore = defineStore('friend', {
             console.log('获取好友历史消息的地方');
             return this.friendListObj[friendId]?.messageHistory?.records || [];
         },
+        setEmojiVisible(visible: boolean) {
+            this.emojiVisible = visible;
+        },
         getFriendMessagePage(friendId: string) {
             return this.friendListObj[friendId]?.messageHistory?.current || 1;
         },
@@ -72,7 +76,8 @@ export const useFriendStore = defineStore('friend', {
             const AuthStore = useAuthStore();
             const isSelf = AuthStore.isSelf(data.messageReceiverId);
             const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
-            data.messageContent = clientDecrypt(data.messageContent);
+            this.decryptMessageContent(data);
+            console.log('查看解密后的 data', data);
             this.pushOneUnreadMessage(friendId, data);
             if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
@@ -105,6 +110,10 @@ export const useFriendStore = defineStore('friend', {
                 data.forEach(item => (item.content = API.getPictureUrl(clientDecrypt(item.content))));
             }
             this.emojiArr = data || [];
+        },
+        decryptMessageContent(message: FriendMessageType) {
+            message.messageContent = clientDecrypt(message.messageContent);
+            message?.referMessage && (message.referMessage.messageContent = clientDecrypt(message.referMessage.messageContent as string));
         }
     }
 });

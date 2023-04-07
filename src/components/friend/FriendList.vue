@@ -5,7 +5,7 @@ import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
-import {mapActions} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {FriendInfoType} from '../../global/GlobalType';
 
 interface dataType {
@@ -25,14 +25,30 @@ export default {
             isMobile: false
         };
     },
+
+    computed: {
+        ...mapState(useFriendStore, ['emojiVisible'])
+    },
     methods: {
-        ...mapActions(useFriendStore, ['setFriendList']),
+        ...mapActions(useFriendStore, ['setFriendList', 'setEmojiVisible']),
         actionChoose(chooseItemId: string) {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         },
         hadChooseItem() {
             return this.chooseItemId !== '';
+        },
+        handleClick(event: MouseEvent) {
+            if (!this.emojiVisible) return;
+            const targetElement = event.target as Node;
+            const emojiButtonElement = document.getElementById('emoji-button');
+            if (targetElement === emojiButtonElement || emojiButtonElement?.contains(targetElement)) return;
+            const emojisElement = document.getElementById('emojis');
+
+            // 判断目标元素是否在容器中
+            if (targetElement !== emojisElement && !emojisElement?.contains(targetElement)) {
+                this.setEmojiVisible(false);
+            }
         }
     },
     created() {
@@ -64,8 +80,8 @@ export default {
 </script>
 
 <template>
-    <div class="w-screen h-screen">
-        <div class="flex min-w-full border rounded min-h-[80vh] max-h-[100vh]">
+    <div class="w-screen h-screen overflow-hidden">
+        <div class="flex min-w-full border rounded min-h-[80%] max-h-full" @click="handleClick">
             <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-64 '">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
