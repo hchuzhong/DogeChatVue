@@ -1,12 +1,13 @@
 <script lang="ts">
 import {FriendInfoType, messageType} from '../../../global/GlobalType';
-import {serverEncrypt, websocket} from '../../../request/websocket';
+import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocket';
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
 import {API} from '../../../request/api';
 import {useFriendStore} from '../../../store/module/friend';
+import {getImageInfo} from '../../../global/GlobalValue';
 
 export default {
     props: {
@@ -29,7 +30,11 @@ export default {
             this.inputMessage = '';
         },
         sendEmojiMessage(url: string) {
-            this.sendMessage(url.replaceAll('%2B', '+'), messageType.image);
+            // TODO 后续再看看 %2B 要不要去掉
+            this.sendMessage(url.replaceAll('%2B', '+'), messageType.sticker);
+        },
+        sendPhotoMessage(url: string) {
+            this.sendMessage(url.replaceAll('%2B', '+'), messageType.photo);
         },
         sendMessage(content: string, type = messageType.text) {
             const selfData = this.selfData;
@@ -52,6 +57,31 @@ export default {
             console.log('send data');
             console.log(messageData);
             websocket.send(JSON.stringify(messageData));
+        },
+        onFileChange(event: Event) {
+            const files = (event?.target as HTMLInputElement)?.files;
+            if (!files?.length) return;
+            const file = files[0];
+            const maxSize = 5 * 1024 * 1024; // 图片大小限制 5M
+            if (file.size > maxSize) {
+                alert('图片大小不能超过 5MB');
+                this.$refs.fileInput.value = '';
+                return;
+            }
+            const cb = async (infoStr: string) => {
+                const formData = new FormData();
+                formData.append('upload', file);
+                const result = await API.uploadImg(formData);
+                const filePath = clientDecrypt(result.data.filePath);
+                this.sendPhotoMessage(`${filePath}?${infoStr}`);
+            };
+            getImageInfo(file, cb);
+        },
+        clickUploadImage() {
+            const fileInput = this.$refs?.fileInput as HTMLInputElement;
+            if (!fileInput) return;
+            fileInput.value = null;
+            fileInput.click();
         }
     },
     created() {
@@ -73,15 +103,21 @@ export default {
     <div>
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
             <button id="emoji-button" class="outline-none focus:outline-none" @click="setEmojiVisible(true)">
-                <svg class="text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-biaoqing"></use>
                 </svg>
+            </button>
+            <button class="outline-none focus:outline-none ml-1" @click="clickUploadImage">
+                <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                    <use xlink:href="#icon-shangchuantupian"></use>
+                </svg>
+                <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
             <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
-                <svg class="text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                 </svg>
             </button>

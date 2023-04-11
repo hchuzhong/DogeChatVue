@@ -1,20 +1,26 @@
 import axios from 'axios';
-import {getRsaKeys} from '../global/GlobalValue';
+import {deviceType, getRsaKeys} from '../global/GlobalValue';
 import {useAuthStore} from '../store/module/auth';
 
 // 添加响应拦截器
+axios.interceptors.request.use(
+    function (config) {
+        config.headers.deviceInfo = `deviceType=${deviceType}`;
+        return config;
+    },
+    function (error) {
+        console.log('request error =====', error);
+        return Promise.reject(error);
+    }
+);
 axios.interceptors.response.use(
     function (response) {
-        // 2xx 范围内的状态码都会触发该函数。
-        // 对响应数据做点什么
-        console.log('请求拦截的地方 ==== ');
-        console.log(response);
         return response;
     },
     function (error) {
         // 超出 2xx 范围的状态码都会触发该函数。
         // 对响应错误做点什么
-        console.log('响应拦截的地方 ==== ');
+        console.log('response error ==== ', error);
         if (error.response.status === 401) {
             window.location.href = '/';
             return console.log('重定向到登陆页面');
@@ -41,7 +47,6 @@ export namespace API {
     }
 
     export function getFriendList() {
-        // /friendship/getAllFriends
         return axios.get(`${baseUrl}/friendship/getAllFriends`, {
             headers: {
                 'Content-Type': 'application/json'
@@ -59,7 +64,6 @@ export namespace API {
         });
     }
 
-    // /message/getPublicKey
     export async function postGetPublicKey(callback: any) {
         return await getRsaKeys((privateKey: string, publicKey: string) => {
             console.log('GlobalValue.getRsaKeys callback');
@@ -73,6 +77,15 @@ export namespace API {
         if (!url) return '';
         const strArr = url.split('/');
         return `/api/star/fileDownload/${strArr[strArr.length - 1]}`.replaceAll('+', '%2B');
+    }
+
+    export async function uploadImg(data: FormData) {
+        return axios.post(`${baseUrl}/message/uploadImg`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+        });
     }
 }
 

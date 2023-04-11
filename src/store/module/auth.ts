@@ -1,7 +1,6 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
-import {useRouter} from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -97,6 +96,7 @@ export const useAuthStore = defineStore('auth', {
         },
 
         autoLogin() {
+            if (this.selfData?.userId) return;
             const username = localStorage.getItem('dogeChatUserName');
             const password = localStorage.getItem('dogeChatPassword');
             if (username && password) {

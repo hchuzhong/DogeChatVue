@@ -82,7 +82,7 @@ export default {
 <template>
     <div class="w-screen h-screen overflow-hidden">
         <div class="flex min-w-full border rounded min-h-[80%] max-h-full" @click="handleClick">
-            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-64 '">
+            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
                 <!-- {/* 搜索框 */} -->
                 <div class="my-3 mx-3">
                     <div class="relative text-gray-600 focus-within:text-gray-400">
@@ -96,13 +96,13 @@ export default {
                 </div>
                 <!-- {/* 好友列表 */} -->
                 <ul>
-                    <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
+                    <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" :isMobile="isMobile" @click="actionChoose(item.userId)" />
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-screen col-span-2 bg-white">
                 <button v-if="isMobile" class="cursor-pointer absolute left-2 top-4" @click="chooseItemId = ''">
-                    <svg class="text-gray-400 h-5 w-5" aria-hidden="true">
+                    <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
                         <use xlink:href="#icon-xiangzuojiantou"></use>
                     </svg>
                 </button>

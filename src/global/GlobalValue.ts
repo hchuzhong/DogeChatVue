@@ -55,6 +55,20 @@ export function RSA2text(buffer: any) {
         return base64.replace(/[^\x00-\xff]/g, "$&\x01").replace(/.{64}\x01?/g, "$&\n");
 }
 
+export function getImageInfo(file: File, cb: Function) {
+    const imgSrc = window.URL.createObjectURL(file);
+    const img = new Image();
+    img.src = imgSrc;
+    document.body.appendChild(img);
+    img.onload = () => {
+        const width = img.offsetWidth;
+        const height = img.offsetHeight;
+        document.body.removeChild(img);
+        const infoStr = `width=${width}&height=${height}`;
+        cb?.(infoStr);
+    };
+}
+
 // export function encrpypt(params: any) {}
 
 let eventBus: EventHub | null = null;
@@ -68,3 +82,5 @@ export const EventName = {
     UpdateMessageHistory: 'UpdateMessageHistory',
     UpdateOneMessage: 'UpdateOneMessage'
 };
+
+export const deviceType = 6;
