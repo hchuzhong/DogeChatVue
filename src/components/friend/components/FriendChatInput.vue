@@ -58,10 +58,25 @@ export default {
             console.log(messageData);
             websocket.send(JSON.stringify(messageData));
         },
+        inputPaste(event: ClipboardEvent) {
+            event.preventDefault();
+            const items = event.clipboardData?.items;
+            if (!items?.length) return;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const isFile = item.type.includes('image');
+                if (!isFile) continue;
+                const blob = item.getAsFile();
+                return blob && this.beforeSendPhoto(blob);
+            }
+            this.inputMessage = event.clipboardData?.getData('text') ?? '';
+        },
         onFileChange(event: Event) {
             const files = (event?.target as HTMLInputElement)?.files;
             if (!files?.length) return;
-            const file = files[0];
+            this.beforeSendPhoto(files[0]);
+        },
+        beforeSendPhoto(file: File) {
             const maxSize = 5 * 1024 * 1024; // 图片大小限制 5M
             if (file.size > maxSize) {
                 alert('图片大小不能超过 5MB');
@@ -114,7 +129,7 @@ export default {
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
-            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" />
+            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
                 <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

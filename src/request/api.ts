@@ -24,6 +24,8 @@ axios.interceptors.response.use(
         if (error.response.status === 401) {
             window.location.href = '/';
             return console.log('重定向到登陆页面');
+        } else if (error.response.status >= 500) {
+            console.log('服务端报错 ==== ', error);
         } else {
             // 自动登录
             const AuthStore = useAuthStore();

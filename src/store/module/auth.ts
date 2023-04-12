@@ -96,7 +96,6 @@ export const useAuthStore = defineStore('auth', {
         },
 
         autoLogin() {
-            if (this.selfData?.userId) return;
             const username = localStorage.getItem('dogeChatUserName');
             const password = localStorage.getItem('dogeChatPassword');
             if (username && password) {
