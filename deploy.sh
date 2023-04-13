@@ -22,4 +22,6 @@ git commit -m 'deploy'
 # if you are deploying to https://<USERNAME>.github.io/<REPO>
 git push -f middleChu@procwq.top:~/gitrepo/dogeChatWeb master
 
+ssh middleChu@124.223.58.61 "sh deploy.sh"
+
 cd -
