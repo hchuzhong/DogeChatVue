@@ -8,22 +8,25 @@ import {PropType} from 'vue-demi';
 import {API} from '../../../request/api';
 import {useFriendStore} from '../../../store/module/friend';
 import {getImageInfo} from '../../../global/GlobalValue';
+import {OnClickOutside} from '@vueuse/components';
 
 export default {
     props: {
         chooseFriendInfo: {} as PropType<FriendInfoType>
     },
+    components: {OnClickOutside},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr', 'emojiVisible'])
+        ...mapState(useFriendStore, ['emojiArr'])
     },
     data() {
         return {
-            inputMessage: ''
+            inputMessage: '',
+            emojiVisible: false
         };
     },
     methods: {
-        ...mapActions(useFriendStore, ['setEmojiArr', 'setEmojiVisible']),
+        ...mapActions(useFriendStore, ['setEmojiArr']),
         sendTextMessage() {
             if (!this.inputMessage) return alert('请输入信息');
             this.sendMessage(this.inputMessage);
@@ -117,7 +120,7 @@ export default {
 <template>
     <div>
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
-            <button id="emoji-button" class="outline-none focus:outline-none" @click="setEmojiVisible(true)">
+            <button class="outline-none focus:outline-none" @click="emojiVisible = true">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-biaoqing"></use>
                 </svg>
@@ -137,10 +140,12 @@ export default {
                 </svg>
             </button>
         </div>
-        <div v-show="emojiVisible" id="emojis" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
-            <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
-                <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
-            </span>
-        </div>
+        <OnClickOutside @trigger="emojiVisible = false">
+            <div v-show="emojiVisible" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
+                <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
+                    <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
+                </span>
+            </div>
+        </OnClickOutside>
     </div>
 </template>

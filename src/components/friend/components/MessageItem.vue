@@ -15,7 +15,8 @@ export default {
         return {
             isText: this.message?.type === messageType.text,
             isPicture: PictureArr.includes((this.message as FriendMessageType).type),
-            referMessage: ''
+            referMessage: '',
+            showContextMenu: false
         };
     },
     methods: {
@@ -50,7 +51,7 @@ export default {
 
 <!-- TODO 有人 @ 的时候加上个标志位，已读后 @ 才消失，否则不消失，参考微信 -->
 <template>
-    <div class="w-full flex flex-col mb-2" :class="isSelf ? 'items-end' : 'items-start'">
+    <div class="w-full flex flex-col mb-2" :class="isSelf ? 'items-end' : 'items-start'" @contextmenu="showContextMenu = true">
         <div class="bg-gray-100 rounded px-5 py-2 mt-2 text-gray-700 relative max-w-[300px]">
             <div class="flex justify-start items-center text-xs">
                 <span class="block text-left mr-2">{{ isSelf ? '我' : message?.messageSender }}</span>

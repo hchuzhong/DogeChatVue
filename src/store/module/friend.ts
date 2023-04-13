@@ -14,8 +14,7 @@ export const useFriendStore = defineStore('friend', {
             unreadMessage: [],
             friendListObj: {},
             unreadMessageObj: {},
-            emojiArr: [],
-            emojiVisible: false
+            emojiArr: []
         };
     },
     actions: {
@@ -67,9 +66,6 @@ export const useFriendStore = defineStore('friend', {
         getFriendMessageHistory(friendId: string) {
             console.log('获取好友历史消息的地方');
             return this.friendListObj[friendId]?.messageHistory?.records || [];
-        },
-        setEmojiVisible(visible: boolean) {
-            this.emojiVisible = visible;
         },
         getFriendMessagePage(friendId: string) {
             return this.friendListObj[friendId]?.messageHistory?.current || 1;
