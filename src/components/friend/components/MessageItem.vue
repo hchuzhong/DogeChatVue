@@ -1,6 +1,6 @@
 <script lang="ts">
 import {PropType} from 'vue-demi';
-import {FriendMessageType, messageType} from '../../../global/GlobalType';
+import {FriendMessageType, messageType, messageTypeToChinese} from '../../../global/GlobalType';
 import {API} from '../../../request/api';
 import dayjs from 'dayjs';
 
@@ -39,9 +39,10 @@ export default {
                         content = API.getPictureUrl(message.drawImage);
                         break;
                 }
-            }
-            if (isText) {
+            } else if (isText) {
                 content = (message as FriendMessageType).messageContent;
+            } else {
+                content = `暂不支持 ${messageTypeToChinese[message.type]} 类型数据`;
             }
             return {content, isText, isPicture};
         }
@@ -58,8 +59,8 @@ export default {
                 <span class="block text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
             </div>
             {{ void (messageData = getMessageData(message)) }}
-            <span v-if="messageData.isText" class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
             <img v-if="messageData.isPicture" class="object-cover rounded" :src="messageData.content" alt="" />
+            <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
         </div>
         <div v-if="message?.referMessage" class="text-xs text-gray-500 flex items-center max-w-[300px] mt-1">
             {{ void (referMessageData = getMessageData(message.referMessage)) }}
