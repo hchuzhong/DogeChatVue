@@ -5,28 +5,31 @@ import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
-import {mapActions} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {FriendInfoType} from '../../global/GlobalType';
+import {useGlobalStore} from '../../store/module/global';
 
 interface dataType {
     chooseItemId: string;
     friendList: FriendInfoType[];
     resizeTimer: null | ReturnType<typeof setTimeout>;
-    isMobile: boolean;
 }
 
 export default {
     components: {FrirendItem, FriendChat},
+    computed: {
+        ...mapState(useGlobalStore, ['isMobile'])
+    },
     data(): dataType {
         return {
             chooseItemId: '',
             friendList: [],
-            resizeTimer: null,
-            isMobile: false
+            resizeTimer: null
         };
     },
     methods: {
         ...mapActions(useFriendStore, ['setFriendList']),
+        ...mapActions(useGlobalStore, ['setClientWidth']),
         actionChoose(chooseItemId: string) {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
@@ -50,12 +53,11 @@ export default {
         });
     },
     mounted() {
-        this.isMobile = document.body.clientWidth < 768;
+        this.setClientWidth(document.body.clientWidth);
         window.addEventListener('resize', () => {
             if (this.resizeTimer) clearTimeout(this.resizeTimer);
             this.resizeTimer = setTimeout(() => {
-                this.isMobile = document.body.clientWidth < 768;
-                console.log('check timer result ==== ', this.isMobile);
+                this.setClientWidth(document.body.clientWidth);
                 this.resizeTimer = null;
             }, 100);
         });
@@ -80,7 +82,7 @@ export default {
                 </div>
                 <!-- {/* 好友列表 */} -->
                 <ul>
-                    <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" :isMobile="isMobile" @click="actionChoose(item.userId)" />
+                    <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
             </div>
             <!-- {/* 聊天界面 */} -->
