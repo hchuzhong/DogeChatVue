@@ -2,9 +2,10 @@
 import {API} from '../../../request/api';
 import {FriendInfoType, FriendMessageType, messageType, messageTypeToChinese} from '../../../global/GlobalType';
 import type {PropType} from 'vue';
-import {mapActions} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {EventBus, EventName} from '../../../global/GlobalValue';
+import {useGlobalStore} from '../../../store/module/global';
 
 type dataType = {
     isChoose: boolean;
@@ -18,8 +19,13 @@ type dataType = {
 export default {
     props: {
         friendItemInfo: {} as PropType<FriendInfoType>,
-        chooseItemId: String,
-        isMobile: Boolean
+        chooseItemId: String
+    },
+    computed: {
+        ...mapState(useGlobalStore, ['isMobile', 'clientWidth']),
+        maxMessageWidth(): number {
+            return this.isMobile ? Math.max(this.clientWidth - 100, 0) : 220;
+        }
     },
     data(): dataType {
         return {
@@ -69,9 +75,8 @@ export default {
 <template>
     <div>
         <a class="border-b max-h-20 border-gray-300 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" :class="{'bg-gray-100': isChoose, 'hover:bg-gray-100': !isChoose}">
-        <!-- <a class="border-b max-h-20 border-gray-300 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-300 transition duration-150 ease-in-out" :class="isChoose ? 'bg-gray-100' : 'hover:bg-gray-100'"> -->
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avtar" />
-            <div class="pb-2 flex-1" :class="{'max-w-[240px]': isMobile}">
+            <div class="pb-2 flex-1" :style="`max-width: ${maxMessageWidth}px`">
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
                 <span class="block ml-2 text-sm text-gray-600 truncate">{{ messageContent }}</span>
             </div>
