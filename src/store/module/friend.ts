@@ -13,7 +13,6 @@ export const useFriendStore = defineStore('friend', {
             friendList: [],
             unreadMessage: [],
             friendListObj: {},
-            unreadMessageObj: {},
             emojiArr: []
         };
     },
@@ -113,6 +112,10 @@ export const useFriendStore = defineStore('friend', {
         decryptMessageContent(message: FriendMessageType) {
             message.messageContent = clientDecrypt(message.messageContent);
             message?.referMessage && (message.referMessage.messageContent = clientDecrypt(message.referMessage.messageContent as string));
+        },
+        removeUnreadMessage(data: {userId: string}) {
+            this.friendListObj[data.userId].unreadMessageHistory = [];
+            EventBus().dispatchEvent(EventName.UnreadMessage);
         }
     }
 });

@@ -6,6 +6,7 @@ import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {EventBus, EventName} from '../../../global/GlobalValue';
 import {useGlobalStore} from '../../../store/module/global';
+import {readMessage} from '../../../request/websocket';
 
 type dataType = {
     isChoose: boolean;
@@ -41,9 +42,8 @@ export default {
         chooseItemId: function (chooseItemId: string, oldVal: string) {
             if (chooseItemId === oldVal) return;
             this.isChoose = this.friendItemInfo?.userId === this.chooseItemId;
-            this.unReadMessageList = [];
-            this.hadUnreadMessage = false;
-            // TODO 还需要发送消息给服务端表示已读
+            if (!this.isChoose || !this.unReadMessageList?.length) return;
+            readMessage(this.unReadMessageList[this.unReadMessageList.length - 1]);
         }
     },
     created() {

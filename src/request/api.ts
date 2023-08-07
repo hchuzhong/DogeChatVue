@@ -732,4 +732,7 @@ export namespace API {
         }
         send(makeJsonString(for: paras))
     }
+
+
+    manager.commonWebSocket.send(makeJsonString(for: ["method" : "readMessage","userId" : userID,"readId" : readID]))
  */

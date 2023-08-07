@@ -1,4 +1,5 @@
 import JSEncrypt from 'encryptlong';
+import {FriendMessageType} from '../global/GlobalType';
 import {deviceType, wssBaseUrl} from '../global/GlobalValue';
 import {useAuthStore} from '../store/module/auth';
 import {useFriendStore} from '../store/module/friend';
@@ -88,6 +89,7 @@ export function initWebSocket() {
                     break;
                 case 'readMessage':
                     console.log('处理已读消息 ========');
+                    FriendStore.removeUnreadMessage(json);
                     break;
                 case 'sendPersonalMessageSuccess':
                     console.log('处理自己发的单条私聊消息');
@@ -131,6 +133,12 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
     console.log('check getHistoryMessages params ==================');
     console.log(paras);
     send(paras);
+}
+
+export function readMessage(unreadMessageItem: FriendMessageType) {
+    if (!unreadMessageItem) return;
+    console.log('check readmessage ', unreadMessageItem);
+    send({method: 'readMessage', userId: unreadMessageItem.messageSenderId, readId: unreadMessageItem.messageId});
 }
 
 function send(data: any) {
