@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
+import {Router} from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -48,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
             this.selfData = data;
         },
 
-        login(username: string, password: string) {
+        login(username: string, password: string, router: Router) {
             this.setUsername(username);
             this.setPassword(password);
             return new Promise((resolve, reject) => {
@@ -60,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
                         if (loginSuccess) {
                             this.setSelfData(data?.data?.userInfo);
                             localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
-                            window.location.href = '#/friendlist';
+                            router.push('/friendlist');
                         }
                         resolve(data);
                     })

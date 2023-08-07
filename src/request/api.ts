@@ -691,7 +691,7 @@ export namespace API {
             NotificationCenter.default.post(name: .quickReplyDone, object: nil)
         }
     }
-        
+    
     // MARK: 发送消息的总入口
     public func sendWrappedMessage(_ message: Message) {
         messageManager.saveSendMessage(message)

@@ -23,7 +23,7 @@ export default {
             if (this.form.password === '') {
                 return alert('请输入密码');
             }
-            this.login(this.form.username, this.form.password);
+            this.login(this.form.username, this.form.password, this.$router);
         }
     }
 };
@@ -47,7 +47,7 @@ export default {
                     <span class="text-sm ml-2 hover:text-blue-500 cursor-pointer" @click="forget"> Forgot Password ? </span>
                     <div class="text-center mt-12">
                         <span>Don't have an account?</span>
-                        <a href="#" class="text-md text-indigo-600 underline font-semibold hover:text-indigo-800"> Create One </a>
+                        <router-link class="text-md text-indigo-600 underline font-semibold hover:text-indigo-800" to="/register"> Create One </router-link>
                     </div>
                 </form>
             </div>
