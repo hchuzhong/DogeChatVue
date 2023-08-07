@@ -20,7 +20,7 @@ git commit -m 'deploy'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
 # if you are deploying to https://<USERNAME>.github.io/<REPO>
-git push -f middleChu@procwq.top:~/gitrepo/dogeChatWeb master
+git push -f middleChu@caowqapi.eu.org:~/gitrepo/dogeChatWeb master
 
 ssh middleChu@124.223.58.61 "sh deploy.sh"
 
