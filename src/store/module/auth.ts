@@ -28,12 +28,10 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         setUsername(username: string) {
             this.username = username;
-            localStorage.setItem('dogeChatUserName', username);
         },
 
         setPassword(password: string) {
             this.password = password;
-            localStorage.setItem('dogeChatPassword', password);
         },
 
         setClientKey(privateKey: string, publicKey: string) {
@@ -55,13 +53,11 @@ export const useAuthStore = defineStore('auth', {
             return new Promise((resolve, reject) => {
                 API.login({username, password})
                     .then(data => {
-                        console.log('axios return data');
-                        console.log(data);
                         const loginSuccess = !!data?.data?.userInfo;
                         if (loginSuccess) {
                             this.setSelfData(data?.data?.userInfo);
                             localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
-                            router.push('/friendlist');
+                            router.push('/friend-list');
                         }
                         resolve(data);
                     })
@@ -94,14 +90,6 @@ export const useAuthStore = defineStore('auth', {
 
         isSelf(id: string) {
             return id === this.selfData.userId;
-        },
-
-        autoLogin() {
-            const username = localStorage.getItem('dogeChatUserName');
-            const password = localStorage.getItem('dogeChatPassword');
-            if (username && password) {
-                this.login(username, password);
-            }
         }
     }
 });

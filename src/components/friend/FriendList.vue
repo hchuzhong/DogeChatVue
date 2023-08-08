@@ -45,8 +45,8 @@ export default {
             if (!authStore.selfData.userId) {
                 authStore.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
             }
-            this.setFriendList(data?.data?.friends);
-            this.friendList = data?.data?.friends;
+            this.setFriendList(data?.data?.friends ?? []);
+            this.friendList = data?.data?.friends ?? [];
             if (!websocket) {
                 initWebSocket();
             }
@@ -81,9 +81,10 @@ export default {
                     </div>
                 </div>
                 <!-- {/* 好友列表 */} -->
-                <ul>
+                <ul v-if="friendList.length">
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
+                <div v-else class="text-center">暂无好友</div>
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-screen col-span-2 bg-white">

@@ -119,3 +119,11 @@ export type FriendStoreType = {
     friendListObj: {[key: string]: FriendInfoType};
     emojiArr: EmojiType[];
 };
+
+export type userInfoType = {
+    username: string;
+    password: string;
+    confirmPassword?: string;
+    email?: string;
+    validateCode?: number | string;
+};
