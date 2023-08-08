@@ -102,16 +102,16 @@ export default {
             fileInput.click();
         }
     },
-    created() {
+    async created() {
         console.error('获取表情包的地方');
         console.log(this.emojiArr);
         if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
-            API.getStar().then(data => {
-                console.log('获取表情包数据 ==== ');
-                console.log(data);
+            try {
+                const data = await API.getStar();
                 this.setEmojiArr(data?.data?.data);
-                console.log(this.emojiArr);
-            });
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 };
