@@ -71,7 +71,7 @@ export function initWebSocket() {
                 case 'getPublicUnreadMessage':
                     console.log('查看当前未读消息 ==== ');
                     console.log(data);
-                    FriendStore.setUnreadMessage(data);
+                    FriendStore.setUnreadMessage((data as FriendMessageType[]).filter(item => item.messageStatus === 0));
                     break;
                 case 'getHistory':
                     hadRecords = data?.records?.length > 0;
@@ -135,10 +135,9 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
     send(paras);
 }
 
-export function readMessage(unreadMessageItem: FriendMessageType) {
-    if (!unreadMessageItem) return;
-    console.log('check readmessage ', unreadMessageItem);
-    send({method: 'readMessage', userId: unreadMessageItem.messageSenderId, readId: unreadMessageItem.messageId});
+export function readMessage(userId: string, readId: number) {
+    if (!userId || !readId) return;
+    send({method: 'readMessage', userId, readId});
 }
 
 function send(data: any) {

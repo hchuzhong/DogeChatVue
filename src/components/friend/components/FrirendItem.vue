@@ -43,7 +43,7 @@ export default {
             if (chooseItemId === oldVal) return;
             this.isChoose = this.friendItemInfo?.userId === this.chooseItemId;
             if (!this.isChoose || !this.unReadMessageList?.length) return;
-            readMessage(this.unReadMessageList[this.unReadMessageList.length - 1]);
+            readMessage(chooseItemId, this.unReadMessageList[this.unReadMessageList.length - 1].messageId);
         }
     },
     created() {

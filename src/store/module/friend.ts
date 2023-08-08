@@ -97,7 +97,6 @@ export const useFriendStore = defineStore('friend', {
         },
         resetUnreadMessage() {
             this.unreadMessage = [];
-            this.unreadMessageObj = {};
         },
         reset() {
             this.resetFriendList();
