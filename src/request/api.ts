@@ -1,11 +1,11 @@
 import axios from 'axios';
+import {userInfoType} from '../global/GlobalType';
 import {deviceType, getRsaKeys} from '../global/GlobalValue';
-import {useAuthStore} from '../store/module/auth';
 
 // 添加响应拦截器
 axios.interceptors.request.use(
     function (config) {
-        config.headers.deviceInfo = `deviceType=${deviceType}`;
+        (config as any).headers.deviceInfo = `deviceType=${deviceType}`;
         return config;
     },
     function (error) {
@@ -26,10 +26,6 @@ axios.interceptors.response.use(
             return console.log('重定向到登陆页面');
         } else if (error.response.status >= 500) {
             console.log('服务端报错 ==== ', error);
-        } else {
-            // 自动登录
-            const AuthStore = useAuthStore();
-            AuthStore.autoLogin();
         }
         return Promise.reject(error);
     }
@@ -39,8 +35,51 @@ export namespace API {
     axios.defaults.withCredentials = true;
     const baseUrl = '/api';
 
-    export function login(data: {username: string; password: string}) {
+    export function login(data: userInfoType) {
         return axios.post(`${baseUrl}/auth/login`, data, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function register(data: userInfoType) {
+        const postData = {
+            email: data.email,
+            username: data.username,
+            password: data.password,
+            repeatPassword: data.confirmPassword,
+            validationCode: data.validateCode
+        };
+        return axios.post(`${baseUrl}/auth/signup`, postData, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function resetPassword(data: userInfoType) {
+        const postData = {
+            email: data.email,
+            username: data.username,
+            newPassword: data.password,
+            repeatNewPassword: data.confirmPassword,
+            validationCode: data.validateCode
+        };
+        return axios.post(`${baseUrl}/auth/resetPassword`, postData, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    // sendFor: 注册 1, 忘记密码 2
+    export function sendValidateCode(email: string, isRegister: boolean) {
+        const data = {email, sendFor: isRegister ? 1 : 2};
+        return axios.post(`${baseUrl}/auth/sendCode`, data, {
             headers: {
                 'Content-Type': 'application/json'
             },
