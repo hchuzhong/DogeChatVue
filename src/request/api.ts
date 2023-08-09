@@ -105,6 +105,15 @@ export namespace API {
         });
     }
 
+    export function getGroupMembers(groupId: string) {
+        return axios.get(`${baseUrl}/group/getMembers/${groupId}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
     export async function postGetPublicKey(callback: any) {
         return await getRsaKeys((privateKey: string, publicKey: string) => {
             console.log('GlobalValue.getRsaKeys callback');

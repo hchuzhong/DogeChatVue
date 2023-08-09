@@ -1,5 +1,5 @@
 <script lang="ts">
-import {FriendInfoType, messageType} from '../../../global/GlobalType';
+import {FriendInfoType, GroupMemberType, messageType} from '../../../global/GlobalType';
 import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocket';
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
@@ -10,19 +10,32 @@ import {useFriendStore} from '../../../store/module/friend';
 import {getImageInfo} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 
+type dataType = {
+    inputMessage: string;
+    emojiVisible: boolean;
+    groupMembersVisible: boolean;
+    notifiedArr: {userId: string; location: number; length: number, username: string}[];
+};
+
 export default {
     props: {
-        chooseFriendInfo: {} as PropType<FriendInfoType>
+        chooseFriendInfo: {} as PropType<FriendInfoType>,
+        groupMembersData: [] as PropType<GroupMemberType[]>
     },
     components: {OnClickOutside},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr'])
+        ...mapState(useFriendStore, ['emojiArr']),
+        isGroup(): boolean {
+            return this.chooseFriendInfo?.isGroup === '1';
+        }
     },
-    data() {
+    data(): dataType {
         return {
             inputMessage: '',
-            emojiVisible: false
+            emojiVisible: false,
+            groupMembersVisible: false,
+            notifiedArr: []
         };
     },
     methods: {
@@ -42,17 +55,25 @@ export default {
         sendMessage(content: string, type = messageType.text) {
             const selfData = this.selfData;
             const msg = serverEncrypt(content);
+            const notifiedParty: any[] = [];
+            this.notifiedArr.forEach(notifyMember => {
+                const {location, username, userId, length} = notifyMember;
+                if (content[location - 1] === '@' && content.slice(location, location + length) === username) {
+                    notifiedParty.push({[`${userId}`]: `location=${location}&length=${length}`});
+                }
+            });
+            this.notifiedArr = [];
             const messageData = {
-                method: this.chooseFriendInfo?.isGroup === '1' ? 'PublicNewMessage' : 'PersonalNewMessage',
+                method: this.isGroup ? 'PublicNewMessage' : 'PersonalNewMessage',
                 message: {
                     type,
                     messageSenderId: selfData.userId,
                     // 只有 messageContent 需要加密
                     messageContent: msg,
                     messageSender: selfData.username,
-                    notifiedParty: [],
+                    notifiedParty,
                     messageReceiver: this.chooseFriendInfo?.username,
-                    isGroup: this.chooseFriendInfo?.isGroup || false,
+                    isGroup: this.isGroup || false,
                     messageReceiverId: this.chooseFriendInfo?.userId,
                     uuid: uuidv4()
                 }
@@ -72,7 +93,7 @@ export default {
                 const blob = item.getAsFile();
                 return blob && this.beforeSendPhoto(blob);
             }
-            this.inputMessage = event.clipboardData?.getData('text') ?? '';
+            this.inputMessage += event.clipboardData?.getData('text') ?? '';
         },
         onFileChange(event: Event) {
             const files = (event?.target as HTMLInputElement)?.files;
@@ -100,18 +121,29 @@ export default {
             if (!fileInput) return;
             fileInput.value = null;
             fileInput.click();
+        },
+        getImageSrc(src: string) {
+            return API.getPictureUrl(src);
+        },
+        atMember(memberInfo: GroupMemberType) {
+            this.notifiedArr.push({...memberInfo, location: this.inputMessage.length, length: memberInfo.username.length});
+            this.inputMessage += memberInfo.username;
+            this.groupMembersVisible = false;
+        },
+        checkForAtSymbol() {
+            this.groupMembersVisible = this.inputMessage[this.inputMessage.length - 1] === '@';
         }
     },
-    created() {
+    async created() {
         console.error('获取表情包的地方');
         console.log(this.emojiArr);
         if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
-            API.getStar().then(data => {
-                console.log('获取表情包数据 ==== ');
-                console.log(data);
+            try {
+                const data = await API.getStar();
                 this.setEmojiArr(data?.data?.data);
-                console.log(this.emojiArr);
-            });
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 };
@@ -119,6 +151,14 @@ export default {
 
 <template>
     <div>
+        <OnClickOutside @trigger="groupMembersVisible = false">
+            <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border-2 rounded-lg p-2 border-solid shadow bg-white overflow-y-auto">
+                <div v-for="member in groupMembersData" :key="member.userId" class="flex py-1 cursor-pointer" @click="atMember(member)">
+                    <img class="h-6 w-6 rounded-full object-cover" :src="getImageSrc(member.avatarUrl)" alt="avtar" />
+                    <span class="block ml-2 text-sm text-gray-700"> {{ member.username }} </span>
+                </div>
+            </div>
+        </OnClickOutside>
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
             <button class="outline-none focus:outline-none" @click="emojiVisible = true">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,7 +172,7 @@ export default {
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
-            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 pl-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" />
+            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
                 <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

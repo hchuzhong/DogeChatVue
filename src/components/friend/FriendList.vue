@@ -38,8 +38,9 @@ export default {
             return this.chooseItemId !== '';
         }
     },
-    created() {
-        API.getFriendList().then(data => {
+    async created() {
+        try {
+            const data = await API.getFriendList();
             // 检查有无自身数据
             const authStore = useAuthStore();
             if (!authStore.selfData.userId) {
@@ -50,7 +51,9 @@ export default {
             if (!websocket) {
                 initWebSocket();
             }
-        });
+        } catch (error) {
+            console.log(error);
+        }
     },
     mounted() {
         this.setClientWidth(document.body.clientWidth);

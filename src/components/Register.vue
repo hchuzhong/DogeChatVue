@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         ...mapActions(useAuthStore, ['login']),
-        submit() {
+        async submit() {
             if (!this.form.username) return alert('请输入用户名');
             if (!this.form.password) return alert('请输入密码');
             if (!this.form.confirmPassword) return alert('请输入确认密码');
@@ -28,21 +28,23 @@ export default {
             if (this.form.password !== this.form.confirmPassword) return alert('密码与确认密码不一致');
             if (!this.checkIsEmail()) return alert('邮箱格式有误');
             const method = this.isRegister ? API.register : API.resetPassword;
-            method(this.form)
-                .then(data => {
-                    const {status, message} = data.data;
-                    if (status === 'success') this.login(this.form.username, this.form.password, this.$router);
-                    else alert(message);
-                })
-                .catch(err => console.log(err));
+            try {
+                const data = await method(this.form);
+                const {status, message} = data.data;
+                if (status === 'success') this.login(this.form.username, this.form.password, this.$router);
+                else alert(message);
+            } catch (error) {
+                console.log(error);
+            }
         },
-        sendValidateCode() {
+        async sendValidateCode() {
             if (!this.checkIsEmail()) return alert('邮箱格式有误');
-            API.sendValidateCode(this.form.email, this.isRegister)
-                .then(data => {
-                    alert(data.data.message);
-                })
-                .catch(err => console.log(err));
+            try {
+                const data = await API.sendValidateCode(this.form.email, this.isRegister);
+                alert(data.data.message);
+            } catch (error) {
+                console.log(error);
+            }
         },
         checkIsEmail() {
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;

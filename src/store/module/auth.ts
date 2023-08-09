@@ -67,20 +67,6 @@ export const useAuthStore = defineStore('auth', {
             });
         },
 
-        register() {
-            // return new Promise((resolve, reject) => {
-            //   Auth.register(this.values.username, this.values.password)
-            //     .then(user => {
-            //       UserStore.pullUser()
-            //       resolve(user)
-            //     }).catch(error => {
-            //     UserStore.resetUser()
-            //     message.error('注册失败')
-            //     reject(error)
-            //   })
-            // })
-        },
-
         logout() {
             // Auth.logout()
             // UserStore.resetUser()
