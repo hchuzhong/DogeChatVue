@@ -3,7 +3,7 @@ import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
-import {FriendInfoType, FriendMessageType} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType, GroupMemberType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
@@ -17,6 +17,7 @@ type dataType = {
     imageSrc: string;
     isLoading: boolean;
     currentScrollHeight: number;
+    groupMembersData: GroupMemberType[];
 };
 
 const pageSize = 10;
@@ -38,7 +39,8 @@ export default {
             messageRecords: undefined,
             imageSrc: '',
             isLoading: false,
-            currentScrollHeight: 0
+            currentScrollHeight: 0,
+            groupMembersData: []
         };
     },
     watch: {
@@ -54,6 +56,11 @@ export default {
                     this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
                 }
                 this.imageSrc = await API.getPictureUrl((this.curChooseFriendInfo as FriendInfoType).avatarUrl);
+                if (this.curChooseFriendInfo?.isGroup === '1') {
+                    const membersResponse = await API.getGroupMembers(this.chooseItemId as string);
+                    this.groupMembersData = membersResponse?.data ?? [];
+                    this.groupMembersData.unshift({username: '所有人', avatarUrl: this.curChooseFriendInfo.avatarUrl, userId: this.curChooseFriendInfo.userId});
+                }
             }
             this.oldChooseItemId = chooseItemId;
             this.scrollToBottom(1000);
@@ -131,7 +138,7 @@ export default {
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" />
+                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" />
             </div>
         </div>
     </div>

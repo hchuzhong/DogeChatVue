@@ -67,7 +67,7 @@ export type FriendMessageType = {
     emojis: FriendEmojisInfoType[];
     fontSize: number;
     referMessage?: Partial<FriendMessageType>;
-    notifiedParty: string;
+    notifiedParty: {string: string}[];
     drawImage?: string;
 };
 
@@ -126,4 +126,24 @@ export type userInfoType = {
     confirmPassword?: string;
     email?: string;
     validateCode?: number | string;
+};
+
+export type GroupMemberType = {
+    authorities?: null;
+    avatarUrl: string;
+    backgroundImage?: null;
+    createdTime?: string;
+    data?: null;
+    deviceType?: number;
+    email?: string;
+    nickName?: string;
+    online?: boolean;
+    password?: null;
+    roles?: null;
+    status?: null;
+    token?: null;
+    track?: null;
+    userId: string;
+    username: string;
+    voipToken?: null;
 };
