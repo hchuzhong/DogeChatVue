@@ -1,10 +1,8 @@
 <script lang="ts">
 import {PropType} from 'vue-demi';
-import {FriendMessageType, messageType, messageTypeToChinese} from '../../../global/GlobalType';
-import {API} from '../../../request/api';
+import {FriendMessageType} from '../../../global/GlobalType';
 import dayjs from 'dayjs';
-
-const PictureArr = [messageType.image, messageType.livePhoto, messageType.draw, messageType.sticker, messageType.photo];
+import {getMessageData} from '../../../global/GlobalValue';
 
 export default {
     props: {
@@ -12,47 +10,19 @@ export default {
         isSelf: Boolean
     },
     data() {
-        return {
-            isText: this.message?.type === messageType.text,
-            isPicture: PictureArr.includes((this.message as FriendMessageType).type),
-            referMessage: '',
-            showContextMenu: false
-        };
+        return {};
     },
     methods: {
         parseTimeStamp(timeStamp: number) {
             return dayjs(new Date(timeStamp)).format('YYYY-MM-DD HH:mm:ss');
         },
-        getMessageData(message?: FriendMessageType) {
-            if (!message) return '';
-            const isText = message.type === messageType.text;
-            const isPicture = PictureArr.includes(message.type);
-            let content = '';
-            if (isPicture) {
-                switch (message?.type) {
-                    case messageType.sticker:
-                    case messageType.photo:
-                    case messageType.image:
-                        content = API.getPictureUrl(message.messageContent);
-                        break;
-                    case messageType.draw:
-                        content = API.getPictureUrl(message.drawImage);
-                        break;
-                }
-            } else if (isText) {
-                content = (message as FriendMessageType).messageContent;
-            } else {
-                content = `暂不支持 ${messageTypeToChinese[message.type]} 类型数据`;
-            }
-            return {content, isText, isPicture};
-        }
+        getMessageData: getMessageData
     }
 };
 </script>
 
-<!-- TODO 有人 @ 的时候加上个标志位，已读后 @ 才消失，否则不消失，参考微信 -->
 <template>
-    <div class="w-full flex flex-col mb-2" :class="isSelf ? 'items-end' : 'items-start'" @contextmenu="showContextMenu = true">
+    <div class="w-full flex flex-col mb-2 relative" :class="isSelf ? 'items-end' : 'items-start'">
         <div class="bg-gray-100 rounded px-5 py-2 mt-2 text-gray-700 relative max-w-[300px]">
             <div class="flex justify-start items-center text-xs">
                 <span class="block text-left mr-2">{{ isSelf ? '我' : message?.messageSender }}</span>

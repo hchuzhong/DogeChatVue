@@ -1,4 +1,6 @@
+import {API} from '../request/api';
 import EventHub from './EventHub';
+import {FriendMessageType, messageType, messageTypeToChinese} from './GlobalType';
 
 export const wssBaseUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/webSocket';
 
@@ -80,7 +82,33 @@ export function EventBus(): EventHub {
 export const EventName = {
     UnreadMessage: 'UnreadMessage',
     UpdateMessageHistory: 'UpdateMessageHistory',
-    UpdateOneMessage: 'UpdateOneMessage'
+    UpdateOneMessage: 'UpdateOneMessage',
+    QuoteMessage: 'QuoteMessage'
 };
 
 export const deviceType = 6;
+
+const PictureArr = [messageType.image, messageType.livePhoto, messageType.draw, messageType.sticker, messageType.photo];
+export function getMessageData(message?: FriendMessageType) {
+    if (!message) return '';
+    const isText = message.type === messageType.text;
+    const isPicture = PictureArr.includes(message.type);
+    let content = '';
+    if (isPicture) {
+        switch (message?.type) {
+            case messageType.sticker:
+            case messageType.photo:
+            case messageType.image:
+                content = API.getPictureUrl(message.messageContent);
+                break;
+            case messageType.draw:
+                content = API.getPictureUrl(message.drawImage);
+                break;
+        }
+    } else if (isText) {
+        content = (message as FriendMessageType).messageContent;
+    } else {
+        content = `暂不支持 ${messageTypeToChinese[message.type]} 类型数据`;
+    }
+    return {content, isText, isPicture};
+}
