@@ -71,7 +71,10 @@ export default {
             this.unReadMessageList = JSON.parse(JSON.stringify(newUnreadMessageList));
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+            this.someoneAtYou = false;
             for (const unReadMessage of this.unReadMessageList) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 for (const notifiedMember of JSON.parse(unReadMessage.notifiedParty)) {
                     if (this.isSelf(Object.keys(notifiedMember)[0])) {
                         this.someoneAtYou = true;
