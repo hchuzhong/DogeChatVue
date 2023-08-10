@@ -17,10 +17,13 @@ type dataType = {
     notifiedArr: {userId: string; location: number; length: number, username: string}[];
 };
 
+const at = '@';
+
 export default {
     props: {
         chooseFriendInfo: {} as PropType<FriendInfoType>,
-        groupMembersData: [] as PropType<GroupMemberType[]>
+        groupMembersData: [] as PropType<GroupMemberType[]>,
+        chooseItemId: String
     },
     components: {OnClickOutside},
     computed: {
@@ -28,6 +31,11 @@ export default {
         ...mapState(useFriendStore, ['emojiArr']),
         isGroup(): boolean {
             return this.chooseFriendInfo?.isGroup === '1';
+        }
+    },
+    watch: {
+        chooseItemId: function () {
+            (this.$refs?.messageInput as HTMLInputElement).focus();
         }
     },
     data(): dataType {
@@ -58,7 +66,7 @@ export default {
             const notifiedParty: any[] = [];
             this.notifiedArr.forEach(notifyMember => {
                 const {location, username, userId, length} = notifyMember;
-                if (content[location - 1] === '@' && content.slice(location, location + length) === username) {
+                if (content[location - 1] === at && content.slice(location, location + length) === username) {
                     notifiedParty.push({[`${userId}`]: `location=${location}&length=${length}`});
                 }
             });
@@ -126,12 +134,22 @@ export default {
             return API.getPictureUrl(src);
         },
         atMember(memberInfo: GroupMemberType) {
+            // 同一个人只能 @ 一次
+            if (this.notifiedArr.find(item => item.username === memberInfo.username)) return;
             this.notifiedArr.push({...memberInfo, location: this.inputMessage.length, length: memberInfo.username.length});
             this.inputMessage += memberInfo.username;
             this.groupMembersVisible = false;
+            (this.$refs?.messageInput as HTMLInputElement).focus();
         },
         checkForAtSymbol() {
-            this.groupMembersVisible = this.inputMessage[this.inputMessage.length - 1] === '@';
+            this.groupMembersVisible = this.inputMessage[this.inputMessage.length - 1] === at;
+            if (!this.inputMessage.includes(at)) return (this.notifiedArr = []);
+            this.notifiedArr = this.notifiedArr.filter(notifiedMember => {
+                const index = this.inputMessage.indexOf(`${at}${notifiedMember.username}`);
+                if (index === -1) return false;
+                notifiedMember.location = index + 1;
+                return true;
+            });
         }
     },
     async created() {
@@ -172,7 +190,7 @@ export default {
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
-            <input v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
+            <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
                 <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

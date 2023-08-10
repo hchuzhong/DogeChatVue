@@ -138,7 +138,7 @@ export default {
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" />
+                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
             </div>
         </div>
     </div>

@@ -7,6 +7,7 @@ import {useFriendStore} from '../../../store/module/friend';
 import {EventBus, EventName} from '../../../global/GlobalValue';
 import {useGlobalStore} from '../../../store/module/global';
 import {readMessage} from '../../../request/websocket';
+import {useAuthStore} from '../../../store/module/auth';
 
 type dataType = {
     isChoose: boolean;
@@ -15,6 +16,7 @@ type dataType = {
     unReadMessageList: FriendMessageType[];
     hadUnreadMessage: boolean;
     maxUnreadMessageNum: number;
+    someoneAtYou: boolean;
 };
 
 export default {
@@ -35,7 +37,8 @@ export default {
             messageContent: '',
             unReadMessageList: [],
             hadUnreadMessage: false,
-            maxUnreadMessageNum: 99
+            maxUnreadMessageNum: 99,
+            someoneAtYou: false
         };
     },
     watch: {
@@ -59,14 +62,26 @@ export default {
     },
     methods: {
         ...mapActions(useFriendStore, ['getFriendUnreadMessage']),
+        ...mapActions(useAuthStore, ['isSelf']),
         checkUnreadMessage(friendId?: string) {
             if (friendId && friendId !== this.friendItemInfo?.userId) return;
             const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
             this.hadUnreadMessage = newUnreadMessageList.length !== 0 && !this.isChoose;
             if (!this.hadUnreadMessage || newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
-            this.unReadMessageList = newUnreadMessageList;
+            this.unReadMessageList = JSON.parse(JSON.stringify(newUnreadMessageList));
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+            this.someoneAtYou = false;
+            for (const unReadMessage of this.unReadMessageList) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                for (const notifiedMember of JSON.parse(unReadMessage.notifiedParty)) {
+                    if (this.isSelf(Object.keys(notifiedMember)[0])) {
+                        this.someoneAtYou = true;
+                        break;
+                    }
+                }
+            }
         }
     }
 };
@@ -78,7 +93,10 @@ export default {
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avtar" />
             <div class="pb-2 flex-1" :style="`max-width: ${maxMessageWidth}px`">
                 <span class="block ml-2 font-semibold text-base text-gray-600"> {{ friendItemInfo.username }} </span>
-                <span class="block ml-2 text-sm text-gray-600 truncate">{{ messageContent }}</span>
+                <span class="block ml-2 text-sm text-gray-600 truncate">
+                    <span v-if="hadUnreadMessage && someoneAtYou" class="text-rose-600">[有人@你]</span>
+                    {{ messageContent }}
+                </span>
             </div>
             <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center text-white">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
         </a>
