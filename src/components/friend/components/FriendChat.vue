@@ -3,11 +3,12 @@ import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
-import {FriendInfoType, FriendMessageType, GroupMemberType} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
+import {OnClickOutside} from '@vueuse/components';
 
 type dataType = {
     oldChooseItemId: string;
@@ -18,6 +19,12 @@ type dataType = {
     isLoading: boolean;
     currentScrollHeight: number;
     groupMembersData: GroupMemberType[];
+    showContextMenu: boolean;
+    contextMenuX: number;
+    contextMenuY: number;
+    clickMessageInfo: undefined | FriendMessageType;
+    clickMessageElement: null | EventTarget;
+    contextmenuFunction: {text: string; command: string}[];
 };
 
 const pageSize = 10;
@@ -26,7 +33,7 @@ export default {
     props: {
         chooseItemId: String
     },
-    components: {MessageItem, FriendChatInput},
+    components: {MessageItem, FriendChatInput, OnClickOutside},
     computed: {
         ...mapState(useFriendStore, ['friendList']),
         ...mapState(useAuthStore, ['selfData'])
@@ -40,7 +47,16 @@ export default {
             imageSrc: '',
             isLoading: false,
             currentScrollHeight: 0,
-            groupMembersData: []
+            groupMembersData: [],
+            showContextMenu: false,
+            contextMenuX: 0,
+            contextMenuY: 0,
+            clickMessageInfo: undefined,
+            clickMessageElement: null,
+            contextmenuFunction: [
+                {text: '引用', command: 'quote'},
+                {text: '撤回', command: 'recall'}
+            ]
         };
     },
     watch: {
@@ -118,6 +134,19 @@ export default {
             const curChooseFriendInfo = this.curChooseFriendInfo as FriendInfoType;
             const page = isFirst ? 1 : this.getFriendMessagePage(this.chooseItemId as string) + 1;
             getHistoryMessages(curChooseFriendInfo.userId, page, pageSize);
+        },
+        showSelfContextMenu(event: MouseEvent, messageInfo: FriendMessageType) {
+            event.preventDefault();
+            this.showContextMenu = true;
+            const chat = this.$refs.chat as HTMLDivElement;
+            this.contextMenuX = event.clientX;
+            this.contextMenuY = event.clientY + chat.scrollTop - 60;
+            this.clickMessageInfo = messageInfo;
+            this.clickMessageElement = event.target;
+        },
+        async commandFor(command: string) {
+            this.showContextMenu = false;
+            if (command === 'quote') EventBus().dispatchEvent(EventName.QuoteMessage, this.clickMessageInfo);
         }
     }
 };
@@ -132,8 +161,13 @@ export default {
             </div>
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto p-10 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" />
+                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" />
                 </ul>
+                <OnClickOutside @trigger="showContextMenu = false">
+                    <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 rounded-lg p-2 border-solid shadow bg-white/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
+                        <div v-for="func in contextmenuFunction" :key="func.command" class="block ml-2 text-sm text-gray-700 cursor-pointer py-[2px]" @click="commandFor(func.command)">{{ func.text }}</div>
+                    </div>
+                </OnClickOutside>
             </div>
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
 

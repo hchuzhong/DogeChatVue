@@ -1,5 +1,5 @@
 <script lang="ts">
-import {FriendInfoType, GroupMemberType, messageType} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
 import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocket';
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
@@ -7,14 +7,17 @@ import {v4 as uuidv4} from 'uuid';
 import {PropType} from 'vue-demi';
 import {API} from '../../../request/api';
 import {useFriendStore} from '../../../store/module/friend';
-import {getImageInfo} from '../../../global/GlobalValue';
+import {EventBus, EventName, getImageInfo} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
+import QuoteMessage from './QuoteMessage.vue';
 
 type dataType = {
     inputMessage: string;
     emojiVisible: boolean;
     groupMembersVisible: boolean;
-    notifiedArr: {userId: string; location: number; length: number, username: string}[];
+    notifiedArr: {userId: string; location: number; length: number; username: string; nickName: string}[];
+    isGroup: boolean;
+    quoteMessage: null | FriendMessageType;
 };
 
 const at = '@';
@@ -25,25 +28,27 @@ export default {
         groupMembersData: [] as PropType<GroupMemberType[]>,
         chooseItemId: String
     },
-    components: {OnClickOutside},
+    components: {OnClickOutside, QuoteMessage},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr']),
-        isGroup(): boolean {
-            return this.chooseFriendInfo?.isGroup === '1';
-        }
+        ...mapState(useFriendStore, ['emojiArr'])
     },
     watch: {
         chooseItemId: function () {
             (this.$refs?.messageInput as HTMLInputElement).focus();
         }
     },
+    mounted() {
+        this.isGroup = this.chooseFriendInfo?.isGroup === '1';
+    },
     data(): dataType {
         return {
             inputMessage: '',
             emojiVisible: false,
             groupMembersVisible: false,
-            notifiedArr: []
+            notifiedArr: [],
+            isGroup: false,
+            quoteMessage: null
         };
     },
     methods: {
@@ -65,8 +70,10 @@ export default {
             const msg = serverEncrypt(content);
             const notifiedParty: any[] = [];
             this.notifiedArr.forEach(notifyMember => {
-                const {location, username, userId, length} = notifyMember;
-                if (content[location - 1] === at && content.slice(location, location + length) === username) {
+                const {location, username, nickName, userId, length} = notifyMember;
+                if (content[location - 1] === at) {
+                    const name = content.slice(location, location + length);
+                    if (name !== username && name !== nickName) return;
                     notifiedParty.push({[`${userId}`]: `location=${location}&length=${length}`});
                 }
             });
@@ -86,9 +93,13 @@ export default {
                     uuid: uuidv4()
                 }
             };
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
             console.log('send data');
             console.log(messageData);
             websocket.send(JSON.stringify(messageData));
+            EventBus().dispatchEvent(EventName.QuoteMessage);
         },
         inputPaste(event: ClipboardEvent) {
             event.preventDefault();
@@ -136,8 +147,9 @@ export default {
         atMember(memberInfo: GroupMemberType) {
             // 同一个人只能 @ 一次
             if (this.notifiedArr.find(item => item.username === memberInfo.username)) return;
-            this.notifiedArr.push({...memberInfo, location: this.inputMessage.length, length: memberInfo.username.length});
-            this.inputMessage += memberInfo.username;
+            const name = memberInfo.nickName ? memberInfo.nickName : memberInfo.username;
+            this.notifiedArr.push({...memberInfo, location: this.inputMessage.length, length: name.length});
+            this.inputMessage += name;
             this.groupMembersVisible = false;
             (this.$refs?.messageInput as HTMLInputElement).focus();
         },
@@ -145,11 +157,20 @@ export default {
             this.groupMembersVisible = this.inputMessage[this.inputMessage.length - 1] === at;
             if (!this.inputMessage.includes(at)) return (this.notifiedArr = []);
             this.notifiedArr = this.notifiedArr.filter(notifiedMember => {
-                const index = this.inputMessage.indexOf(`${at}${notifiedMember.username}`);
+                const index = this.inputMessage.indexOf(`${at}${notifiedMember.nickName ? notifiedMember.nickName : notifiedMember.username}`);
                 if (index === -1) return false;
                 notifiedMember.location = index + 1;
                 return true;
             });
+        },
+        getQuoteMessage(messageInfo: FriendMessageType) {
+            this.quoteMessage = messageInfo;
+        },
+        atQuoteMember() {
+            const memberInfo = this.groupMembersData?.find(memberInfo => memberInfo.userId === this.quoteMessage?.messageSenderId);
+            if (!memberInfo) return;
+            this.inputMessage += '@';
+            this.atMember(memberInfo);
         }
     },
     async created() {
@@ -171,12 +192,13 @@ export default {
     <div>
         <OnClickOutside @trigger="groupMembersVisible = false">
             <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border-2 rounded-lg p-2 border-solid shadow bg-white overflow-y-auto">
-                <div v-for="member in groupMembersData" :key="member.userId" class="flex py-1 cursor-pointer" @click="atMember(member)">
+                <div v-for="member in groupMembersData" :key="member.userId" class="flex items-center py-1 cursor-pointer" @click="atMember(member)">
                     <img class="h-6 w-6 rounded-full object-cover" :src="getImageSrc(member.avatarUrl)" alt="avtar" />
-                    <span class="block ml-2 text-sm text-gray-700"> {{ member.username }} </span>
+                    <span class="block ml-2 text-sm text-gray-700"> {{ member.username }}{{ member.nickName ? `(${member.nickName})` : '' }}</span>
                 </div>
             </div>
         </OnClickOutside>
+        <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
             <button class="outline-none focus:outline-none" @click="emojiVisible = true">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,7 +207,7 @@ export default {
             </button>
             <button class="outline-none focus:outline-none ml-1" @click="clickUploadImage">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
-                    <use xlink:href="#icon-shangchuantupian"></use>
+                    <use xlink:href="#icon-tupianshangchuan"></use>
                 </svg>
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
