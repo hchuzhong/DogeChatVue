@@ -1,6 +1,6 @@
 import EventHub from './EventHub';
 
-export const wssBaseUrl = import.meta.env.PROD ? 'wss://124.223.58.61/webSocket' : 'ws://localhost/webSocket';
+export const wssBaseUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/webSocket';
 
 export function getRsaKeys(callback: any) {
     return window.crypto.subtle
