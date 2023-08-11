@@ -103,6 +103,10 @@ export function initWebSocket() {
                     console.log('处理其他人发的单条私聊消息');
                     FriendStore.pushOneFriendMessage(data[0]);
                     break;
+                case 'revokeMessageSuccess':
+                    console.log('撤回消息');
+                    FriendStore.revokeOneMessage(json);
+                    break;
             }
         }
     });
@@ -138,6 +142,12 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
 export function readMessage(userId: string, readId: number) {
     if (!userId || !readId) return;
     send({method: 'readMessage', userId, readId});
+}
+
+export function recallMessage(messageInfo?: FriendMessageType) {
+    if (!messageInfo) return;
+    const {messageId, messageReceiverId, messageSenderId} = messageInfo;
+    send({method: 'revokeMessage', id: messageId, receiverId: messageReceiverId, senderId: messageSenderId});
 }
 
 function send(data: any) {

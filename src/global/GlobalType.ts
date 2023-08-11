@@ -147,3 +147,10 @@ export type GroupMemberType = {
     username: string;
     voipToken?: null;
 };
+
+export type RemoveMessageType = {
+    id: number;
+    isGroup: string;
+    messageSenderId: string;
+    messageReceiverId: string;
+};

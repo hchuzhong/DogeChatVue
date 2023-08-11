@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType, EmojiType} from '../../global/GlobalType';
+import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType, EmojiType, RemoveMessageType} from '../../global/GlobalType';
 import {EventBus, EventName} from '../../global/GlobalValue';
 import {API} from '../../request/api';
 import {clientDecrypt} from '../../request/websocket';
@@ -86,6 +86,12 @@ export const useFriendStore = defineStore('friend', {
             if (!this.friendListObj[friendId].unreadMessageHistory) this.friendListObj[friendId].unreadMessageHistory = [];
             this.friendListObj[friendId].unreadMessageHistory.push(data);
             EventBus().dispatchEvent(EventName.UnreadMessage, friendId);
+        },
+        revokeOneMessage(removeMessage: RemoveMessageType) {
+            const recallMessage = this.friendListObj[removeMessage.messageReceiverId]?.messageHistory?.records.find(message => message.messageId === removeMessage.id);
+            if (!recallMessage) return;
+            recallMessage.messageStatus = -1;
+            recallMessage.messageContent = `该消息已被撤回`;
         },
         getFriendUnreadMessage(friendId: string) {
             console.log('获取好友未读消息的地方');

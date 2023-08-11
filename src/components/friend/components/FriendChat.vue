@@ -4,7 +4,7 @@ import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
 import {FriendInfoType, FriendMessageType, GroupMemberType} from '../../../global/GlobalType';
-import {getHistoryMessages} from '../../../request/websocket';
+import {getHistoryMessages, recallMessage} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
@@ -21,14 +21,19 @@ type dataType = {
     currentScrollHeight: number;
     groupMembersData: GroupMemberType[];
     showContextMenu: boolean;
+    showRecall: boolean;
     contextMenuX: number;
     contextMenuY: number;
     clickMessageInfo: undefined | FriendMessageType;
     clickMessageElement: null | EventTarget;
-    contextmenuFunction: {text: string; command: string}[];
 };
 
 const pageSize = 10;
+
+const outsideContextmenuFunction = [
+    {text: '引用', command: 'quote'},
+    {text: '撤回', command: 'recall'}
+];
 
 export default {
     props: {
@@ -38,7 +43,10 @@ export default {
     computed: {
         ...mapState(useFriendStore, ['friendList']),
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useGlobalStore, ['isMobile'])
+        ...mapState(useGlobalStore, ['isMobile']),
+        contextmenuFunction(): {text: string; command: string}[] {
+            return this.showRecall ? outsideContextmenuFunction : outsideContextmenuFunction.filter(item => item.command !== 'recall');
+        }
     },
     data(): dataType {
         return {
@@ -51,14 +59,11 @@ export default {
             currentScrollHeight: 0,
             groupMembersData: [],
             showContextMenu: false,
+            showRecall: false,
             contextMenuX: 0,
             contextMenuY: 0,
             clickMessageInfo: undefined,
-            clickMessageElement: null,
-            contextmenuFunction: [
-                {text: '引用', command: 'quote'},
-                {text: '撤回', command: 'recall'}
-            ]
+            clickMessageElement: null
         };
     },
     watch: {
@@ -139,7 +144,8 @@ export default {
         },
         showSelfContextMenu(event: MouseEvent, messageInfo: FriendMessageType) {
             event.preventDefault();
-            this.showContextMenu = true;
+            this.showContextMenu = messageInfo.messageStatus !== -1;
+            this.showRecall = this.isSelf(messageInfo.messageSenderId);
             const chat = this.$refs.chat as HTMLDivElement;
             // 320 为左侧列表的宽度
             this.contextMenuX = event.clientX - (this.isMobile ? 0 : 320);
@@ -150,6 +156,7 @@ export default {
         async commandFor(command: string) {
             this.showContextMenu = false;
             if (command === 'quote') EventBus().dispatchEvent(EventName.QuoteMessage, this.clickMessageInfo);
+            if (command === 'recall') recallMessage(this.clickMessageInfo);
         }
     }
 };
