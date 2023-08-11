@@ -38,8 +38,8 @@ export default {
                 <use xlink:href="#icon-yinyong"></use>
             </svg>
             <span class="block mx-1">{{ message?.referMessage?.messageSender }}:</span>
-            <span v-if="referMessageData.isText" class="block break-words whitespace-pre-line">{{ referMessageData.content }}</span>
-            <img v-if="referMessageData.isPicture" class="object-cover rounded max-w-[10px] max-h-[10px]" :src="referMessageData.content" alt="" />
+            <span v-if="referMessageData.isText" class="block break-words whitespace-pre-line flex-1 max-h-[16px] truncate">{{ referMessageData.content }}</span>
+            <img v-if="referMessageData.isPicture" class="object-cover rounded max-w-[20px] max-h-[20px]" :src="referMessageData.content" alt="" />
         </div>
     </div>
 </template>

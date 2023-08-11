@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia';
+import {mobileMaxWidth} from '../../global/GlobalValue';
 
 export const useGlobalStore = defineStore('global', {
     state: () => {
@@ -10,7 +11,7 @@ export const useGlobalStore = defineStore('global', {
     actions: {
         setClientWidth(clientWidth: number) {
             this.clientWidth = clientWidth;
-            this.setIsMobile(clientWidth < 768);
+            this.setIsMobile(clientWidth < mobileMaxWidth);
         },
         setIsMobile(isMobile: boolean) {
             this.isMobile = isMobile;
