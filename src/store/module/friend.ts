@@ -109,10 +109,23 @@ export const useFriendStore = defineStore('friend', {
             this.resetUnreadMessage();
         },
         setEmojiArr(data: EmojiType[]) {
-            if (data && data.length !== 0) {
-                data.forEach(item => (item.content = API.getPictureUrl(clientDecrypt(item.content))));
-            }
-            this.emojiArr = data || [];
+            if (!data || !data?.length) return (this.emojiArr = []);
+            this.emojiArr = [];
+            let start = 0;
+            const dataNum = data.length;
+            const delayFn = () => {
+                setTimeout(() => {
+                    for (let i = start; i < Math.min(start + 100, dataNum); i++) {
+                        data[i].content = API.getPictureUrl(clientDecrypt(data[i].content));
+                        this.emojiArr.push(data[i]);
+                    }
+                    if (start + 100 < dataNum) {
+                        start += 100;
+                        delayFn();
+                    }
+                }, 1000);
+            };
+            delayFn();
         },
         decryptMessageContent(message: FriendMessageType) {
             message.messageContent = clientDecrypt(message.messageContent);
