@@ -225,6 +225,7 @@ export default {
                 <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
                     <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
                 </span>
+                <div v-if="!emojiArr.length">暂无表情包</div>
             </div>
         </OnClickOutside>
     </div>
