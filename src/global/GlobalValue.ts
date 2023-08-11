@@ -112,3 +112,5 @@ export function getMessageData(message?: FriendMessageType) {
     }
     return {content, isText, isPicture};
 }
+
+export const mobileMaxWidth = 768;

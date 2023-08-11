@@ -3,12 +3,13 @@ import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
-import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
+import {FriendInfoType, FriendMessageType, GroupMemberType} from '../../../global/GlobalType';
 import {getHistoryMessages} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
+import {useGlobalStore} from '../../../store/module/global';
 
 type dataType = {
     oldChooseItemId: string;
@@ -36,7 +37,8 @@ export default {
     components: {MessageItem, FriendChatInput, OnClickOutside},
     computed: {
         ...mapState(useFriendStore, ['friendList']),
-        ...mapState(useAuthStore, ['selfData'])
+        ...mapState(useAuthStore, ['selfData']),
+        ...mapState(useGlobalStore, ['isMobile'])
     },
     data(): dataType {
         return {
@@ -139,7 +141,8 @@ export default {
             event.preventDefault();
             this.showContextMenu = true;
             const chat = this.$refs.chat as HTMLDivElement;
-            this.contextMenuX = event.clientX;
+            // 320 为左侧列表的宽度
+            this.contextMenuX = event.clientX - (this.isMobile ? 0 : 320);
             this.contextMenuY = event.clientY + chat.scrollTop - 60;
             this.clickMessageInfo = messageInfo;
             this.clickMessageElement = event.target;
