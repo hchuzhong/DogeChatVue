@@ -783,4 +783,6 @@ export namespace API {
 
 
     manager.commonWebSocket.send(makeJsonString(for: ["method" : "readMessage","userId" : userID,"readId" : readID]))
+
+    {"id":204078,"method":"revokeMessage","receiverId":"999fdf1b-e7d2-4914-89c1-8eea0d07eb6d","senderId":"f77d0fd1-2bfc-4b0c-87a2-b15b801d08c0"}
  */
