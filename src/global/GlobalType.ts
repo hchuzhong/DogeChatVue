@@ -154,3 +154,12 @@ export type RemoveMessageType = {
     messageSenderId: string;
     messageReceiverId: string;
 };
+
+export type FriendRequestType = {
+    // 自己
+    requesterId: string;
+    requester: string;
+    // 对方
+    requestedId: string;
+    requested: string;
+};
