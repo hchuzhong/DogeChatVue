@@ -33,11 +33,6 @@ export default {
         ...mapState(useAuthStore, ['selfData']),
         ...mapState(useFriendStore, ['emojiArr'])
     },
-    watch: {
-        chooseItemId: function () {
-            (this.$refs?.messageInput as HTMLInputElement).focus();
-        }
-    },
     mounted() {
         this.isGroup = this.chooseFriendInfo?.isGroup === '1';
     },
