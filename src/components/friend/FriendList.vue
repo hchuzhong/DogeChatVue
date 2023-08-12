@@ -6,39 +6,71 @@ import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
-import {FriendInfoType} from '../../global/GlobalType';
+import {FriendInfoType, GroupMemberType} from '../../global/GlobalType';
 import {useGlobalStore} from '../../store/module/global';
 import Loading from '../common/Loading.vue';
+import {OnClickOutside} from '@vueuse/components';
 
 interface dataType {
     chooseItemId: string;
     friendList: FriendInfoType[];
     resizeTimer: null | ReturnType<typeof setTimeout>;
     isLoading: boolean;
+    inputName: string;
+    searchResult: GroupMemberType[];
+    showSearchResult: boolean;
 }
 
 export default {
-    components: {FrirendItem, FriendChat, Loading},
+    components: {FrirendItem, FriendChat, Loading, OnClickOutside},
     computed: {
-        ...mapState(useGlobalStore, ['isMobile'])
+        ...mapState(useGlobalStore, ['isMobile']),
+        ...mapState(useAuthStore, ['selfData'])
     },
     data(): dataType {
         return {
             chooseItemId: '',
             friendList: [],
             resizeTimer: null,
-            isLoading: false
+            isLoading: false,
+            inputName: '',
+            searchResult: [],
+            showSearchResult: false
         };
     },
     methods: {
         ...mapActions(useFriendStore, ['setFriendList']),
         ...mapActions(useGlobalStore, ['setClientWidth']),
+        ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
         actionChoose(chooseItemId: string) {
             console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         },
         hadChooseItem() {
             return this.chooseItemId !== '';
+        },
+        async searchFriend() {
+            if (!this.inputName) return;
+            const result = await API.getSearchResult(this.inputName);
+            this.showSearchResult = true;
+            this.searchResult = result?.data ?? [];
+        },
+        getImageSrc(src: string) {
+            return API.getPictureUrl(src);
+        },
+        async requestToBeFriend(requestFriendInfo: GroupMemberType) {
+            if (this.isSelf(requestFriendInfo.userId)) return alert('无法添加自己为好友');
+            const checkFriendExist = this.friendList.find(friendInfo => friendInfo.userId === requestFriendInfo.userId);
+            if (checkFriendExist) return alert('该用户已是你的好友');
+            const data = {
+                requesterId: this.selfData.userId,
+                requester: this.selfData.username,
+                requestedId: requestFriendInfo.userId,
+                requested: requestFriendInfo.username
+            };
+            const result = await API.postFriendRequest(data);
+            alert(result?.data?.message ?? '添加不成功，请稍后重试');
+            this.showSearchResult = true;
         }
     },
     async created() {
@@ -46,9 +78,8 @@ export default {
             this.isLoading = true;
             const data = await API.getFriendList();
             // 检查有无自身数据
-            const authStore = useAuthStore();
-            if (!authStore.selfData.userId) {
-                authStore.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
+            if (!this.selfData.userId) {
+                this.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
             }
             this.setFriendList(data?.data?.friends ?? []);
             this.friendList = data?.data?.friends ?? [];
@@ -85,8 +116,20 @@ export default {
                                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </span>
-                        <input aria-placeholder="目前还不能搜索" placeholder="目前还不能搜索" class="py-2 pl-10 block w-full rounded bg-gray-100 outline-none focus:text-gray-700" type="search" name="search" required autoComplete="search" />
+                        <input v-model="inputName" aria-placeholder="请输入对应用户名称" placeholder="请输入对应用户名称" class="py-2 pl-10 pr-2 block w-full rounded bg-gray-100 outline-none focus:text-gray-700" type="search" name="search" required autoComplete="search" @keypress.enter="searchFriend" />
                     </div>
+                    <OnClickOutside @trigger="showSearchResult = false">
+                        <div v-if="showSearchResult" class="absolute max-w-full h-60 mt-2 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white overflow-y-auto">
+                            <div class="font-semibold text-base text-gray-600 pb-1">搜索结果如下：</div>
+                            <div v-if="searchResult.length">
+                                <div v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="flex items-center py-1 cursor-pointer" @click="requestToBeFriend(friendInfo)">
+                                    <img class="h-8 w-8 rounded-full object-cover" :src="getImageSrc(friendInfo.avatarUrl)" alt="avtar" />
+                                    <span class="block ml-2 text-m text-gray-600"> {{ friendInfo.username }} </span>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-600">查询不到对应名称的用户</div>
+                        </div>
+                    </OnClickOutside>
                 </div>
                 <Loading v-if="isLoading" class="mx-auto" />
                 <!-- {/* 好友列表 */} -->

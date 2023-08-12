@@ -84,24 +84,18 @@ export function initWebSocket() {
                     }
                     break;
                 case 'PublicNewMessage':
-                    console.log('接收到了群聊的消息 ===== ');
+                case 'PersonalNewMessage':
+                    console.log('接收到了群聊/其他人的单条消息 ===== ');
                     FriendStore.pushOneFriendMessage(data[0]);
+                    break;
+                case 'sendPersonalMessageSuccess':
+                case 'sendToAllSuccess':
+                    console.log('处理自己发的单条私聊/群聊消息');
+                    FriendStore.pushOneFriendMessage(data);
                     break;
                 case 'readMessage':
                     console.log('处理已读消息 ========');
                     FriendStore.removeUnreadMessage(json);
-                    break;
-                case 'sendPersonalMessageSuccess':
-                    console.log('处理自己发的单条私聊消息');
-                    FriendStore.pushOneFriendMessage(data);
-                    break;
-                case 'sendToAllSuccess':
-                    console.log('处理自己发的单条群聊消息');
-                    FriendStore.pushOneFriendMessage(data);
-                    break;
-                case 'PersonalNewMessage':
-                    console.log('处理其他人发的单条私聊消息');
-                    FriendStore.pushOneFriendMessage(data[0]);
                     break;
                 case 'revokeMessageSuccess':
                     console.log('撤回消息');

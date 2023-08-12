@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {userInfoType} from '../global/GlobalType';
+import {FriendRequestType, userInfoType} from '../global/GlobalType';
 import {deviceType, getRsaKeys} from '../global/GlobalValue';
 
 // 添加响应拦截器
@@ -107,6 +107,24 @@ export namespace API {
 
     export function getGroupMembers(groupId: string) {
         return axios.get(`${baseUrl}/group/getMembers/${groupId}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function getSearchResult(name: string) {
+        return axios.get(`${baseUrl}/user/search/${name}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function postFriendRequest(data: FriendRequestType) {
+        return axios.post(`${baseUrl}/friendRequest/request`, data, {
             headers: {
                 'Content-Type': 'application/json'
             },
