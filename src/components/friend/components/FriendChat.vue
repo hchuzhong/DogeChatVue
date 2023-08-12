@@ -10,6 +10,7 @@ import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import {useGlobalStore} from '../../../store/module/global';
+import Loading from '../../common/Loading.vue';
 
 type dataType = {
     oldChooseItemId: string;
@@ -39,7 +40,7 @@ export default {
     props: {
         chooseItemId: String
     },
-    components: {MessageItem, FriendChatInput, OnClickOutside},
+    components: {MessageItem, FriendChatInput, OnClickOutside, Loading},
     computed: {
         ...mapState(useFriendStore, ['friendList']),
         ...mapState(useAuthStore, ['selfData']),
@@ -86,7 +87,7 @@ export default {
                 }
             }
             this.oldChooseItemId = chooseItemId;
-            this.scrollToBottom(1000);
+            this.scrollToBottom(500);
             console.log('check choose item info data 99999 ', this.chooseItem);
             console.log(this.curChooseFriendInfo?.messageHistory);
             console.log(this.curChooseFriendInfo);
@@ -102,8 +103,8 @@ export default {
         ...mapActions(useAuthStore, ['isSelf']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory', 'getFriendMessagePage']),
         scrollToBottom(delayTime = 0) {
-            setTimeout(() => {
-                this.$nextTick(() => {
+            this.$nextTick(() => {
+                setTimeout(() => {
                     let msg = document.getElementById('chat');
                     msg &&
                         msg.scrollTo({
@@ -111,8 +112,10 @@ export default {
                             top: (msg?.scrollHeight || 0) + 99999,
                             behavior: 'smooth'
                         });
-                });
-            }, delayTime);
+                    // 滚动完后自动聚焦到输入框上
+                    (this.$refs.friendChatInput as typeof FriendChatInput)?.$refs?.messageInput?.focus();
+                }, delayTime);
+            });
         },
         updateMessageHistory() {
             this.isLoading = false;
@@ -166,7 +169,8 @@ export default {
     <div class="w-full">
         <div v-if="chooseItem" class="w-full h-screen overflow-hidden flex flex-col">
             <div class="flex justify-center items-center border-b border-gray-300 py-2">
-                <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
+                <Loading v-if="isLoading" class="my-1" />
+                <img v-else class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
                 <span class="block ml-2 font-bold text-base text-gray-600"> {{ isLoading ? '加载数据中' : curChooseFriendInfo?.username }} </span>
             </div>
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto p-10 relative" @scroll="scrollChat">
@@ -182,7 +186,7 @@ export default {
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
+                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
             </div>
         </div>
     </div>

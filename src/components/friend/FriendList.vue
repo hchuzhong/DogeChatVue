@@ -8,15 +8,17 @@ import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
 import {FriendInfoType} from '../../global/GlobalType';
 import {useGlobalStore} from '../../store/module/global';
+import Loading from '../common/Loading.vue';
 
 interface dataType {
     chooseItemId: string;
     friendList: FriendInfoType[];
     resizeTimer: null | ReturnType<typeof setTimeout>;
+    isLoading: boolean;
 }
 
 export default {
-    components: {FrirendItem, FriendChat},
+    components: {FrirendItem, FriendChat, Loading},
     computed: {
         ...mapState(useGlobalStore, ['isMobile'])
     },
@@ -24,7 +26,8 @@ export default {
         return {
             chooseItemId: '',
             friendList: [],
-            resizeTimer: null
+            resizeTimer: null,
+            isLoading: false
         };
     },
     methods: {
@@ -40,6 +43,7 @@ export default {
     },
     async created() {
         try {
+            this.isLoading = true;
             const data = await API.getFriendList();
             // 检查有无自身数据
             const authStore = useAuthStore();
@@ -48,6 +52,7 @@ export default {
             }
             this.setFriendList(data?.data?.friends ?? []);
             this.friendList = data?.data?.friends ?? [];
+            this.isLoading = false;
             if (!websocket) {
                 initWebSocket();
             }
@@ -83,8 +88,9 @@ export default {
                         <input aria-placeholder="目前还不能搜索" placeholder="目前还不能搜索" class="py-2 pl-10 block w-full rounded bg-gray-100 outline-none focus:text-gray-700" type="search" name="search" required autoComplete="search" />
                     </div>
                 </div>
+                <Loading v-if="isLoading" class="mx-auto" />
                 <!-- {/* 好友列表 */} -->
-                <ul v-if="friendList.length">
+                <ul v-else-if="friendList.length">
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
                 <div v-else class="text-center">暂无好友</div>
