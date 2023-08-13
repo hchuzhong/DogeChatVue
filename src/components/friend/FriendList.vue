@@ -70,7 +70,7 @@ export default {
             };
             const result = await API.postFriendRequest(data);
             alert(result?.data?.message ?? '添加不成功，请稍后重试');
-            this.showSearchResult = true;
+            this.showSearchResult = false;
         }
     },
     async created() {

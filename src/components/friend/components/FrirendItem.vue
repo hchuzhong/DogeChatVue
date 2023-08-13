@@ -66,7 +66,7 @@ export default {
         checkUnreadMessage(friendId?: string) {
             if (friendId && friendId !== this.friendItemInfo?.userId) return;
             const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
-            this.hadUnreadMessage = newUnreadMessageList.length !== 0 && !this.isChoose;
+            this.hadUnreadMessage = newUnreadMessageList.length !== 0;
             if (!this.hadUnreadMessage || newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
             this.unReadMessageList = JSON.parse(JSON.stringify(newUnreadMessageList));
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
@@ -82,6 +82,7 @@ export default {
                     }
                 }
             }
+            readMessage(this.chooseItemId as string, this.unReadMessageList[this.unReadMessageList.length - 1].messageId);
         }
     }
 };
@@ -98,7 +99,7 @@ export default {
                     {{ messageContent }}
                 </span>
             </div>
-            <div v-if="hadUnreadMessage" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center text-white">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
+            <div v-if="hadUnreadMessage && !isChoose" class="rounded-full h-5 w-5 bg-red-500 text-sm text-center text-white">{{ Math.min(unReadMessageList.length, maxUnreadMessageNum) }}</div>
         </a>
     </div>
 </template>
