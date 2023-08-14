@@ -1,5 +1,5 @@
 <script lang="ts">
-import {PropType} from 'vue-demi';
+import type {PropType} from 'vue';
 import {FriendMessageType} from '../../../global/GlobalType';
 import dayjs from 'dayjs';
 import {getMessageData} from '../../../global/GlobalValue';

@@ -4,7 +4,7 @@ import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocke
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
-import {PropType} from 'vue-demi';
+import type {PropType} from 'vue';
 import {API} from '../../../request/api';
 import {useFriendStore} from '../../../store/module/friend';
 import {EventBus, EventName, getImageInfo} from '../../../global/GlobalValue';

@@ -10,7 +10,7 @@ import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import {useGlobalStore} from '../../../store/module/global';
-import Loading from '../../common/Loading.vue';
+import UserInfoItem from './UserInfoItem.vue';
 
 type dataType = {
     oldChooseItemId: string;
@@ -40,7 +40,7 @@ export default {
     props: {
         chooseItemId: String
     },
-    components: {MessageItem, FriendChatInput, OnClickOutside, Loading},
+    components: {MessageItem, FriendChatInput, OnClickOutside, UserInfoItem},
     computed: {
         ...mapState(useFriendStore, ['friendList']),
         ...mapState(useAuthStore, ['selfData']),
@@ -168,11 +168,7 @@ export default {
 <template>
     <div class="w-full">
         <div v-if="chooseItem" class="w-full h-screen overflow-hidden flex flex-col">
-            <div class="flex justify-center items-center border-b border-gray-300 py-2">
-                <Loading v-if="isLoading" class="my-1" />
-                <img v-else class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="message" />
-                <span class="block ml-2 font-bold text-base text-gray-600"> {{ isLoading ? '加载数据中' : curChooseFriendInfo?.username }} </span>
-            </div>
+            <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-300 py-2" />
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto p-10 relative" @scroll="scrollChat">
                 <ul>
                     <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" />
