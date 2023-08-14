@@ -7,6 +7,7 @@ import {useFriendStore} from '../../../store/module/friend';
 import {PropType} from 'vue';
 import UserInfoItem from './UserInfoItem.vue';
 import {OnClickOutside} from '@vueuse/components';
+import toast from '../../common/toast';
 
 interface dataType {
     inputName: string;
@@ -39,9 +40,9 @@ export default {
             this.searchResult = result?.data ?? [];
         },
         async requestToBeFriend(requestFriendInfo: GroupMemberType) {
-            if (this.isSelf(requestFriendInfo.userId)) return alert('无法添加自己为好友');
+            if (this.isSelf(requestFriendInfo.userId)) return toast('无法添加自己为好友');
             const checkFriendExist = this.friendList.find(friendInfo => friendInfo.userId === requestFriendInfo.userId);
-            if (checkFriendExist) return alert('该用户已是你的好友');
+            if (checkFriendExist) return toast('该用户已是你的好友');
             const data = {
                 requesterId: this.selfData.userId,
                 requester: this.selfData.username,
@@ -49,7 +50,7 @@ export default {
                 requested: requestFriendInfo.username
             };
             const result = await API.sendFriendRequest(data);
-            alert(result?.data?.message ?? '添加不成功，请稍后重试');
+            toast(result?.data?.message ?? '添加不成功，请稍后重试');
             this.showSearchResult = false;
             this.inputName = '';
         },
@@ -58,7 +59,7 @@ export default {
         },
         async acceptRequest(friendRequestId: number) {
             const acceptResult = await API.acceptFriendRequest(friendRequestId);
-            alert(acceptResult?.data?.message);
+            toast(acceptResult?.data?.message);
             if (acceptResult?.data?.status === 'success') {
                 this.$emit('updateFriendAbout');
             }
