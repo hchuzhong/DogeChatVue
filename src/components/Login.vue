@@ -1,6 +1,7 @@
 <script lang="ts">
 import {mapActions} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
+import toast from './common/toast';
 
 export default {
     data() {
@@ -15,10 +16,10 @@ export default {
         ...mapActions(useAuthStore, ['login']),
         submit() {
             if (this.form.username === '') {
-                return alert('请输入用户名');
+                return toast('请输入用户名');
             }
             if (this.form.password === '') {
-                return alert('请输入密码');
+                return toast('请输入密码');
             }
             this.login(this.form.username, this.form.password, this.$router);
         }

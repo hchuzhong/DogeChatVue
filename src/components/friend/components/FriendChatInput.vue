@@ -10,6 +10,7 @@ import {useFriendStore} from '../../../store/module/friend';
 import {EventBus, EventName, getImageInfo} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import QuoteMessage from './QuoteMessage.vue';
+import toast from '../../common/toast';
 
 type dataType = {
     inputMessage: string;
@@ -49,7 +50,7 @@ export default {
     methods: {
         ...mapActions(useFriendStore, ['setEmojiArr']),
         sendTextMessage() {
-            if (!this.inputMessage) return alert('请输入信息');
+            if (!this.inputMessage) return toast('请输入信息');
             this.sendMessage(this.inputMessage);
             this.inputMessage = '';
         },
@@ -117,7 +118,7 @@ export default {
         beforeSendPhoto(file: File) {
             const maxSize = 5 * 1024 * 1024; // 图片大小限制 5M
             if (file.size > maxSize) {
-                alert('图片大小不能超过 5MB');
+                toast('图片大小不能超过 5MB');
                 this.$refs.fileInput.value = '';
                 return;
             }

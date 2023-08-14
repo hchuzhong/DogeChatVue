@@ -2,6 +2,7 @@
 import {mapActions} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 import {API} from '../request/api';
+import toast from './common/toast';
 
 export default {
     data() {
@@ -20,28 +21,28 @@ export default {
     methods: {
         ...mapActions(useAuthStore, ['login']),
         async submit() {
-            if (!this.form.username) return alert('请输入用户名');
-            if (!this.form.password) return alert('请输入密码');
-            if (!this.form.confirmPassword) return alert('请输入确认密码');
-            if (!this.form.email) return alert('请输入邮箱');
-            if (!this.form.validateCode) return alert('请输入验证码');
-            if (this.form.password !== this.form.confirmPassword) return alert('密码与确认密码不一致');
-            if (!this.checkIsEmail()) return alert('邮箱格式有误');
+            if (!this.form.username) return toast('请输入用户名');
+            if (!this.form.password) return toast('请输入密码');
+            if (!this.form.confirmPassword) return toast('请输入确认密码');
+            if (!this.form.email) return toast('请输入邮箱');
+            if (!this.form.validateCode) return toast('请输入验证码');
+            if (this.form.password !== this.form.confirmPassword) return toast('密码与确认密码不一致');
+            if (!this.checkIsEmail()) return toast('邮箱格式有误');
             const method = this.isRegister ? API.register : API.resetPassword;
             try {
                 const data = await method(this.form);
                 const {status, message} = data.data;
                 if (status === 'success') this.login(this.form.username, this.form.password, this.$router);
-                else alert(message);
+                else toast(message);
             } catch (error) {
                 console.log(error);
             }
         },
         async sendValidateCode() {
-            if (!this.checkIsEmail()) return alert('邮箱格式有误');
+            if (!this.checkIsEmail()) return toast('邮箱格式有误');
             try {
                 const data = await API.sendValidateCode(this.form.email, this.isRegister);
-                alert(data.data.message);
+                toast(data.data.message);
             } catch (error) {
                 console.log(error);
             }

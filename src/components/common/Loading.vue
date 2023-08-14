@@ -2,10 +2,6 @@
     <div class="loading spinning"></div>
 </template>
 
-<script>
-export default {};
-</script>
-
 <style>
 .loading {
     width: 30px;
