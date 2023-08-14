@@ -6,23 +6,24 @@ import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
-import {FriendInfoType, GroupMemberType} from '../../global/GlobalType';
+import {FriendInfoType, FriendRequestHistoryType} from '../../global/GlobalType';
 import {useGlobalStore} from '../../store/module/global';
 import Loading from '../common/Loading.vue';
-import {OnClickOutside} from '@vueuse/components';
+import UserInfoItem from './components/UserInfoItem.vue';
+import FriendRequest from './components/FriendRequest.vue';
 
 interface dataType {
     chooseItemId: string;
     friendList: FriendInfoType[];
     resizeTimer: null | ReturnType<typeof setTimeout>;
     isLoading: boolean;
-    inputName: string;
-    searchResult: GroupMemberType[];
-    showSearchResult: boolean;
+    friendRequestHistory: FriendRequestHistoryType[];
+    hadNewRequest: boolean;
+    showFriendRequestVisible: boolean;
 }
 
 export default {
-    components: {FrirendItem, FriendChat, Loading, OnClickOutside},
+    components: {FrirendItem, FriendChat, Loading, UserInfoItem, FriendRequest},
     computed: {
         ...mapState(useGlobalStore, ['isMobile']),
         ...mapState(useAuthStore, ['selfData'])
@@ -33,9 +34,9 @@ export default {
             friendList: [],
             resizeTimer: null,
             isLoading: false,
-            inputName: '',
-            searchResult: [],
-            showSearchResult: false
+            friendRequestHistory: [],
+            hadNewRequest: false,
+            showFriendRequestVisible: false
         };
     },
     methods: {
@@ -49,47 +50,38 @@ export default {
         hadChooseItem() {
             return this.chooseItemId !== '';
         },
-        async searchFriend() {
-            if (!this.inputName) return;
-            const result = await API.getSearchResult(this.inputName);
-            this.showSearchResult = true;
-            this.searchResult = result?.data ?? [];
-        },
         getImageSrc(src: string) {
             return API.getPictureUrl(src);
         },
-        async requestToBeFriend(requestFriendInfo: GroupMemberType) {
-            if (this.isSelf(requestFriendInfo.userId)) return alert('无法添加自己为好友');
-            const checkFriendExist = this.friendList.find(friendInfo => friendInfo.userId === requestFriendInfo.userId);
-            if (checkFriendExist) return alert('该用户已是你的好友');
-            const data = {
-                requesterId: this.selfData.userId,
-                requester: this.selfData.username,
-                requestedId: requestFriendInfo.userId,
-                requested: requestFriendInfo.username
-            };
-            const result = await API.postFriendRequest(data);
-            alert(result?.data?.message ?? '添加不成功，请稍后重试');
-            this.showSearchResult = false;
+        checkAddFriendMessage() {
+            this.showFriendRequestVisible = true;
+            this.hadNewRequest = false;
+        },
+        async initData() {
+            try {
+                this.isLoading = true;
+                const data = await API.getFriendList();
+                // 检查有无自身数据
+                if (!this.selfData.userId) {
+                    this.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
+                }
+                this.setFriendList(data?.data?.friends ?? []);
+                this.friendList = data?.data?.friends ?? [];
+                this.isLoading = false;
+                if (!websocket) {
+                    initWebSocket();
+                }
+                const friendRequestData = await API.getFriendRequest();
+                this.friendRequestHistory = friendRequestData?.data ?? [];
+                this.friendRequestHistory.reverse();
+                this.friendRequestHistory && (this.hadNewRequest = !this.friendRequestHistory[0].friendRequestStatus);
+            } catch (error) {
+                console.log(error);
+            }
         }
     },
     async created() {
-        try {
-            this.isLoading = true;
-            const data = await API.getFriendList();
-            // 检查有无自身数据
-            if (!this.selfData.userId) {
-                this.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
-            }
-            this.setFriendList(data?.data?.friends ?? []);
-            this.friendList = data?.data?.friends ?? [];
-            this.isLoading = false;
-            if (!websocket) {
-                initWebSocket();
-            }
-        } catch (error) {
-            console.log(error);
-        }
+        this.initData();
     },
     mounted() {
         this.setClientWidth(document.body.clientWidth);
@@ -108,30 +100,18 @@ export default {
     <div class="w-screen h-screen overflow-hidden">
         <div class="flex min-w-full border rounded min-h-[80%] max-h-full">
             <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
-                <!-- {/* 搜索框 */} -->
-                <div class="my-3 mx-3">
-                    <div class="relative text-gray-600 focus-within:text-gray-400">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-2">
-                            <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" class="w-6 h-6 text-gray-500">
-                                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </span>
-                        <input v-model="inputName" aria-placeholder="请输入对应用户名称" placeholder="请输入对应用户名称" class="py-2 pl-10 pr-2 block w-full rounded bg-gray-100 outline-none focus:text-gray-700" type="search" name="search" required autoComplete="search" @keypress.enter="searchFriend" />
-                    </div>
-                    <OnClickOutside @trigger="showSearchResult = false">
-                        <div v-if="showSearchResult" class="absolute max-w-full h-60 mt-2 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white overflow-y-auto">
-                            <div class="font-semibold text-base text-gray-600 pb-1">搜索结果如下：</div>
-                            <div v-if="searchResult.length">
-                                <div v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="flex items-center py-1 cursor-pointer" @click="requestToBeFriend(friendInfo)">
-                                    <img class="h-8 w-8 rounded-full object-cover" :src="getImageSrc(friendInfo.avatarUrl)" alt="avtar" />
-                                    <span class="block ml-2 text-m text-gray-600"> {{ friendInfo.username }} </span>
-                                </div>
-                            </div>
-                            <div v-else class="text-sm text-gray-600">查询不到对应名称的用户</div>
-                        </div>
-                    </OnClickOutside>
+                <div v-if="!showFriendRequestVisible" class="border-b-2 py-2 px-4 flex items-center justify-between">
+                    <div></div>
+                    <UserInfoItem :userInfo="selfData" />
+                    <button class="flex" @click="checkAddFriendMessage">
+                        <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
+                            <use xlink:href="#icon-add1"></use>
+                        </svg>
+                        <div v-if="hadNewRequest" class="w-1 h-1 rounded bg-red-600 ml-[-4px]"></div>
+                    </button>
                 </div>
-                <Loading v-if="isLoading" class="mx-auto" />
+                <FriendRequest v-if="showFriendRequestVisible" :friendRequestHistory="friendRequestHistory" @returnFriendList="showFriendRequestVisible = false" @updateFriendAbout="initData" />
+                <Loading v-else-if="isLoading" class="mx-auto" />
                 <!-- {/* 好友列表 */} -->
                 <ul v-else-if="friendList.length">
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
@@ -140,7 +120,7 @@ export default {
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-screen col-span-2 bg-white">
-                <button v-if="isMobile" class="cursor-pointer absolute left-2 top-4" @click="chooseItemId = ''">
+                <button v-if="isMobile" class="absolute left-2 top-4" @click="chooseItemId = ''">
                     <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
                         <use xlink:href="#icon-xiangzuojiantou"></use>
                     </svg>

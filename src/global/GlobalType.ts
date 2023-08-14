@@ -155,11 +155,26 @@ export type RemoveMessageType = {
     messageReceiverId: string;
 };
 
-export type FriendRequestType = {
+export type FriendRequestPostType = {
     // 自己
     requesterId: string;
     requester: string;
     // 对方
     requestedId: string;
     requested: string;
+};
+
+export type FriendRequestHistoryType = {
+    friendRequestId: number;
+    friendRequester: string;
+    friendRequested: string;
+    friendRequesterId: string;
+    friendRequestedId: string;
+    friendRequestStatus: number;
+    requestTime: string;
+    friendRequestedAvatarUrl: string;
+    groupSize?: null;
+    isGroup: string;
+    groupId?: null;
+    groupName?: null;
 };

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {FriendRequestType, userInfoType} from '../global/GlobalType';
+import {FriendRequestPostType, userInfoType} from '../global/GlobalType';
 import {deviceType, getRsaKeys} from '../global/GlobalValue';
 
 // 添加响应拦截器
@@ -123,8 +123,26 @@ export namespace API {
         });
     }
 
-    export function postFriendRequest(data: FriendRequestType) {
+    export function getFriendRequest() {
+        return axios.get(`${baseUrl}/friendRequest/query/-1`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function sendFriendRequest(data: FriendRequestPostType) {
         return axios.post(`${baseUrl}/friendRequest/request`, data, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function acceptFriendRequest(requestId: number) {
+        return axios.post(`${baseUrl}/friendRequest/accept/${requestId}`, null, {
             headers: {
                 'Content-Type': 'application/json'
             },
