@@ -85,6 +85,13 @@ export const useFriendStore = defineStore('friend', {
         pushOneUnreadMessage(friendId: string, data: FriendMessageType) {
             if (!this.friendListObj[friendId].unreadMessageHistory) this.friendListObj[friendId].unreadMessageHistory = [];
             this.friendListObj[friendId].unreadMessageHistory.push(data);
+            this.friendListObj[friendId].message = data;
+            this.friendList.sort((a, b) => {
+                if (!a?.message?.timeStamp && !b?.message?.timeStamp) return 0;
+                if (!a?.message?.timeStamp) return 1;
+                if (!b?.message?.timeStamp) return -1;
+                return b.message.timeStamp - a.message.timeStamp;
+            });
             EventBus().dispatchEvent(EventName.UnreadMessage, friendId);
         },
         revokeOneMessage(removeMessage: RemoveMessageType) {
