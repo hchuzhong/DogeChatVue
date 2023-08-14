@@ -102,10 +102,7 @@ export default {
             <div v-if="showSearchResult" class="absolute max-w-full h-60 top-14 left-24 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white overflow-y-auto">
                 <div class="font-semibold text-base text-gray-600 pb-1">搜索结果如下：</div>
                 <div v-if="searchResult.length">
-                    <div v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="flex items-center py-1 cursor-pointer" @click="requestToBeFriend(friendInfo)">
-                        <img class="h-8 w-8 rounded-full object-cover" :src="getImageSrc(friendInfo.avatarUrl)" alt="avtar" />
-                        <span class="block ml-2 text-m text-gray-600"> {{ friendInfo.username }} </span>
-                    </div>
+                    <UserInfoItem v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="py-1 cursor-pointer" :userInfo="{username: friendInfo.username, avatarUrl: friendInfo.avatarUrl}" size="middle" :needBold="false" @click="requestToBeFriend(friendInfo)" />
                 </div>
                 <div v-else class="text-sm text-gray-600">查询不到名称为"{{ inputName }}"的用户</div>
             </div>
