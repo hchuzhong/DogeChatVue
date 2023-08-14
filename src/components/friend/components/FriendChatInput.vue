@@ -11,6 +11,7 @@ import {EventBus, EventName, getImageInfo} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import QuoteMessage from './QuoteMessage.vue';
 import toast from '../../common/toast';
+import UserInfoItem from './UserInfoItem.vue';
 
 type dataType = {
     inputMessage: string;
@@ -29,7 +30,7 @@ export default {
         groupMembersData: [] as PropType<GroupMemberType[]>,
         chooseItemId: String
     },
-    components: {OnClickOutside, QuoteMessage},
+    components: {OnClickOutside, QuoteMessage, UserInfoItem},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
         ...mapState(useFriendStore, ['emojiArr'])
@@ -188,10 +189,7 @@ export default {
     <div>
         <OnClickOutside @trigger="groupMembersVisible = false">
             <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border-2 rounded-lg p-2 border-solid shadow bg-white overflow-y-auto">
-                <div v-for="member in groupMembersData" :key="member.userId" class="flex items-center py-1 cursor-pointer" @click="atMember(member)">
-                    <img class="h-6 w-6 rounded-full object-cover" :src="getImageSrc(member.avatarUrl)" alt="avtar" />
-                    <span class="block ml-2 text-sm text-gray-700"> {{ member.username }}{{ member.nickName ? `(${member.nickName})` : '' }}</span>
-                </div>
+                <UserInfoItem v-for="member in groupMembersData" :key="member.userId" class="py-1 cursor-pointer" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
             </div>
         </OnClickOutside>
         <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />
