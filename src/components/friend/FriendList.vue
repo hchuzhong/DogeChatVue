@@ -43,7 +43,6 @@ export default {
         ...mapActions(useGlobalStore, ['setClientWidth']),
         ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
         actionChoose(chooseItemId: string) {
-            console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         },
         hadChooseItem() {
