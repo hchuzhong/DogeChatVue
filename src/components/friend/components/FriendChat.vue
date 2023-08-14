@@ -99,6 +99,10 @@ export default {
         EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
         EventBus().addEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
     },
+    unmounted() {
+        EventBus().removeEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
+        EventBus().removeEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
+    },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory', 'getFriendMessagePage']),

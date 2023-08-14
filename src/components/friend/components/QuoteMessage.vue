@@ -13,6 +13,9 @@ export default {
     created() {
         EventBus().addEventListener(EventName.QuoteMessage, this.getQuoteMessage);
     },
+    unmounted() {
+        EventBus().removeEventListener(EventName.QuoteMessage, this.getQuoteMessage);
+    },
     data(): dataType {
         return {
             quoteMessage: undefined,

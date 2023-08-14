@@ -108,7 +108,7 @@ export function getMessageData(message?: FriendMessageType) {
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
     } else {
-        content = `暂不支持 ${messageTypeToChinese[message.type]} 类型数据`;
+        content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
     return {content, isText, isPicture};
 }

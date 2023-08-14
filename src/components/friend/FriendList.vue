@@ -6,7 +6,7 @@ import {API} from '../../request/api';
 import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
-import {FriendInfoType, FriendRequestHistoryType} from '../../global/GlobalType';
+import {FriendRequestHistoryType} from '../../global/GlobalType';
 import {useGlobalStore} from '../../store/module/global';
 import Loading from '../common/Loading.vue';
 import UserInfoItem from './components/UserInfoItem.vue';
@@ -14,7 +14,6 @@ import FriendRequest from './components/FriendRequest.vue';
 
 interface dataType {
     chooseItemId: string;
-    friendList: FriendInfoType[];
     resizeTimer: null | ReturnType<typeof setTimeout>;
     isLoading: boolean;
     friendRequestHistory: FriendRequestHistoryType[];
@@ -26,12 +25,12 @@ export default {
     components: {FrirendItem, FriendChat, Loading, UserInfoItem, FriendRequest},
     computed: {
         ...mapState(useGlobalStore, ['isMobile']),
-        ...mapState(useAuthStore, ['selfData'])
+        ...mapState(useAuthStore, ['selfData']),
+        ...mapState(useFriendStore, ['friendList'])
     },
     data(): dataType {
         return {
             chooseItemId: '',
-            friendList: [],
             resizeTimer: null,
             isLoading: false,
             friendRequestHistory: [],
@@ -44,7 +43,6 @@ export default {
         ...mapActions(useGlobalStore, ['setClientWidth']),
         ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
         actionChoose(chooseItemId: string) {
-            console.log('item had been clicked', chooseItemId);
             this.chooseItemId = chooseItemId;
         },
         hadChooseItem() {
@@ -66,7 +64,6 @@ export default {
                     this.setSelfData(JSON.parse(localStorage.getItem('selfData') as string));
                 }
                 this.setFriendList(data?.data?.friends ?? []);
-                this.friendList = data?.data?.friends ?? [];
                 this.isLoading = false;
                 if (!websocket) {
                     initWebSocket();
