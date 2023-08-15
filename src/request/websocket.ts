@@ -148,7 +148,7 @@ function startPingTimer() {
     gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            console.warn('check websocket state', websocket.readyState, pingTimer);
+            console.error('check websocket state', websocket.readyState, pingTimer);
             if (websocket.readyState === WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
@@ -158,4 +158,9 @@ function startPingTimer() {
             }
         }, delayTime);
     }
+}
+
+export function stopWebsocket() {
+    pingTimer && clearInterval(pingTimer);
+    websocket.close();
 }
