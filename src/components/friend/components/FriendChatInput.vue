@@ -167,8 +167,6 @@ export default {
         }
     },
     async created() {
-        console.error('获取表情包的地方');
-        console.log(this.emojiArr);
         if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
             try {
                 const data = await API.getStar();
