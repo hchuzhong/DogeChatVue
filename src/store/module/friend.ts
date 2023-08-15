@@ -33,8 +33,6 @@ export const useFriendStore = defineStore('friend', {
                 this.decryptMessageContent(message);
                 unreadMessageObj[friendId].push(message);
             }
-            console.log('check unread message object 11111 ');
-            console.log(unreadMessageObj);
             for (const friendId in unreadMessageObj) {
                 if (!this.friendListObj[friendId]) return console.log(`userId: ${friendId} dones't exit in friend list`);
                 unreadMessageObj[friendId].sort((a, b) => a.timeStamp - b.timeStamp);
@@ -63,19 +61,16 @@ export const useFriendStore = defineStore('friend', {
             EventBus().dispatchEvent(EventName.UpdateMessageHistory);
         },
         getFriendMessageHistory(friendId: string) {
-            console.log('获取好友历史消息的地方');
             return this.friendListObj[friendId]?.messageHistory?.records || [];
         },
         getFriendMessagePage(friendId: string) {
             return this.friendListObj[friendId]?.messageHistory?.current || 1;
         },
         pushOneFriendMessage(data: FriendMessageType) {
-            console.log('更新单条消息 ------', data);
             const AuthStore = useAuthStore();
             const isSelf = AuthStore.isSelf(data.messageReceiverId);
             const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
             this.decryptMessageContent(data);
-            console.log('查看解密后的 data', data);
             this.pushOneUnreadMessage(friendId, data);
             if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
@@ -101,7 +96,6 @@ export const useFriendStore = defineStore('friend', {
             recallMessage.messageContent = `该消息已被撤回`;
         },
         getFriendUnreadMessage(friendId: string) {
-            console.log('获取好友未读消息的地方');
             return this.friendListObj[friendId]?.unreadMessageHistory || [];
         },
         resetFriendList() {

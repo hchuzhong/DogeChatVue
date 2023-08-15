@@ -18,7 +18,6 @@ type dataType = {
     emojiVisible: boolean;
     groupMembersVisible: boolean;
     notifiedArr: {userId: string; location: number; length: number; username: string; nickName: string}[];
-    isGroup: boolean;
     quoteMessage: null | FriendMessageType;
 };
 
@@ -33,10 +32,10 @@ export default {
     components: {OnClickOutside, QuoteMessage, UserInfoItem},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr'])
-    },
-    mounted() {
-        this.isGroup = this.chooseFriendInfo?.isGroup === '1';
+        ...mapState(useFriendStore, ['emojiArr']),
+        isGroup(): boolean {
+            return this.chooseFriendInfo?.isGroup === '1';
+        }
     },
     data(): dataType {
         return {
@@ -44,7 +43,6 @@ export default {
             emojiVisible: false,
             groupMembersVisible: false,
             notifiedArr: [],
-            isGroup: false,
             quoteMessage: null
         };
     },
@@ -93,8 +91,6 @@ export default {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
-            console.log('send data');
-            console.log(messageData);
             websocket.send(JSON.stringify(messageData));
             EventBus().dispatchEvent(EventName.QuoteMessage);
         },

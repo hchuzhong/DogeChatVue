@@ -17,19 +17,14 @@ export function getRsaKeys(callback: any) {
             ['encrypt', 'decrypt'] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
         )
         .then(function (key) {
-            console.log('window.crypto.subtle.exportKey =====1', key);
             window.crypto.subtle
                 .exportKey('pkcs8', key.privateKey)
                 .then(function (keydata1) {
-                    console.log('window.crypto.subtle.exportKey =====2', keydata1);
                     window.crypto.subtle
                         .exportKey('spki', key.publicKey)
                         .then(function (keydata2) {
-                            console.log('window.crypto.subtle.exportKey =====3', keydata2);
                             const privateKey = RSA2text(keydata1);
                             const publicKey = RSA2text(keydata2);
-                            console.log(privateKey);
-                            console.log(publicKey);
                             callback(privateKey, publicKey);
                         })
                         .catch(function (err) {

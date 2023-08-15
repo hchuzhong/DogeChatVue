@@ -69,8 +69,6 @@ export default {
     },
     watch: {
         chooseItemId: async function (chooseItemId: string, oldVal: string) {
-            console.log('friend chat 中的 chooseItemId 发生了变化 ==== ');
-            console.log(`new: ${chooseItemId}, old: ${oldVal}`);
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
@@ -87,12 +85,7 @@ export default {
                 }
             }
             this.oldChooseItemId = chooseItemId;
-            this.scrollToBottom(500);
-            console.log('check choose item info data 99999 ', this.chooseItem);
-            console.log(this.curChooseFriendInfo?.messageHistory);
-            console.log(this.curChooseFriendInfo);
-            console.log('查看 friend list 中的数据 ==== ');
-            console.log(this.friendList);
+            this.scrollToBottom(200);
         }
     },
     created() {
@@ -110,12 +103,7 @@ export default {
             this.$nextTick(() => {
                 setTimeout(() => {
                     let msg = document.getElementById('chat');
-                    msg &&
-                        msg.scrollTo({
-                            left: 0,
-                            top: (msg?.scrollHeight || 0) + 99999,
-                            behavior: 'smooth'
-                        });
+                    msg && (msg.scrollTop = (msg.scrollHeight || 0) + 99999);
                     // 滚动完后自动聚焦到输入框上
                     (this.$refs.friendChatInput as typeof FriendChatInput)?.$refs?.messageInput?.focus();
                 }, delayTime);

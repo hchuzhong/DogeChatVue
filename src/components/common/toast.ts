@@ -11,7 +11,6 @@ export default function toast(message: string) {
     const app = createApp(Toast, {
         message,
         close: () => {
-            console.log('toast close function done ===== ');
             app.unmount();
             document.body.removeChild(mountNode);
             isToasting = false;

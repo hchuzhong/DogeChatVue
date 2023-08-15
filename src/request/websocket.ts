@@ -17,9 +17,7 @@ const maxRetryTime = 10;
 export function initWebSocket() {
     retryTime++;
     if (pingTimer) {
-        console.log('清除旧的计时器 ==== ');
         clearInterval(pingTimer);
-        console.log(pingTimer);
         pingTimer = null;
     }
     if (retryTime >= maxRetryTime) return console.error('重连超过十次，请重新登陆');
@@ -31,12 +29,10 @@ export function initWebSocket() {
     serverEncryptor = new JSEncrypt();
 
     websocket = new WebSocket(`${wssBaseUrl}?deviceType=${deviceType}`);
-    console.log('websocket init');
     // Connection opened
     websocket.addEventListener('open', function (event) {
         startPingTimer();
         websocket.send('ping');
-        console.log('connect success');
         API.postGetPublicKey((privateKey: string, publicKey: string) => {
             // 自己的公钥和私钥也要存起来
             AuthStore.setClientKey(privateKey, publicKey);
@@ -54,12 +50,9 @@ export function initWebSocket() {
             gotPong = true;
             return;
         }
-        console.log('websocket message from server ');
         const json = JSON.parse(event.data);
         const method = json?.method;
         const data = json?.data;
-        console.log(`${method} -------------`);
-        console.log(json);
         let hadRecords = false;
 
         if (method) {
@@ -69,8 +62,6 @@ export function initWebSocket() {
                     serverEncryptor.setPublicKey(data);
                     break;
                 case 'getPublicUnreadMessage':
-                    console.log('查看当前未读消息 ==== ');
-                    console.log(data);
                     FriendStore.setUnreadMessage((data as FriendMessageType[]).filter(item => item.messageStatus === 0));
                     break;
                 case 'getHistory':
@@ -78,27 +69,21 @@ export function initWebSocket() {
                     if (!hadRecords) {
                         console.log('当前用户无聊天信息');
                     } else {
-                        console.log('查看历史消息 ==== ');
-                        console.log(data);
                         FriendStore.setFriendMessageHistory(data);
                     }
                     break;
                 case 'PublicNewMessage':
                 case 'PersonalNewMessage':
-                    console.log('接收到了群聊/其他人的单条消息 ===== ');
                     FriendStore.pushOneFriendMessage(data[0]);
                     break;
                 case 'sendPersonalMessageSuccess':
                 case 'sendToAllSuccess':
-                    console.log('处理自己发的单条私聊/群聊消息');
                     FriendStore.pushOneFriendMessage(data);
                     break;
                 case 'readMessage':
-                    console.log('处理已读消息 ========');
                     FriendStore.removeUnreadMessage(json);
                     break;
                 case 'revokeMessageSuccess':
-                    console.log('撤回消息');
                     FriendStore.revokeOneMessage(json);
                     break;
             }
@@ -128,8 +113,6 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
     if (keyWord) {
         paras['keyWord'] = keyWord;
     }
-    console.log('check getHistoryMessages params ==================');
-    console.log(paras);
     send(paras);
 }
 
