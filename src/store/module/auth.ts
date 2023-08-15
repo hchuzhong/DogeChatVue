@@ -2,6 +2,7 @@ import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
 import {Router} from 'vue-router';
+import {useFriendStore} from './friend';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -67,11 +68,27 @@ export const useAuthStore = defineStore('auth', {
             });
         },
 
-        logout() {
-            // Auth.logout()
-            // UserStore.resetUser()
-            // HistoryStore.reset()
-            // ImageStore.reset()
+        reset() {
+            useFriendStore().reset();
+            this.resetData();
+        },
+
+        resetData() {
+            this.username = '';
+            this.password = '';
+            this.clientPrivateKey = '';
+            this.clientPubliKey = '';
+            this.serverPubliKey = '';
+            this.selfData = {
+                avatarUrl: '',
+                createdTime: '',
+                data: '',
+                email: '',
+                online: false,
+                track: '',
+                userId: '',
+                username: ''
+            };
         },
 
         isSelf(id: string) {

@@ -159,3 +159,8 @@ function startPingTimer() {
         }, delayTime);
     }
 }
+
+export function stopWebsocket() {
+    pingTimer && clearInterval(pingTimer);
+    websocket.close();
+}

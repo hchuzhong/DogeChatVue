@@ -11,6 +11,7 @@ import {useGlobalStore} from '../../store/module/global';
 import Loading from '../common/Loading.vue';
 import UserInfoItem from './components/UserInfoItem.vue';
 import FriendRequest from './components/FriendRequest.vue';
+import Setting from '../Setting.vue';
 
 interface dataType {
     chooseItemId: string;
@@ -19,10 +20,11 @@ interface dataType {
     friendRequestHistory: FriendRequestHistoryType[];
     hadNewRequest: boolean;
     showFriendRequestVisible: boolean;
+    showSetting: boolean;
 }
 
 export default {
-    components: {FrirendItem, FriendChat, Loading, UserInfoItem, FriendRequest},
+    components: {FrirendItem, FriendChat, Loading, UserInfoItem, FriendRequest, Setting},
     computed: {
         ...mapState(useGlobalStore, ['isMobile']),
         ...mapState(useAuthStore, ['selfData']),
@@ -35,7 +37,8 @@ export default {
             isLoading: false,
             friendRequestHistory: [],
             hadNewRequest: false,
-            showFriendRequestVisible: false
+            showFriendRequestVisible: false,
+            showSetting: false
         };
     },
     methods: {
@@ -65,7 +68,7 @@ export default {
                 }
                 this.setFriendList(data?.data?.friends ?? []);
                 this.isLoading = false;
-                if (!websocket) {
+                if (!websocket || (websocket && websocket.readyState !== 1)) {
                     initWebSocket();
                 }
                 const friendRequestData = await API.getFriendRequest();
@@ -97,17 +100,22 @@ export default {
     <div class="w-screen h-screen overflow-hidden">
         <div class="flex min-w-full border rounded min-h-[80%] max-h-full">
             <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
-                <div v-if="!showFriendRequestVisible" class="border-b-2 py-2 px-4 flex items-center justify-between">
-                    <div></div>
+                <div v-if="!(showFriendRequestVisible || showSetting)" class="border-b-2 py-2 px-4 flex items-center justify-between">
+                    <button class="flex" @click="showSetting = true">
+                        <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
+                            <use xlink:href="#icon-setting"></use>
+                        </svg>
+                    </button>
                     <UserInfoItem :userInfo="selfData" />
                     <button class="flex" @click="checkAddFriendMessage">
                         <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
-                            <use xlink:href="#icon-add1"></use>
+                            <use xlink:href="#icon-friend"></use>
                         </svg>
-                        <div v-if="hadNewRequest" class="w-1 h-1 rounded bg-red-600 ml-[-4px]"></div>
+                        <div v-if="hadNewRequest" class="w-1 h-1 rounded bg-red-600"></div>
                     </button>
                 </div>
                 <FriendRequest v-if="showFriendRequestVisible" :friendRequestHistory="friendRequestHistory" @returnFriendList="showFriendRequestVisible = false" @updateFriendAbout="initData" />
+                <Setting v-else-if="showSetting" @returnFriendList="showSetting = false" />
                 <Loading v-else-if="isLoading" class="mx-auto" />
                 <!-- {/* 好友列表 */} -->
                 <ul v-else-if="friendList.length">
