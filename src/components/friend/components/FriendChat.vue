@@ -87,7 +87,7 @@ export default {
                 }
             }
             this.oldChooseItemId = chooseItemId;
-            this.scrollToBottom(500);
+            this.scrollToBottom(200);
             console.log('check choose item info data 99999 ', this.chooseItem);
             console.log(this.curChooseFriendInfo?.messageHistory);
             console.log(this.curChooseFriendInfo);
@@ -110,12 +110,7 @@ export default {
             this.$nextTick(() => {
                 setTimeout(() => {
                     let msg = document.getElementById('chat');
-                    msg &&
-                        msg.scrollTo({
-                            left: 0,
-                            top: (msg?.scrollHeight || 0) + 99999,
-                            behavior: 'smooth'
-                        });
+                    msg && (msg.scrollTop = (msg.scrollHeight || 0) + 99999);
                     // 滚动完后自动聚焦到输入框上
                     (this.$refs.friendChatInput as typeof FriendChatInput)?.$refs?.messageInput?.focus();
                 }, delayTime);
