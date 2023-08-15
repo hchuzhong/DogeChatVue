@@ -69,8 +69,6 @@ export default {
     },
     watch: {
         chooseItemId: async function (chooseItemId: string, oldVal: string) {
-            console.log('friend chat 中的 chooseItemId 发生了变化 ==== ');
-            console.log(`new: ${chooseItemId}, old: ${oldVal}`);
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
@@ -88,11 +86,6 @@ export default {
             }
             this.oldChooseItemId = chooseItemId;
             this.scrollToBottom(200);
-            console.log('check choose item info data 99999 ', this.chooseItem);
-            console.log(this.curChooseFriendInfo?.messageHistory);
-            console.log(this.curChooseFriendInfo);
-            console.log('查看 friend list 中的数据 ==== ');
-            console.log(this.friendList);
         }
     },
     created() {

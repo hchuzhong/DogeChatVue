@@ -152,9 +152,6 @@ export namespace API {
 
     export async function postGetPublicKey(callback: any) {
         return await getRsaKeys((privateKey: string, publicKey: string) => {
-            console.log('GlobalValue.getRsaKeys callback');
-            console.log(privateKey);
-            console.log(publicKey);
             callback(privateKey, publicKey);
         });
     }

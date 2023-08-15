@@ -91,8 +91,6 @@ export default {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
-            console.log('send data');
-            console.log(messageData);
             websocket.send(JSON.stringify(messageData));
             EventBus().dispatchEvent(EventName.QuoteMessage);
         },
