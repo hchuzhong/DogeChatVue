@@ -230,7 +230,7 @@ export default {
                 this.resetDragAbout();
                 return console.error('在原来消息的范围中');
             }
-            // (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
+            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
             this.resetDragAbout();
         },
         resetDragAbout() {
