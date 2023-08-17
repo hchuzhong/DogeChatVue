@@ -194,19 +194,24 @@ export default {
             this.dragDomRect = messageEl.getBoundingClientRect();
             this.chatDomRect = chatEl.getBoundingClientRect();
 
-            const isSelfMessage = this.isSelf(dragMessageInfo.messageSenderId);
-            // -24 为 padding
-            const offsetX = event.clientX - (isSelfMessage ? -24 : this.dragDomRect.x);
+            const offsetX = event.clientX - this.dragDomRect.x;
             const offsetY = event.clientY - this.dragDomRect.y;
 
-            this.isDragging = true;
             this.dragMessageInfo = dragMessageInfo;
             this.offsetPosition = {x: offsetX, y: offsetY};
-            this.currentPosition = {x: event.clientX - this.offsetPosition.x, y: event.clientY - this.offsetPosition.y};
+            this.currentPosition = {x: event.clientX, y: event.clientY};
         },
         mouseMove(event: MouseEvent) {
-            if (!this.isDragging || !this.chatDomRect) return;
+            if (!this.chatDomRect) return;
             const {clientX, clientY} = event;
+
+            if (!this.isDragging) {
+                const initX = this.currentPosition.x + this.offsetPosition.x;
+                const initY = this.currentPosition.y + this.offsetPosition.y;
+                const minimumDistance = 20;
+                if (Math.max(Math.abs(clientX - initX), Math.abs(clientY - initY)) < minimumDistance) return;
+                this.isDragging = true;
+            }
             const {x, y, width, height} = this.chatDomRect;
             if (clientX < x || clientX > x + width || clientY < y || clientY > y + height) {
                 this.resetDragAbout();
@@ -225,19 +230,25 @@ export default {
                 this.resetDragAbout();
                 return console.error('在原来消息的范围中');
             }
-            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
+            // (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
             this.resetDragAbout();
         },
         resetDragAbout() {
             this.isDragging = false;
             this.dragMessageInfo = undefined;
+            this.dragDomRect = null;
+            this.chatDomRect = null;
+            // this.isDragging = true;
+            this.dragMessageInfo = undefined;
+            this.offsetPosition = {x: 0, y: 0};
+            this.currentPosition = {x: 0, y: 0};
         }
     }
 };
 </script>
 
 <template>
-    <div class="w-full">
+    <div class="w-full overflow-hidden">
         <div v-if="chooseItem" class="w-full h-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-300 py-2" />
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
@@ -252,7 +263,9 @@ export default {
             </div>
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
 
-            <MessageItem v-if="dragMessageInfo && isDragging" :isSelf="isSelf(dragMessageInfo.messageSenderId)" :message="dragMessageInfo" class="absolute z-20 cursor-move" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`}" @mouseup="mouseUp" @mousemove="mouseMove" />
+            <div class="absolute z-20" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`, width: `${dragDomRect?.width ?? 10}px`, height: `${dragDomRect?.height ?? 10}px`}" @mouseup="mouseUp" @mousemove="mouseMove">
+                <MessageItem v-if="dragMessageInfo && isDragging" class="cursor-move" :isSelf="isSelf(dragMessageInfo.messageSenderId)" :message="dragMessageInfo" />
+            </div>
 
             <div class="sticky bottom-0">
                 <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
