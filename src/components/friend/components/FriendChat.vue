@@ -11,6 +11,20 @@ import {EventBus, EventName} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import {useGlobalStore} from '../../../store/module/global';
 import UserInfoItem from './UserInfoItem.vue';
+import toast from '../../common/toast';
+
+type DomRectType = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+};
+
+type PositionType = {x: number; y: number};
 
 type dataType = {
     oldChooseItemId: string;
@@ -27,6 +41,12 @@ type dataType = {
     contextMenuY: number;
     clickMessageInfo: undefined | FriendMessageType;
     clickMessageElement: null | EventTarget;
+    isDragging: boolean;
+    dragMessageInfo: undefined | FriendMessageType;
+    offsetPosition: PositionType;
+    currentPosition: PositionType;
+    dragDomRect: null | DomRectType;
+    chatDomRect: null | DomRectType;
 };
 
 const pageSize = 10;
@@ -47,6 +67,9 @@ export default {
         ...mapState(useGlobalStore, ['isMobile']),
         contextmenuFunction(): {text: string; command: string}[] {
             return this.showRecall ? outsideContextmenuFunction : outsideContextmenuFunction.filter(item => item.command !== 'recall');
+        },
+        draggingElement(): HTMLDivElement {
+            return this.$refs.chat as HTMLDivElement;
         }
     },
     data(): dataType {
@@ -64,7 +87,13 @@ export default {
             contextMenuX: 0,
             contextMenuY: 0,
             clickMessageInfo: undefined,
-            clickMessageElement: null
+            clickMessageElement: null,
+            isDragging: false,
+            dragMessageInfo: undefined,
+            offsetPosition: {x: 0, y: 0},
+            currentPosition: {x: 0, y: 0},
+            dragDomRect: null,
+            chatDomRect: null
         };
     },
     watch: {
@@ -86,6 +115,7 @@ export default {
             }
             this.oldChooseItemId = chooseItemId;
             this.scrollToBottom(200);
+            EventBus().dispatchEvent(EventName.QuoteMessage);
         }
     },
     created() {
@@ -147,11 +177,60 @@ export default {
             this.contextMenuY = event.clientY + chat.scrollTop - 60;
             this.clickMessageInfo = messageInfo;
             this.clickMessageElement = event.target;
+            this.isDragging = false;
         },
         async commandFor(command: string) {
             this.showContextMenu = false;
             if (command === 'quote') EventBus().dispatchEvent(EventName.QuoteMessage, this.clickMessageInfo);
             if (command === 'recall') recallMessage(this.clickMessageInfo);
+        },
+        mouseDown(event: MouseEvent, dragMessageInfo: FriendMessageType, index: number) {
+            event.preventDefault();
+            // 点击右键或者 contextmenu 展示时直接返回
+            if (event.button === 2 || this.showContextMenu) return;
+            const messageEl = document.getElementById(`message${index}`);
+            const chatEl = document.getElementById('chat');
+            if (!messageEl || !chatEl) return console.warn('can not find messafe item', index, ' or chat element');
+            this.dragDomRect = messageEl.getBoundingClientRect();
+            this.chatDomRect = chatEl.getBoundingClientRect();
+
+            const isSelfMessage = this.isSelf(dragMessageInfo.messageSenderId);
+            // -24 为 padding
+            const offsetX = event.clientX - (isSelfMessage ? -24 : this.dragDomRect.x);
+            const offsetY = event.clientY - this.dragDomRect.y;
+
+            this.isDragging = true;
+            this.dragMessageInfo = dragMessageInfo;
+            this.offsetPosition = {x: offsetX, y: offsetY};
+            this.currentPosition = {x: event.clientX - this.offsetPosition.x, y: event.clientY - this.offsetPosition.y};
+        },
+        mouseMove(event: MouseEvent) {
+            if (!this.isDragging || !this.chatDomRect) return;
+            const {clientX, clientY} = event;
+            const {x, y, width, height} = this.chatDomRect;
+            if (clientX < x || clientX > x + width || clientY < y || clientY > y + height) {
+                this.resetDragAbout();
+                return toast('拖拽范围仅限于消息列表范围内');
+            }
+            this.currentPosition = {x: event.clientX - this.offsetPosition.x, y: event.clientY - this.offsetPosition.y};
+        },
+        mouseUp(event: MouseEvent) {
+            if (!this.dragDomRect || !this.chatDomRect) return;
+            const {clientX, clientY} = event;
+            if (clientX < this.chatDomRect.x || clientX > this.chatDomRect.x + this.chatDomRect.width || clientY < this.chatDomRect.y || clientY > this.chatDomRect.y + this.chatDomRect.height) {
+                this.resetDragAbout();
+                return console.error('超出了聊天框的范围');
+            }
+            if (clientY < this.dragDomRect.y + this.dragDomRect.height && clientY > this.dragDomRect.y) {
+                this.resetDragAbout();
+                return console.error('在原来消息的范围中');
+            }
+            // (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
+            this.resetDragAbout();
+        },
+        resetDragAbout() {
+            this.isDragging = false;
+            this.dragMessageInfo = undefined;
         }
     }
 };
@@ -161,9 +240,9 @@ export default {
     <div class="w-full">
         <div v-if="chooseItem" class="w-full h-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-300 py-2" />
-            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto p-10 relative" @scroll="scrollChat">
+            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="message in messageRecords" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" />
+                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" @mousedown="event => mouseDown(event, message, index)" />
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
                     <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 rounded-lg p-2 border-solid shadow bg-white/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
@@ -172,6 +251,8 @@ export default {
                 </OnClickOutside>
             </div>
             <div v-else class="h-screen m-auto text-center">暂无数据</div>
+
+            <MessageItem v-if="dragMessageInfo && isDragging" :isSelf="isSelf(dragMessageInfo.messageSenderId)" :message="dragMessageInfo" class="absolute z-20 cursor-move" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`}" @mouseup="mouseUp" @mousemove="mouseMove" />
 
             <div class="sticky bottom-0">
                 <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
