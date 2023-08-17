@@ -3,6 +3,10 @@
         <div class="mb-10 text-xl text-gray-500">Total Left Time: {{ allTime }}</div>
         <div class="text-bold text-2xl">Current Task: {{ currentConfig.text }}</div>
         <div class="mt-2">Current Task Left Time: {{ leftTime }}</div>
+        <div>
+            <button class="border-2 px-2 py-1 mt-4 rounded-xl" @click="changeState">{{ isStop ? '继续' : '暂停' }}</button>
+            <button class="border-2 px-2 py-1 mt-4 rounded-xl ml-4" @click="reset">reset</button>
+        </div>
     </div>
 </template>
 
@@ -41,7 +45,8 @@ export default {
                 {text: 'Pause', time: timeConfig.halfMinute},
                 {text: 'talk about one of your goals', time: timeConfig.towMinutes}
             ],
-            currentStep: 0
+            currentStep: 0,
+            isStop: false
         };
     },
     mounted() {
@@ -49,6 +54,7 @@ export default {
     },
     methods: {
         countDown() {
+            if (this.isStop) return;
             if (!this.allTime) return;
             if (!this.leftTime) {
                 this.currentStep++;
@@ -59,6 +65,15 @@ export default {
             this.leftTime--;
             this.allTime--;
             setTimeout(this.countDown, 1000);
+        },
+        changeState() {
+            this.isStop = !this.isStop;
+            !this.isStop && this.countDown();
+        },
+        reset() {
+            const pastTime = this.currentConfig.time - this.leftTime;
+            this.leftTime = this.currentConfig.time;
+            this.allTime += pastTime;
         }
     }
 };
