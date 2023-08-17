@@ -22,7 +22,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-full flex flex-col mb-2 relative" :class="isSelf ? 'items-end' : 'items-start'">
+    <div class="w-full flex flex-col mb-2" :class="isSelf ? 'items-end' : 'items-start'">
         <div class="bg-gray-100 rounded px-5 py-2 mt-2 text-gray-700 relative max-w-[300px]">
             <div class="flex justify-start items-center text-xs">
                 <span class="block text-left mr-2">{{ isSelf ? '我' : message?.messageSender }}</span>

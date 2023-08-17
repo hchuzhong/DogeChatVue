@@ -45,9 +45,10 @@ export default {
                 <use xlink:href="#icon-cancel"></use>
             </svg>
         </button>
-        <span class="block text-left mr-2 ml-1">{{ quoteMessage?.messageSender }}: </span>
+        <span class="block text-left ml-1">{{ quoteMessage?.messageSender }}</span>
+        <span v-if="showAt" class="text-blue-500 cursor-pointer" @click="atQuoteMember">(点击@ta)</span>
+        <span class="block text-left mr-2 ml-1">:</span>
         <img v-if="messageData.isPicture" class="object-cover max-w-[24px] max-h-[24px]" :src="messageData.content" alt="" />
         <span v-else class="block break-words whitespace-pre-line truncate flex-1 max-h-[24px]">{{ messageData.content }}</span>
-        <span v-if="showAt" class="text-blue-500 ml-2 cursor-pointer" @click="atQuoteMember">(点击 @ta)</span>
     </div>
 </template>
