@@ -47,6 +47,7 @@ type dataType = {
     currentPosition: PositionType;
     dragDomRect: null | DomRectType;
     chatDomRect: null | DomRectType;
+    isBottom: boolean;
 };
 
 const pageSize = 10;
@@ -93,7 +94,8 @@ export default {
             offsetPosition: {x: 0, y: 0},
             currentPosition: {x: 0, y: 0},
             dragDomRect: null,
-            chatDomRect: null
+            chatDomRect: null,
+            isBottom: true
         };
     },
     watch: {
@@ -136,30 +138,38 @@ export default {
                     msg && (msg.scrollTop = (msg.scrollHeight || 0) + 99999);
                     // 滚动完后自动聚焦到输入框上
                     (this.$refs.friendChatInput as typeof FriendChatInput)?.$refs?.messageInput?.focus();
+                    this.isBottom = true;
                 }, delayTime);
             });
         },
+        updateScrollPosition() {
+            this.isBottom && this.scrollToBottom();
+        },
         updateMessageHistory() {
-            this.isLoading = false;
             this.messageRecords = this.getFriendMessageHistory(this.chooseItemId as string);
             const chat = this.$refs.chat as HTMLDivElement;
-            if (chat) {
-                // 请求数据后滚动到原来的位置而不是最上方
+            // 请求数据后滚动到原来的位置而不是最上方
+            if (chat && this.isLoading) {
                 setTimeout(() => {
                     this.$nextTick(() => {
                         chat.scrollTo(0, chat.scrollHeight - this.currentScrollHeight);
                     });
                 }, 0);
             }
+            this.updateScrollPosition();
+            this.isLoading = false;
         },
-        scrollChat(e: any) {
-            let el = e.target;
+        scrollChat(event: any) {
+            let el = event.target;
             if (el.scrollTop <= 0) {
                 // 请求上一页聊天消息的数据
                 this.getHistoryMessages();
                 const chat = this.$refs.chat as HTMLDivElement;
                 this.currentScrollHeight = chat.scrollHeight;
             }
+            const {scrollTop, scrollHeight, clientHeight} = el;
+            const cache = 10;
+            this.isBottom = scrollHeight - scrollTop - cache <= clientHeight;
         },
         getHistoryMessages(isFirst = false) {
             this.isLoading = true;
@@ -172,7 +182,7 @@ export default {
             this.showContextMenu = messageInfo.messageStatus !== -1;
             this.showRecall = this.isSelf(messageInfo.messageSenderId);
             const chat = this.$refs.chat as HTMLDivElement;
-            // 320 为左侧列表的宽度
+            // 320 为左侧列表的宽度, 60 为头部的高度
             this.contextMenuX = event.clientX - (this.isMobile ? 0 : 320);
             this.contextMenuY = event.clientY + chat.scrollTop - 60;
             this.clickMessageInfo = messageInfo;
@@ -220,16 +230,10 @@ export default {
             this.currentPosition = {x: event.clientX - this.offsetPosition.x, y: event.clientY - this.offsetPosition.y};
         },
         mouseUp(event: MouseEvent) {
-            if (!this.dragDomRect || !this.chatDomRect) return;
+            if (!this.dragDomRect || !this.chatDomRect || !this.dragMessageInfo) return;
             const {clientX, clientY} = event;
-            if (clientX < this.chatDomRect.x || clientX > this.chatDomRect.x + this.chatDomRect.width || clientY < this.chatDomRect.y || clientY > this.chatDomRect.y + this.chatDomRect.height) {
-                this.resetDragAbout();
-                return console.error('超出了聊天框的范围');
-            }
-            if (clientY < this.dragDomRect.y + this.dragDomRect.height && clientY > this.dragDomRect.y) {
-                this.resetDragAbout();
-                return console.error('在原来消息的范围中');
-            }
+            if (clientX < this.chatDomRect.x || clientX > this.chatDomRect.x + this.chatDomRect.width || clientY < this.chatDomRect.y || clientY > this.chatDomRect.y + this.chatDomRect.height) return this.resetDragAbout();
+            if (clientY < this.dragDomRect.y + this.dragDomRect.height && clientY > this.dragDomRect.y) return this.resetDragAbout();
             (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
             this.resetDragAbout();
         },
@@ -267,7 +271,7 @@ export default {
             </div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" />
+                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" @showEmoji="updateScrollPosition" />
             </div>
         </div>
     </div>

@@ -164,6 +164,10 @@ export default {
             if (!memberInfo) return;
             this.inputMessage += '@';
             this.atMember(memberInfo);
+        },
+        showEmoji() {
+            this.emojiVisible = true;
+            this.$emit('showEmoji');
         }
     },
     async created() {
@@ -188,7 +192,7 @@ export default {
         </OnClickOutside>
         <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />
         <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
-            <button class="outline-none focus:outline-none" @click="emojiVisible = true">
+            <button class="outline-none focus:outline-none" @click="showEmoji">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-biaoqing"></use>
                 </svg>
