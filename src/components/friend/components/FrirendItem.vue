@@ -27,7 +27,7 @@ export default {
     computed: {
         ...mapState(useGlobalStore, ['isMobile', 'clientWidth']),
         maxMessageWidth(): number {
-            return this.isMobile ? Math.max(this.clientWidth - 100, 0) : 220;
+            return this.isMobile ? Math.max(this.clientWidth - 90, 0) : 230;
         }
     },
     data(): dataType {

@@ -238,7 +238,6 @@ export default {
             this.dragMessageInfo = undefined;
             this.dragDomRect = null;
             this.chatDomRect = null;
-            // this.isDragging = true;
             this.dragMessageInfo = undefined;
             this.offsetPosition = {x: 0, y: 0};
             this.currentPosition = {x: 0, y: 0};

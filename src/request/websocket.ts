@@ -20,7 +20,10 @@ export function initWebSocket() {
         clearInterval(pingTimer);
         pingTimer = null;
     }
-    if (retryTime >= maxRetryTime) return console.error('重连超过十次，请重新登陆');
+    if (retryTime >= maxRetryTime) {
+        window.location.href = '/';
+        return console.error('重连超过十次，请重新登陆');
+    }
 
     const AuthStore = useAuthStore();
     const FriendStore = useFriendStore();
