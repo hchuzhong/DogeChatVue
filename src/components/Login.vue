@@ -12,6 +12,17 @@ export default {
             }
         };
     },
+    mounted() {
+        if (this.$route.query?.preview) {
+            console.log('auto login username2');
+            this.form = {
+                username: 'username2',
+                password: '1234567890'
+            };
+            toast('preview mode, 3 秒后自动登录');
+            setTimeout(this.submit, 3000);
+        }
+    },
     methods: {
         ...mapActions(useAuthStore, ['login']),
         submit() {
