@@ -52,10 +52,10 @@ export default {
         </div>
         <!-- body -->
         <div class="flex flex-col mt-2 text-gray-600 px-2">
-            <div class="flex justify-between">
+            <!-- <div class="flex justify-between">
                 暗黑模式 {{ openDarkMode }}
                 <input type="checkbox" class="cursor-pointer" @change="watchCheckbox" />
-            </div>
+            </div> -->
             <div class="cursor-pointer mt-1" @click="logout">退出</div>
         </div>
     </div>
