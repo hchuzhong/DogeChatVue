@@ -50,7 +50,7 @@ type dataType = {
     isBottom: boolean;
 };
 
-const pageSize = 10;
+const pageSize = 20;
 
 const outsideContextmenuFunction = [
     {text: '引用', command: 'quote'},
