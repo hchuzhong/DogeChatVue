@@ -40,7 +40,7 @@ export default {
 
 <template>
     <div>
-        <div class="h-screen bg-blue-100 flex justify-center items-center">
+        <div class="h-self-screen bg-blue-100 flex justify-center items-center">
             <div class="lg:w-2/5 md:w-1/2 w-2/3">
                 <form class="bg-white p-10 rounded-lg shadow-lg min-w-full">
                     <h1 class="text-center text-2xl mb-6 text-gray-600 font-bold font-sans">登录</h1>
