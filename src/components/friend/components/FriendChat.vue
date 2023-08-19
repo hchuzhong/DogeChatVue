@@ -50,7 +50,7 @@ type dataType = {
     isBottom: boolean;
 };
 
-const pageSize = 10;
+const pageSize = 20;
 
 const outsideContextmenuFunction = [
     {text: '引用', command: 'quote'},
@@ -252,9 +252,9 @@ export default {
 
 <template>
     <div class="w-full overflow-hidden">
-        <div v-if="chooseItem" class="w-full h-screen overflow-hidden flex flex-col">
+        <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-300 py-2" />
-            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
+            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
                 <ul>
                     <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" @mousedown="event => mouseDown(event, message, index)" />
                 </ul>
@@ -264,7 +264,7 @@ export default {
                     </div>
                 </OnClickOutside>
             </div>
-            <div v-else class="h-screen m-auto text-center">暂无数据</div>
+            <div v-else class="h-self-screen m-auto text-center">暂无数据</div>
 
             <div class="absolute z-20" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`, width: `${dragDomRect?.width ?? 10}px`, height: `${dragDomRect?.height ?? 10}px`}" @mouseup="mouseUp" @mousemove="mouseMove">
                 <MessageItem v-if="dragMessageInfo && isDragging" class="cursor-move" :isSelf="isSelf(dragMessageInfo.messageSenderId)" :message="dragMessageInfo" />
