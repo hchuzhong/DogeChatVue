@@ -73,10 +73,10 @@ export default {
         <!-- header -->
         <div class="flex items-center w-full p-2 border-b-2">
             <button class="flex items-center" @click="$emit('returnFriendList')">
-                <svg class="icon text-gray-400 h-4 w-4" aria-hidden="true">
+                <svg class="icon text-gray-400 dark:text-gray-200 h-4 w-4" aria-hidden="true">
                     <use xlink:href="#icon-xiangzuojiantou"></use>
                 </svg>
-                <span class="text-gray-400 pl-1">{{ selfData.username }}</span>
+                <span class="text-gray-400 dark:text-gray-200 pl-1">{{ selfData.username }}</span>
             </button>
             <div class="relative text-gray-600 focus-within:text-gray-400 pl-2 flex-1">
                 <span class="absolute inset-y-0 left-1 flex items-center pl-2">
@@ -95,16 +95,16 @@ export default {
                     </template>
                 </UserInfoItem>
                 <div v-if="friendRequest.friendRequestStatus" class="text-gray-400">已添加</div>
-                <button v-else class="border border-slate-400 rounded py-1 px-2" @click="acceptRequest(friendRequest.friendRequestId)">加为好友</button>
+                <button v-else class="border border-slate-400 rounded py-1 px-2 dark:text-gray-300" @click="acceptRequest(friendRequest.friendRequestId)">加为好友</button>
             </div>
         </div>
         <OnClickOutside @trigger="showSearchResult = false">
-            <div v-if="showSearchResult" class="absolute max-w-full h-60 top-14 left-24 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white overflow-y-auto">
-                <div class="font-semibold text-base text-gray-600 pb-1">搜索结果如下：</div>
+            <div v-if="showSearchResult" class="absolute max-w-full h-60 top-14 left-24 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
+                <div class="font-semibold text-base text-gray-600 dark:text-gray-400 pb-1">搜索结果如下：</div>
                 <div v-if="searchResult.length">
                     <UserInfoItem v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="py-1 cursor-pointer" :userInfo="{username: friendInfo.username, avatarUrl: friendInfo.avatarUrl}" size="middle" :needBold="false" @click="requestToBeFriend(friendInfo)" />
                 </div>
-                <div v-else class="text-sm text-gray-600">查询不到名称为"{{ inputName }}"的用户</div>
+                <div v-else class="text-sm text-gray-600 dark:text-gray-400">查询不到名称为"{{ inputName }}"的用户</div>
             </div>
         </OnClickOutside>
     </div>

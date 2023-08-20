@@ -4,7 +4,7 @@ import {useAuthStore} from '../store/module/auth';
 import {stopWebsocket} from '../request/websocket';
 import {API} from '../request/api';
 import toast from './common/toast';
-// import {useDark, useToggle} from '@vueuse/core';
+import {useGlobalStore} from '../store/module/global';
 
 export default {
     data() {
@@ -13,10 +13,12 @@ export default {
         };
     },
     computed: {
-        ...mapState(useAuthStore, ['selfData'])
+        ...mapState(useAuthStore, ['selfData']),
+        ...mapState(useGlobalStore, ['isDarkMode'])
     },
     methods: {
         ...mapActions(useAuthStore, ['reset']),
+        ...mapActions(useGlobalStore, ['setDarkMode']),
         async logout() {
             const reuslt = await API.logout();
             toast(reuslt.data.message);
@@ -25,13 +27,7 @@ export default {
             this.$router.push('/');
         },
         watchCheckbox(event: Event) {
-            // this.openDarkMode = event.target?.checked ?? false;
-            // const isDark = useDark();
-            // this.openDarkMode = isDark;
-            // const toggleDark = useToggle(this.openDarkMode);
-            // console.log('check dark');
-            // console.log(isDark);
-            // console.log(toggleDark);
+            this.setDarkMode(event.target?.checked ?? false);
         }
     }
 };
@@ -42,20 +38,20 @@ export default {
         <!-- header -->
         <div class="flex items-center justify-between w-full">
             <button class="flex items-center" @click="$emit('returnFriendList')">
-                <svg class="icon text-gray-400 h-4 w-4" aria-hidden="true">
+                <svg class="icon text-gray-400 dark:text-gray-300 h-4 w-4" aria-hidden="true">
                     <use xlink:href="#icon-xiangzuojiantou"></use>
                 </svg>
-                <span class="text-gray-400 pl-1">{{ selfData.username }}</span>
+                <span class="text-gray-400 dark:text-gray-300 pl-1">{{ selfData.username }}</span>
             </button>
-            <span class="mr-20 text-xl text-gray-900">设置</span>
+            <span class="mr-20 text-xl text-gray-900 dark:text-gray-100">设置</span>
             <span></span>
         </div>
         <!-- body -->
-        <div class="flex flex-col mt-2 text-gray-600 px-2">
-            <!-- <div class="flex justify-between">
-                暗黑模式 {{ openDarkMode }}
-                <input type="checkbox" class="cursor-pointer" @change="watchCheckbox" />
-            </div> -->
+        <div class="flex flex-col mt-2 text-gray-600 dark:text-gray-400 px-2">
+            <div class="flex justify-between">
+                暗黑模式
+                <input type="checkbox" class="cursor-pointer" :checked="isDarkMode" @change="watchCheckbox" />
+            </div>
             <div class="cursor-pointer mt-1" @click="logout">退出</div>
         </div>
     </div>

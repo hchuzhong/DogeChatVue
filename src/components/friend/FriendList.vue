@@ -99,16 +99,16 @@ export default {
 <template>
     <div class="w-screen h-self-screen overflow-hidden">
         <div class="flex min-w-full border rounded min-h-[80%] max-h-full">
-            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white border-r border-gray-300 h-self-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
+            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white dark:bg-gray-800 border-r border-gray-400 h-self-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
                 <div v-if="!(showFriendRequestVisible || showSetting)" class="border-b-2 py-2 px-4 flex items-center justify-between">
                     <button class="flex" @click="showSetting = true">
-                        <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
+                        <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                             <use xlink:href="#icon-setting"></use>
                         </svg>
                     </button>
                     <UserInfoItem :userInfo="selfData" />
                     <button class="flex" @click="checkAddFriendMessage">
-                        <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
+                        <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                             <use xlink:href="#icon-friend"></use>
                         </svg>
                         <div v-if="hadNewRequest" class="w-1 h-1 rounded bg-red-600"></div>
@@ -121,12 +121,12 @@ export default {
                 <ul v-else-if="friendList.length">
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
-                <div v-else class="text-center">暂无好友</div>
+                <div v-else class="text-center text-gray-600 dark:text-gray-400">暂无好友</div>
             </div>
             <!-- {/* 聊天界面 */} -->
-            <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-self-screen col-span-2 bg-white">
+            <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">
                 <button v-if="isMobile" class="absolute left-2 top-4" @click="chooseItemId = ''">
-                    <svg class="icon text-gray-400 h-5 w-5" aria-hidden="true">
+                    <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                         <use xlink:href="#icon-xiangzuojiantou"></use>
                     </svg>
                 </button>

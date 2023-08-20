@@ -1,11 +1,13 @@
 import {defineStore} from 'pinia';
 import {mobileMaxWidth} from '../../global/GlobalValue';
+import {useToggle} from '@vueuse/core';
 
 export const useGlobalStore = defineStore('global', {
     state: () => {
         return {
             clientWidth: 0,
-            isMobile: false
+            isMobile: false,
+            isDarkMode: false
         };
     },
     actions: {
@@ -15,6 +17,10 @@ export const useGlobalStore = defineStore('global', {
         },
         setIsMobile(isMobile: boolean) {
             this.isMobile = isMobile;
+        },
+        setDarkMode(isDarkMode: boolean) {
+            this.isDarkMode = isDarkMode;
+            useToggle(this.isDarkMode);
         }
     }
 });

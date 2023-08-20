@@ -1,6 +1,16 @@
 <script lang="ts">
+import {mapActions} from 'pinia';
+import {useGlobalStore} from './store/module/global';
+import {useDark} from '@vueuse/core';
+
 export default {
+    methods: {
+        ...mapActions(useGlobalStore, ['setDarkMode'])
+    },
     mounted() {
+        const isDark = useDark();
+        this.setDarkMode(isDark);
+
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (!isMobile) return;
         const resetVh = () => {
