@@ -186,12 +186,12 @@ export default {
 <template>
     <div>
         <OnClickOutside @trigger="groupMembersVisible = false">
-            <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border-2 rounded-lg p-2 border-solid shadow bg-white overflow-y-auto">
+            <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border-2 rounded-lg p-2 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
                 <UserInfoItem v-for="member in groupMembersData" :key="member.userId" class="py-1 cursor-pointer" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
             </div>
         </OnClickOutside>
         <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />
-        <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-300">
+        <div class="w-full py-3 px-3 flex items-center justify-between border-t border-gray-400">
             <button class="outline-none focus:outline-none" @click="showEmoji">
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-biaoqing"></use>

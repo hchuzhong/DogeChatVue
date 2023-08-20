@@ -8,12 +8,6 @@ type UserInfoItemType = {
     avatarUrl: string;
 };
 
-enum size {
-    normal = 'normal',
-    middle = 'middle',
-    small = 'small'
-}
-
 export default {
     props: {
         userInfo: {} as PropType<UserInfoItemType>,
@@ -63,7 +57,7 @@ export default {
         <Loading v-if="isLoading && showLoading" class="my-1" />
         <img v-else class="rounded-full object-cover" :class="getImageStyle()" :src="getImageSrc()" alt="avatar" />
         <div class="flex flex-col ml-2">
-            <span class="block text-gray-800" :class="getTextStyle()"> {{ isLoading && showLoading ? '加载数据中' : userInfo?.username }} </span>
+            <span class="block text-gray-800 dark:text-gray-300" :class="getTextStyle()"> {{ isLoading && showLoading ? '加载数据中' : userInfo?.username }} </span>
             <slot name="content" />
         </div>
     </div>
