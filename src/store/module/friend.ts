@@ -1,9 +1,10 @@
 import {defineStore} from 'pinia';
-import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType, EmojiType, RemoveMessageType} from '../../global/GlobalType';
+import {FriendStoreType, FriendInfoType, FriendMessageType, FriendMessageHistoryType, EmojiType, RemoveMessageType, messageType, messageTypeToChinese} from '../../global/GlobalType';
 import {EventBus, EventName} from '../../global/GlobalValue';
 import {API} from '../../request/api';
 import {clientDecrypt} from '../../request/websocket';
 import {useAuthStore} from './auth';
+import icon from '../../assets/doge.png';
 
 export const useFriendStore = defineStore('friend', {
     state: (): FriendStoreType => {
@@ -76,6 +77,28 @@ export const useFriendStore = defineStore('friend', {
             this.friendListObj[friendId].messageHistory.records.push(data);
             const eventData = {friendId, needScroll: true};
             EventBus().dispatchEvent(EventName.UpdateOneMessage, eventData);
+            // 推送消息
+            this.notifyMessage(data, friendId);
+        },
+        notifyMessage(data: FriendMessageType, friendId: string) {
+            // if (this.friendListObj[friendId].isMuted === '1') return;
+            const {messageContent, type, messageSender, messageReceiver} = data;
+            const notifyContent = `${messageSender}:` + (type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`);
+            const options = {
+                body: notifyContent,
+                icon: icon
+            };
+            if (!('Notification' in window)) {
+                console.warn('This browser does not support desktop notification');
+            } else if (Notification.permission === 'granted') {
+                new Notification(messageReceiver, options);
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(messageReceiver, options);
+                    }
+                });
+            }
         },
         pushOneUnreadMessage(friendId: string, data: FriendMessageType) {
             if (!this.friendListObj[friendId].unreadMessageHistory) this.friendListObj[friendId].unreadMessageHistory = [];
