@@ -50,7 +50,7 @@ export default {
                     </div>
                     <div>
                         <label class="text-gray-800 dark:text-gray-200 font-semibold block my-3 text-md" htmlFor="password"> 密码 </label>
-                        <input id="password" v-model="form.password" class="w-full bg-gray-100 px-4 py-2 rounded-lg focus:outline-none" type="password" name="password" placeholder="请输入密码" />
+                        <input id="password" v-model="form.password" class="w-full bg-gray-100 px-4 py-2 rounded-lg focus:outline-none" type="password" name="password" placeholder="请输入密码" @keypress.enter="submit" />
                     </div>
                     <button type="submit" class="w-full mt-6 bg-cyan-600 rounded-lg px-4 py-2 text-lg text-white tracking-wide font-semibold font-sans" @click.prevent="submit">登录</button>
                     <router-link class="text-sm ml-2 text-cyan-500 hover:text-cyan-600 cursor-pointer" to="/forget-passport"> 忘记密码 ? </router-link>
