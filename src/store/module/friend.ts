@@ -81,7 +81,7 @@ export const useFriendStore = defineStore('friend', {
             this.notifyMessage(data, friendId);
         },
         notifyMessage(data: FriendMessageType, friendId: string) {
-            // if (this.friendListObj[friendId].isMuted === '1') return;
+            if (this.friendListObj[friendId].isMuted === '1') return;
             const {messageContent, type, messageSender, messageReceiver} = data;
             const notifyContent = `${messageSender}:` + (type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`);
             const options = {
