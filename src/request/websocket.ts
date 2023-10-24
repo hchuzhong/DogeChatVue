@@ -1,4 +1,4 @@
-import JSEncrypt from 'encryptlong';
+import JSEncrypt from 'jsencrypt-ext';
 import {FriendMessageType} from '../global/GlobalType';
 import {deviceType, wssBaseUrl} from '../global/GlobalValue';
 import {useAuthStore} from '../store/module/auth';
@@ -139,12 +139,12 @@ function send(data: any) {
 }
 
 export function clientDecrypt(data: string) {
-    const a = clientEncryptor.decryptLong(data);
+    const a = clientEncryptor.decrypt(data);
     return decodeURIComponent(a as string);
 }
 
 export function serverEncrypt(data: string) {
-    return serverEncryptor.encryptLong(data);
+    return serverEncryptor.encrypt(data);
 }
 
 function startPingTimer() {
