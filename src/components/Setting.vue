@@ -1,9 +1,6 @@
 <script lang="ts">
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
-import {stopWebsocket} from '../request/websocket';
-import {API} from '../request/api';
-import toast from './common/toast';
 import {useGlobalStore} from '../store/module/global';
 
 export default {
@@ -17,14 +14,10 @@ export default {
         ...mapState(useGlobalStore, ['isDarkMode'])
     },
     methods: {
-        ...mapActions(useAuthStore, ['reset']),
+        ...mapActions(useAuthStore, ['logout']),
         ...mapActions(useGlobalStore, ['setDarkMode']),
-        async logout() {
-            const reuslt = await API.logout();
-            toast(reuslt.data.message);
-            this.reset();
-            stopWebsocket();
-            this.$router.push('/');
+        async logoutAccount() {
+            this.logout(this.$router);
         },
         watchCheckbox(event: Event) {
             this.setDarkMode(event.target?.checked ?? false);
@@ -52,7 +45,7 @@ export default {
                 暗黑模式
                 <input type="checkbox" class="cursor-pointer" :checked="isDarkMode" @change="watchCheckbox" />
             </div>
-            <div class="cursor-pointer mt-1" @click="logout">退出</div>
+            <div class="cursor-pointer mt-1" @click="logoutAccount">退出</div>
         </div>
     </div>
 </template>

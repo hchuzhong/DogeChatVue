@@ -3,6 +3,9 @@ import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
 import {Router} from 'vue-router';
 import {useFriendStore} from './friend';
+import {autoLoginItem} from '../../global/GlobalValue';
+import toast from '../../components/common/toast';
+import {stopWebsocket} from '../../request/websocket';
 
 export const useAuthStore = defineStore('auth', {
     state: () => {
@@ -12,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
             clientPrivateKey: '',
             clientPubliKey: '',
             serverPubliKey: '',
+            fromLogout: false,
             selfData: {
                 avatarUrl: '',
                 createdTime: '',
@@ -24,8 +28,6 @@ export const useAuthStore = defineStore('auth', {
             }
         };
     },
-    // could also be defined as
-    // state: () => ({ count: 0 })
     actions: {
         setUsername(username: string) {
             this.username = username;
@@ -56,6 +58,8 @@ export const useAuthStore = defineStore('auth', {
                     .then(data => {
                         const loginSuccess = !!data?.data?.userInfo;
                         if (loginSuccess) {
+                            localStorage.setItem(autoLoginItem, JSON.stringify({username, password}));
+                            this.fromLogout = false;
                             this.setSelfData(data?.data?.userInfo);
                             localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
                             router.push('/friend-list');
@@ -66,6 +70,16 @@ export const useAuthStore = defineStore('auth', {
                         reject(err);
                     });
             });
+        },
+
+        async logout(router: Router) {
+            const reuslt = await API.logout();
+            localStorage.removeItem(autoLoginItem);
+            this.fromLogout = true;
+            toast(reuslt.data.message);
+            this.reset();
+            stopWebsocket();
+            router.push('/');
         },
 
         reset() {
@@ -79,6 +93,7 @@ export const useAuthStore = defineStore('auth', {
             this.clientPrivateKey = '';
             this.clientPubliKey = '';
             this.serverPubliKey = '';
+            this.fromLogout = false;
             this.selfData = {
                 avatarUrl: '',
                 createdTime: '',

@@ -1,9 +1,13 @@
 <script lang="ts">
-import {mapActions} from 'pinia';
+import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 import toast from './common/toast';
+import { autoLoginItem } from '../global/GlobalValue';
 
 export default {
+    computed: {
+        ...mapState(useAuthStore, ['fromLogout'])
+    },
     data() {
         return {
             form: {
@@ -22,6 +26,7 @@ export default {
             toast('preview mode, 3 秒后自动登录');
             setTimeout(this.submit, 3000);
         }
+        this.autoLogin();
     },
     methods: {
         ...mapActions(useAuthStore, ['login']),
@@ -33,6 +38,13 @@ export default {
                 return toast('请输入密码');
             }
             this.login(this.form.username, this.form.password, this.$router);
+        },
+        autoLogin() {
+            const infoItem = JSON.parse(localStorage.getItem(autoLoginItem) || '{}');
+            if (this.fromLogout || !infoItem?.username) return;
+            this.form.username = infoItem.username;
+            this.form.password = infoItem.password;
+            this.submit();
         }
     }
 };
