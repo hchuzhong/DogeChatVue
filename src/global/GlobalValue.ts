@@ -109,3 +109,5 @@ export function getMessageData(message?: FriendMessageType) {
 }
 
 export const mobileMaxWidth = 768;
+
+export const autoLoginItem = 'autoLoginItem';
