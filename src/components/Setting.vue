@@ -2,16 +2,21 @@
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 import {useGlobalStore} from '../store/module/global';
+import {textModeItem} from '../global/GlobalValue';
 
 export default {
     data() {
         return {
-            openDarkMode: false
+            openDarkMode: false,
+            openTextMode: false
         };
     },
     computed: {
         ...mapState(useAuthStore, ['selfData']),
         ...mapState(useGlobalStore, ['isDarkMode'])
+    },
+    mounted() {
+        this.openTextMode = JSON.parse(localStorage.getItem(textModeItem) ?? '{}')?.openTextMode;
     },
     methods: {
         ...mapActions(useAuthStore, ['logout']),
@@ -19,8 +24,12 @@ export default {
         async logoutAccount() {
             this.logout(this.$router);
         },
-        watchCheckbox(event: Event) {
+        changeDarkMode(event: Event) {
             this.setDarkMode(event.target?.checked ?? false);
+        },
+        changeTextMode(event: Event) {
+            this.openTextMode = event.target?.checked ?? false;
+            localStorage.setItem(textModeItem, JSON.stringify({openTextMode: this.openTextMode}));
         }
     }
 };
@@ -43,7 +52,11 @@ export default {
         <div class="flex flex-col mt-2 text-gray-600 dark:text-gray-400 px-2">
             <div class="flex justify-between">
                 暗黑模式
-                <input type="checkbox" class="cursor-pointer" :checked="isDarkMode" @change="watchCheckbox" />
+                <input type="checkbox" class="cursor-pointer" :checked="isDarkMode" @change="changeDarkMode" />
+            </div>
+            <div class="flex justify-between mt-1">
+                纯文本模式
+                <input type="checkbox" class="cursor-pointer" :checked="openTextMode" @change="changeTextMode" />
             </div>
             <div class="cursor-pointer mt-1" @click="logoutAccount">退出</div>
         </div>
