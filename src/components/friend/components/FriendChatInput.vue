@@ -62,7 +62,7 @@ export default {
         },
         sendMessage(content: string, type = messageType.text) {
             const selfData = this.selfData;
-            const msg = serverEncrypt(content);
+            const msg = serverEncrypt(encodeURIComponent(content));
             const notifiedParty: any[] = [];
             this.notifiedArr.forEach(notifyMember => {
                 const {location, username, nickName, userId, length} = notifyMember;
