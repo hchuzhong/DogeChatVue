@@ -4,7 +4,6 @@ import {EventBus, EventName} from '../../global/GlobalValue';
 import {API} from '../../request/api';
 import {clientDecrypt} from '../../request/websocket';
 import {useAuthStore} from './auth';
-import icon from '../../assets/doge.png';
 
 export const useFriendStore = defineStore('friend', {
     state: (): FriendStoreType => {
@@ -84,10 +83,7 @@ export const useFriendStore = defineStore('friend', {
             if (this.friendListObj[friendId].isMuted === '1') return;
             const {messageContent, type, messageSender, messageReceiver} = data;
             const notifyContent = `${messageSender}:` + (type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`);
-            const options = {
-                body: notifyContent,
-                icon: icon
-            };
+            const options = { body: notifyContent };
             if (!('Notification' in window)) {
                 console.warn('This browser does not support desktop notification');
             } else if (Notification.permission === 'granted') {
