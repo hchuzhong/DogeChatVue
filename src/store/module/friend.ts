@@ -68,8 +68,7 @@ export const useFriendStore = defineStore('friend', {
         },
         pushOneFriendMessage(data: FriendMessageType) {
             const AuthStore = useAuthStore();
-            const isSelf = AuthStore.isSelf(data.messageReceiverId);
-            const friendId = isSelf ? data.messageSenderId : data.messageReceiverId;
+            const friendId = AuthStore.isSelf(data.messageReceiverId) ? data.messageSenderId : data.messageReceiverId;
             this.decryptMessageContent(data);
             this.pushOneUnreadMessage(friendId, data);
             if (!this.friendListObj[friendId].messageHistory) return;
@@ -77,7 +76,7 @@ export const useFriendStore = defineStore('friend', {
             const eventData = {friendId, needScroll: true};
             EventBus().dispatchEvent(EventName.UpdateOneMessage, eventData);
             // 推送消息
-            this.notifyMessage(data, friendId);
+            !AuthStore.isSelf(data.messageSenderId) && this.notifyMessage(data, friendId);
         },
         notifyMessage(data: FriendMessageType, friendId: string) {
             if (this.friendListObj[friendId].isMuted === '1') return;
