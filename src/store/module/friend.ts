@@ -148,7 +148,7 @@ export const useFriendStore = defineStore('friend', {
             delayFn();
         },
         decryptMessageContent(message: FriendMessageType) {
-            message.messageContent = clientDecrypt(message.messageContent);
+            message.messageContent = decodeURIComponent(clientDecrypt(message.messageContent));
             message?.referMessage && (message.referMessage.messageContent = clientDecrypt(message.referMessage.messageContent as string));
         },
         removeUnreadMessage(data: {userId: string}) {
