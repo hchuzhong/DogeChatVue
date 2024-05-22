@@ -89,6 +89,7 @@ export function getMessageData(message?: FriendMessageType) {
     const isText = message.type === messageType.text;
     const isPicture = PictureArr.includes(message.type);
     let content = '';
+    let width = 0, height = 0;
     if (isPicture) {
         switch (message?.type) {
             case messageType.sticker:
@@ -100,12 +101,23 @@ export function getMessageData(message?: FriendMessageType) {
                 content = API.getPictureUrl(message.drawImage);
                 break;
         }
+        // get width and height
+        if (content.includes('+')) {
+            const info = content.split('.')[0].split('+');
+            width = Number(info[1] ?? 0);
+            height = Number(info[2] ?? 0);
+        } else {
+            const params = new URLSearchParams(`?${content.split('?')[1]}`);
+            width = Number(params.get('width') ?? 0);
+            height = Number(params.get('height') ?? 0);
+        }
+        width > 300 && (height = height * 300 / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
     } else {
         content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
-    return {content, isText, isPicture};
+    return {content, isText, isPicture, width, height};
 }
 
 export const mobileMaxWidth = 768;

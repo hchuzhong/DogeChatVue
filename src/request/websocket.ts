@@ -96,6 +96,13 @@ export function initWebSocket() {
     // Listen fo error
     websocket.addEventListener('error', function (event) {
         console.log('check websocket error', event);
+        stopWebsocket();
+    });
+
+    // Listen for close
+    websocket.addEventListener('close', function (event) {
+        console.log('close websocket', event);
+        stopWebsocket();
     });
 }
 

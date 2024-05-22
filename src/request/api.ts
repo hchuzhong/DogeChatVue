@@ -169,7 +169,7 @@ export namespace API {
         const openTextMode = JSON.parse(localStorage.getItem(textModeItem) ?? '{}')?.openTextMode ?? false;
         if (!url || openTextMode) return '';
         const strArr = url.split('/');
-        return `/api/star/fileDownload/${strArr[strArr.length - 1]}`.replaceAll('+', '%2B');
+        return `/api/star/fileDownload/${strArr[strArr.length - 1]}`;
     }
 
     export async function uploadImg(data: FormData) {

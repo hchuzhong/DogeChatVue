@@ -54,11 +54,10 @@ export default {
             this.inputMessage = '';
         },
         sendEmojiMessage(url: string) {
-            // TODO 后续再看看 %2B 要不要去掉
-            this.sendMessage(url.replaceAll('%2B', '+'), messageType.sticker);
+            this.sendMessage(url, messageType.sticker);
         },
         sendPhotoMessage(url: string) {
-            this.sendMessage(url.replaceAll('%2B', '+'), messageType.photo);
+            this.sendMessage(url, messageType.photo);
         },
         sendMessage(content: string, type = messageType.text) {
             const selfData = this.selfData;
