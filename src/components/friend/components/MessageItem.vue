@@ -29,7 +29,7 @@ export default {
                 <span class="block text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
             </div>
             {{ void (messageData = getMessageData(message)) }}
-            <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px`}`" :src="messageData.content" alt="" />
+            <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" />
             <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
         </div>
         <div v-if="message?.referMessage" class="text-xs text-gray-400 flex items-center max-w-[300px] mt-1">
