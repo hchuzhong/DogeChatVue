@@ -1,6 +1,6 @@
 <script lang="ts">
 import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
-import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocket';
+import {clientDecrypt, getWebsocket, serverEncrypt} from '../../../request/websocket';
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
 import {v4 as uuidv4} from 'uuid';
@@ -90,7 +90,7 @@ export default {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
-            websocket.send(JSON.stringify(messageData));
+            getWebsocket().send(JSON.stringify(messageData));
             EventBus().dispatchEvent(EventName.QuoteMessage);
         },
         inputPaste(event: ClipboardEvent) {

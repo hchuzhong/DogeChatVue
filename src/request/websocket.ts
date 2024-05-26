@@ -5,14 +5,14 @@ import {useAuthStore} from '../store/module/auth';
 import {useFriendStore} from '../store/module/friend';
 import {API} from './api';
 
-export let websocket: WebSocket;
+let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
 export let serverEncryptor: JSEncrypt;
 let pingTimer: number | null = null;
 let gotPong = false;
 let retryTime = 0;
 const delayTime = 5000;
-const maxRetryTime = 10;
+const maxRetryTime = 20;
 
 export function initWebSocket() {
     retryTime++;
@@ -96,13 +96,14 @@ export function initWebSocket() {
     // Listen fo error
     websocket.addEventListener('error', function (event) {
         console.log('check websocket error', event);
-        stopWebsocket();
+        setTimeout(() => {
+            initWebSocket();
+        }, delayTime);
     });
 
     // Listen for close
     websocket.addEventListener('close', function (event) {
         console.log('close websocket', event);
-        stopWebsocket();
     });
 }
 
@@ -158,7 +159,7 @@ function startPingTimer() {
     gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            console.warn('check websocket state', websocket.readyState, pingTimer);
+            console.warn('check websocket state:', websocket.readyState, pingTimer);
             if (websocket.readyState === WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
@@ -173,4 +174,8 @@ function startPingTimer() {
 export function stopWebsocket() {
     pingTimer && clearInterval(pingTimer);
     websocket.close();
+}
+
+export function getWebsocket() {
+    return websocket;
 }
