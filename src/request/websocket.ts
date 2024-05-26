@@ -5,7 +5,7 @@ import {useAuthStore} from '../store/module/auth';
 import {useFriendStore} from '../store/module/friend';
 import {API} from './api';
 
-let websocket: WebSocket;
+export let websocket: WebSocket;
 export let clientEncryptor: JSEncrypt;
 export let serverEncryptor: JSEncrypt;
 let pingTimer: number | null = null;
@@ -174,8 +174,4 @@ function startPingTimer() {
 export function stopWebsocket() {
     pingTimer && clearInterval(pingTimer);
     websocket.close();
-}
-
-export function getWebsocket() {
-    return websocket;
 }

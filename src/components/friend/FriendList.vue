@@ -3,7 +3,7 @@ import {useFriendStore} from '../../store/module/friend';
 import FrirendItem from './components/FrirendItem.vue';
 import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
-import {getWebsocket, initWebSocket, outsideWebsocket} from '../../request/websocket';
+import {initWebSocket, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
 import {FriendRequestHistoryType} from '../../global/GlobalType';
@@ -68,7 +68,6 @@ export default {
                 }
                 this.setFriendList(data?.data?.friends ?? []);
                 this.isLoading = false;
-                const websocket = getWebsocket();
                 if (!websocket || (websocket && websocket.readyState !== 1)) {
                     initWebSocket();
                 }
