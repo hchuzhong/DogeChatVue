@@ -74,7 +74,7 @@ export default {
                 const friendRequestData = await API.getFriendRequest();
                 this.friendRequestHistory = friendRequestData?.data ?? [];
                 this.friendRequestHistory.reverse();
-                this.friendRequestHistory && (this.hadNewRequest = !this.friendRequestHistory[0].friendRequestStatus);
+                this.friendRequestHistory.length && (this.hadNewRequest = !this.friendRequestHistory[0].friendRequestStatus);
             } catch (error) {
                 console.log(error);
             }
