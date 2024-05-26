@@ -254,9 +254,9 @@ export default {
     <div class="w-full overflow-hidden">
         <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-400 py-2" />
-            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
+            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" @mousedown="event => mouseDown(event, message, index)" />
+                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message)" @mousedown="event => mouseDown(event, message, index)" />
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
                     <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
