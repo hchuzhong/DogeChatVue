@@ -216,7 +216,7 @@ export default {
             this.offsetPosition = {x: offsetX, y: offsetY};
             this.currentPosition = {x: event.clientX, y: event.clientY};
         },
-        mouseMove(event: MouseEvent) {
+        mouseMoveDragMessage(event: MouseEvent) {
             if (!this.chatDomRect) return;
             const {clientX, clientY} = event;
 
@@ -234,13 +234,16 @@ export default {
             }
             this.currentPosition = {x: event.clientX - this.offsetPosition.x, y: event.clientY - this.offsetPosition.y};
         },
-        mouseUp(event: MouseEvent) {
+        mouseUpDragMessage(event: MouseEvent) {
             if (!this.dragDomRect || !this.chatDomRect || !this.dragMessageInfo) return;
             const {clientX, clientY} = event;
             if (clientX < this.chatDomRect.x || clientX > this.chatDomRect.x + this.chatDomRect.width || clientY < this.chatDomRect.y || clientY > this.chatDomRect.y + this.chatDomRect.height) return this.resetDragAbout();
             if (clientY < this.dragDomRect.y + this.dragDomRect.height && clientY > this.dragDomRect.y) return this.resetDragAbout();
-            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(this.dragMessageInfo?.messageContent, this.dragMessageInfo?.type);
+            this.repeatMessage(this.dragMessageInfo);
             this.resetDragAbout();
+        },
+        repeatMessage(messafeInfo: FriendMessageType) {
+            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type);
         },
         resetDragAbout() {
             this.isDragging = false;
@@ -269,7 +272,7 @@ export default {
             if (Math.abs(curPosition.clientX - x) > cache || Math.abs(curPosition.clientY - y) > cache) {
                 this.touch.isTouching = false;
             }
-        }
+        },
     }
 };
 </script>
@@ -280,7 +283,7 @@ export default {
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-400 py-2" />
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @mousedown="event => mouseDown(event, message, index)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove"/>
+                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" :isMobile="isMobile" @contextmenu="event => showSelfContextMenu(event, message, true)" @mousedown="event => mouseDown(event, message, index)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove" @repeatMessage="repeatMessage"/>
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
                     <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
@@ -290,7 +293,7 @@ export default {
             </div>
             <div v-else class="h-self-screen m-auto text-center text-gray-600 dark:text-gray-400">暂无数据</div>
 
-            <div class="absolute z-20" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`, width: `${dragDomRect?.width ?? 10}px`, height: `${dragDomRect?.height ?? 10}px`}" @mouseup="mouseUp" @mousemove="mouseMove">
+            <div class="absolute z-20" :style="{top: `${currentPosition.y}px`, left: `${currentPosition.x}px`, width: `${dragDomRect?.width ?? 10}px`, height: `${dragDomRect?.height ?? 10}px`}" @mouseup="mouseUpDragMessage" @mousemove="mouseMoveDragMessage">
                 <MessageItem v-if="dragMessageInfo && isDragging" class="cursor-move" :isSelf="isSelf(dragMessageInfo.messageSenderId)" :message="dragMessageInfo" />
             </div>
 

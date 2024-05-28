@@ -5,14 +5,25 @@ import dayjs from 'dayjs';
 import {getMessageData} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
 
+type TouchType = {
+    isTouching: boolean;
+    startPosition: {x: number; y: number};
+    touchStartTime: number;
+}
+
 export default {
     props: {
         message: {} as PropType<FriendMessageType>,
         isSelf: Boolean,
-        hideIcon: Boolean
+        hideIcon: Boolean,
+        isMobile: Boolean,
     },
-    data() {
-        return {};
+    data(): TouchType {
+        return {
+            isTouching: false,
+            startPosition: {x: 0, y: 0},
+            touchStartTime: 0
+        };
     },
     methods: {
         parseTimeStamp(timeStamp: number) {
@@ -21,7 +32,30 @@ export default {
         getImageSrc() {
             return API.getPictureUrl(this.message?.avatarUrl);
         },
-        getMessageData: getMessageData
+        getMessageData: getMessageData,
+        touchStart(event: TouchEvent) {
+            if (!this.isMobile) return;
+            this.isTouching = true;
+            this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+            this.touchStartTime = new Date().getTime();
+        },
+        touchMove(event: TouchEvent) {
+            if (!this.isTouching) return;
+            const curPosition = event.touches[0];
+            const cache = 10;
+            const {x, y} = this.startPosition;
+            if (Math.abs(curPosition.clientX - x) > cache || Math.abs(curPosition.clientY - y) > cache) {
+                this.isTouching = false;
+            }
+        },
+        touchEnd(event: TouchEvent) {
+            if (!this.isTouching) return;
+            this.isTouching = false;
+            const now = new Date().getTime();
+            const clickTime = 300;
+            if (now - this.touchStartTime > clickTime) return;
+            this.$emit('repeatMessage', this.message);
+        }
     },
 };
 </script>
@@ -40,6 +74,11 @@ export default {
                 {{ void (messageData = getMessageData(message)) }}
                 <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" />
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
+                <div v-if="isMobile" class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove">
+                    <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
+                        <use xlink:href="#icon-birds"></use>
+                    </svg>
+                </div>
             </div>
             <div v-if="message?.referMessage" class="text-xs text-gray-400 flex items-center max-w-[300px] mt-1">
                 {{ void (referMessageData = getMessageData(message.referMessage)) }}
