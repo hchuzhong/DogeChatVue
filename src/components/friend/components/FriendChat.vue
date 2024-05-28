@@ -26,6 +26,11 @@ type DomRectType = {
 
 type PositionType = {x: number; y: number};
 
+type TouchType = {
+    isTouching: boolean;
+    startPosition: PositionType;
+}
+
 type dataType = {
     oldChooseItemId: string;
     chooseItem: boolean;
@@ -40,7 +45,6 @@ type dataType = {
     contextMenuX: number;
     contextMenuY: number;
     clickMessageInfo: undefined | FriendMessageType;
-    clickMessageElement: null | EventTarget;
     isDragging: boolean;
     dragMessageInfo: undefined | FriendMessageType;
     offsetPosition: PositionType;
@@ -48,6 +52,7 @@ type dataType = {
     dragDomRect: null | DomRectType;
     chatDomRect: null | DomRectType;
     isBottom: boolean;
+    touch: TouchType;
 };
 
 const pageSize = 20;
@@ -88,14 +93,14 @@ export default {
             contextMenuX: 0,
             contextMenuY: 0,
             clickMessageInfo: undefined,
-            clickMessageElement: null,
             isDragging: false,
             dragMessageInfo: undefined,
             offsetPosition: {x: 0, y: 0},
             currentPosition: {x: 0, y: 0},
             dragDomRect: null,
             chatDomRect: null,
-            isBottom: true
+            isBottom: true,
+            touch: {isTouching: false, startPosition: {x: 0, y: 0}}
         };
     },
     watch: {
@@ -177,16 +182,16 @@ export default {
             const page = isFirst ? 1 : this.getFriendMessagePage(this.chooseItemId as string) + 1;
             getHistoryMessages(curChooseFriendInfo.userId, page, pageSize);
         },
-        showSelfContextMenu(event: MouseEvent, messageInfo: FriendMessageType) {
+        showSelfContextMenu(event: MouseEvent | TouchEvent, messageInfo: FriendMessageType, fromContextmenuEvent = false) {
             event.preventDefault();
             this.showContextMenu = messageInfo.messageStatus !== -1;
             this.showRecall = this.isSelf(messageInfo.messageSenderId);
             const chat = this.$refs.chat as HTMLDivElement;
             // 320 为左侧列表的宽度, 60 为头部的高度
-            this.contextMenuX = event.clientX - (this.isMobile ? 0 : 320);
-            this.contextMenuY = event.clientY + chat.scrollTop - 60;
+            const target = fromContextmenuEvent ? (event as MouseEvent) : (event as TouchEvent).touches[0];
+            this.contextMenuX = target.clientX - (this.isMobile ? 0 : 320);
+            this.contextMenuY = target.clientY + chat.scrollTop - 60;
             this.clickMessageInfo = messageInfo;
-            this.clickMessageElement = event.target;
             this.isDragging = false;
         },
         async commandFor(command: string) {
@@ -245,6 +250,25 @@ export default {
             this.dragMessageInfo = undefined;
             this.offsetPosition = {x: 0, y: 0};
             this.currentPosition = {x: 0, y: 0};
+        },
+        touchStart(event: TouchEvent, messageInfo: FriendMessageType) {
+            if (!this.isMobile || this.showContextMenu) return;
+            this.touch.isTouching = true;
+            this.touch.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+            setTimeout(() => {
+                if (!this.touch.isTouching) return;
+                this.showSelfContextMenu(event, messageInfo);
+                this.touch.isTouching = false;
+            }, 500);
+        },
+        touchMove(event: TouchEvent) {
+            if (!this.touch.isTouching) return;
+            const curPosition = event.touches[0];
+            const cache = 10;
+            const {x, y} = this.touch.startPosition;
+            if (Math.abs(curPosition.clientX - x) > cache || Math.abs(curPosition.clientY - y) > cache) {
+                this.touch.isTouching = false;
+            }
         }
     }
 };
@@ -254,9 +278,9 @@ export default {
     <div class="w-full overflow-hidden">
         <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-400 py-2" />
-            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-6 relative" @scroll="scrollChat">
+            <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" @contextmenu="event => showSelfContextMenu(event, message)" @mousedown="event => mouseDown(event, message, index)" />
+                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @mousedown="event => mouseDown(event, message, index)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove"/>
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
                     <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
