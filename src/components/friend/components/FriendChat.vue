@@ -187,10 +187,10 @@ export default {
             this.showContextMenu = messageInfo.messageStatus !== -1;
             this.showRecall = this.isSelf(messageInfo.messageSenderId);
             const chat = this.$refs.chat as HTMLDivElement;
-            // 320 为左侧列表的宽度, 60 为头部的高度
+            // 320 为左侧列表的宽度, 60 为头部的高度; 40 为 contextmenu 的宽度的一半, 20 为移动端留下的冗余高度，这样点击的时候才能看到 contextmenu
             const target = fromContextmenuEvent ? (event as MouseEvent) : (event as TouchEvent).touches[0];
-            this.contextMenuX = target.clientX - (this.isMobile ? 0 : 320);
-            this.contextMenuY = target.clientY + chat.scrollTop - 60;
+            this.contextMenuX = target.clientX - (this.isMobile ? 40 : 320);
+            this.contextMenuY = target.clientY + chat.scrollTop - 60 - (this.isMobile ? 20 : 0);
             this.clickMessageInfo = messageInfo;
             this.isDragging = false;
         },
@@ -286,7 +286,7 @@ export default {
                     <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" :isMobile="isMobile" @contextmenu="event => showSelfContextMenu(event, message, true)" @mousedown="event => mouseDown(event, message, index)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove" @repeatMessage="repeatMessage"/>
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
-                    <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
+                    <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :class="{'cannotselect': isMobile}" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
                         <div v-for="func in contextmenuFunction" :key="func.command" class="block ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer py-[2px]" @click="commandFor(func.command)">{{ func.text }}</div>
                     </div>
                 </OnClickOutside>
