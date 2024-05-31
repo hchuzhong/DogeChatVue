@@ -61,7 +61,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-full flex items-center mb-2" :class="isSelf && ' flex-row-reverse'">
+    <div class="w-full flex items-center mb-2" :class="{'flex-row-reverse': isSelf, 'cannotselect': isMobile}">
         <div class="h-6 w-6">
             <img v-if="!hideIcon" class="rounded-full object-cover" :src="getImageSrc()" alt="avatar" />
         </div>
@@ -76,7 +76,7 @@ export default {
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
                 <div v-if="isMobile" class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
-                        <use xlink:href="#icon-birds"></use>
+                        <use xlink:href="#icon-dog1"></use>
                     </svg>
                 </div>
             </div>
