@@ -16,7 +16,6 @@ export default {
         message: {} as PropType<FriendMessageType>,
         isSelf: Boolean,
         hideIcon: Boolean,
-        isMobile: Boolean,
     },
     data(): TouchType {
         return {
@@ -34,7 +33,6 @@ export default {
         },
         getMessageData: getMessageData,
         touchStart(event: TouchEvent) {
-            if (!this.isMobile) return;
             this.isTouching = true;
             this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
             this.touchStartTime = new Date().getTime();
@@ -55,13 +53,13 @@ export default {
             const clickTime = 300;
             if (now - this.touchStartTime > clickTime) return;
             this.$emit('repeatMessage', this.message);
-        }
+        },
     },
 };
 </script>
 
 <template>
-    <div class="w-full flex items-center mb-2" :class="{'flex-row-reverse': isSelf, 'cannotselect': isMobile}">
+    <div class="w-full flex items-center mb-2" :class="{'flex-row-reverse': isSelf, 'cannotselect': true}">
         <div class="h-6 w-6">
             <img v-if="!hideIcon" class="rounded-full object-cover" :src="getImageSrc()" alt="avatar" />
         </div>
@@ -74,7 +72,7 @@ export default {
                 {{ void (messageData = getMessageData(message)) }}
                 <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" />
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
-                <div v-if="isMobile" class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove">
+                <div class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
                         <use xlink:href="#icon-dog1"></use>
                     </svg>
