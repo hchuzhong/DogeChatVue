@@ -87,12 +87,6 @@ export default {
             contextMenuX: 0,
             contextMenuY: 0,
             clickMessageInfo: undefined,
-            // isDragging: false,
-            // dragMessageInfo: undefined,
-            // offsetPosition: {x: 0, y: 0},
-            // currentPosition: {x: 0, y: 0},
-            // dragDomRect: null,
-            // chatDomRect: null,
             isBottom: true,
             touch: {isTouching: false, startPosition: {x: 0, y: 0}}
         };
