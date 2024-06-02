@@ -54,6 +54,39 @@ export default {
             if (now - this.touchStartTime > clickTime) return;
             this.$emit('repeatMessage', this.message);
         },
+        imgShow(imageUrl: string) {
+            const image = new Image()
+            image.src = imageUrl
+            image.onload = () => {
+                //创建弹出层
+                const previewContatiner = document.createElement('div');
+                previewContatiner.style.position = 'fixed';
+                previewContatiner.style.top = 0;
+                previewContatiner.style.bottom = 0;
+                previewContatiner.style.left = 0;
+                previewContatiner.style.right = 0;
+                previewContatiner.style.zIndex = 9999;
+                previewContatiner.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                previewContatiner.style.display = 'flex';
+                previewContatiner.style.justifyContent = 'center';
+                previewContatiner.style.alignItems = 'center';
+                document.body.appendChild(previewContatiner);
+                //在弹出层增加图片
+                const previewImage = document.createElement('img');
+                previewImage.src = imageUrl;
+                previewImage.style.maxWidth = '90%';
+                previewImage.style.maxHeight = '90%';
+                previewImage.style.zIndex = 9999;
+                previewContatiner.appendChild(previewImage);
+                //点击弹出层，关闭预览
+                previewContatiner.addEventListener('click', () => {
+                    document.body.removeChild(previewContatiner);
+                })
+            }
+            image.onerror = function () {
+                console.log('图片加载失败');
+            }
+        }
     },
 };
 </script>
@@ -70,7 +103,7 @@ export default {
                     <span class="text-gray-400 text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
                 </div>
                 {{ void (messageData = getMessageData(message)) }}
-                <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" />
+                <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => imgShow(messageData.content)" />
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
                 <div class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
