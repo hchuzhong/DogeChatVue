@@ -5,23 +5,14 @@ import dayjs from 'dayjs';
 import {getMessageData} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
 
-type TouchType = {
-    isTouching: boolean;
-    startPosition: {x: number; y: number};
-    touchStartTime: number;
-}
-
 export default {
     props: {
         message: {} as PropType<FriendMessageType>,
         isSelf: Boolean,
         hideIcon: Boolean,
     },
-    data(): TouchType {
+    data() {
         return {
-            isTouching: false,
-            startPosition: {x: 0, y: 0},
-            touchStartTime: 0
         };
     },
     methods: {
@@ -32,28 +23,6 @@ export default {
             return API.getPictureUrl(this.message?.avatarUrl);
         },
         getMessageData: getMessageData,
-        touchStart(event: TouchEvent) {
-            this.isTouching = true;
-            this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
-            this.touchStartTime = new Date().getTime();
-        },
-        touchMove(event: TouchEvent) {
-            if (!this.isTouching) return;
-            const curPosition = event.touches[0];
-            const cache = 10;
-            const {x, y} = this.startPosition;
-            if (Math.abs(curPosition.clientX - x) > cache || Math.abs(curPosition.clientY - y) > cache) {
-                this.isTouching = false;
-            }
-        },
-        touchEnd(event: TouchEvent) {
-            if (!this.isTouching) return;
-            this.isTouching = false;
-            const now = new Date().getTime();
-            const clickTime = 300;
-            if (now - this.touchStartTime > clickTime) return;
-            this.$emit('repeatMessage', this.message);
-        },
         imgShow(imageUrl: string) {
             const image = new Image()
             image.src = imageUrl
@@ -86,7 +55,7 @@ export default {
             image.onerror = function () {
                 console.log('图片加载失败');
             }
-        }
+        },
     },
 };
 </script>
@@ -105,7 +74,7 @@ export default {
                 {{ void (messageData = getMessageData(message)) }}
                 <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => imgShow(messageData.content)" />
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
-                <div class="absolute top-0 right-0 w-8 h-full" @touchstart="event => touchStart(event, message)" @touchend="touchEnd" @touchmove="touchMove" @click="$emit('repeatMessage', message)">
+                <div class="absolute top-0 right-0 w-8 h-full" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
                         <use xlink:href="#icon-dog1"></use>
                     </svg>
