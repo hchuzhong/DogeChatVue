@@ -225,7 +225,7 @@ export default {
                         <div v-for="func in contextmenuFunction" :key="func.command" class="block ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer py-[2px]" @click="commandFor(func.command)">{{ func.text }}</div>
                     </div>
                 </OnClickOutside>
-                <div v-show="!isBottom" class="fixed bottom-24 right-12 cursor-pointer" @click="() => scrollToBottom()">
+                <div v-show="!isBottom" class="fixed bottom-24 right-10 cursor-pointer" @click="() => scrollToBottom()">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5 absolute" aria-hidden="true">
                         <use xlink:href="#icon-bottom02"></use>
                     </svg>
