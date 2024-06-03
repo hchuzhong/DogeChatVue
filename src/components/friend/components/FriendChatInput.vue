@@ -26,7 +26,7 @@ const at = '@';
 export default {
     props: {
         chooseFriendInfo: {} as PropType<FriendInfoType>,
-        groupMembersData: [] as PropType<GroupMemberType[]>,
+        groupMembersData: Array as PropType<GroupMemberType[]>,
         chooseItemId: String
     },
     components: {OnClickOutside, QuoteMessage, UserInfoItem},

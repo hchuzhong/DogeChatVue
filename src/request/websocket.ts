@@ -155,11 +155,19 @@ export function serverEncrypt(data: string) {
     return serverEncryptor.encrypt(data);
 }
 
+const webSocketState = {
+    0: 'connetcing',
+    1: 'open',
+    2: 'closing',
+    3: 'closed'
+}
+
 function startPingTimer() {
     gotPong = false;
     if (!pingTimer) {
         pingTimer = setInterval(() => {
-            console.warn('check websocket state:', websocket.readyState, pingTimer);
+            // @ts-ignore
+            console.warn(`check websocket state: ${webSocketState[websocket.readyState]}, state number: ${websocket.readyState}, pingTimer: ${pingTimer}`);
             if (websocket.readyState === WebSocket.OPEN && gotPong) {
                 gotPong = false;
                 websocket.send('ping');
