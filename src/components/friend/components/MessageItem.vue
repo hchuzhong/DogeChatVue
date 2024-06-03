@@ -50,7 +50,15 @@ export default {
                 //点击弹出层，关闭预览
                 previewContatiner.addEventListener('click', () => {
                     document.body.removeChild(previewContatiner);
+                    window.removeEventListener("keydown", clickEscape);
                 })
+                const clickEscape = (event: KeyboardEvent) => {
+                    if (event.key === "Escape") {
+                        document.body.removeChild(previewContatiner);
+                        window.removeEventListener("keydown", clickEscape);
+                    }
+                }
+                window.addEventListener("keydown", clickEscape);
             }
             image.onerror = function () {
                 console.log('图片加载失败');
