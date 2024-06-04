@@ -67,7 +67,7 @@ export default {
             if (friendId && friendId !== this.friendItemInfo?.userId) return;
             const newUnreadMessageList = this.getFriendUnreadMessage(this.friendItemInfo?.userId as string);
             this.hadUnreadMessage = newUnreadMessageList.length !== 0;
-            if (!this.hadUnreadMessage || newUnreadMessageList.length === 0 || newUnreadMessageList.length === this.unReadMessageList.length) return;
+            if (!this.hadUnreadMessage) return;
             this.unReadMessageList = JSON.parse(JSON.stringify(newUnreadMessageList));
             const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
             this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
