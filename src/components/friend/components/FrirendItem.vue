@@ -90,7 +90,7 @@ export default {
 
 <template>
     <div>
-        <a class="border-b max-h-20 border-gray-400 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-500 transition duration-150 ease-in-out" :class="{'bg-gray-100 dark:bg-gray-600': isChoose, 'hover:bg-gray-100 dark:hover:bg-gray-600': !isChoose}">
+        <a class="max-h-20 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-500 transition duration-150 ease-in-out" :class="{'bg-gray-100 dark:bg-gray-600': isChoose, 'hover:bg-gray-100 dark:hover:bg-gray-600': !isChoose}">
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avtar" />
             <div class="flex-1" :style="`max-width: ${maxMessageWidth}px`">
                 <span class="block ml-2 font-semibold text-base text-gray-600 dark:text-gray-400"> {{ friendItemInfo?.username }} </span>
