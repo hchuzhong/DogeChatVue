@@ -215,13 +215,13 @@ export default {
 <template>
     <div class="w-full overflow-hidden">
         <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
-            <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b border-gray-400 py-2" />
+            <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b-[0.2px] border-gray-400 py-2" />
             <div v-if="!!messageRecords" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
                     <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove" @repeatMessage="repeatMessage"/>
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
-                    <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border-2 dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :class="{'cannotselect': isMobile}" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
+                    <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :class="{'cannotselect': isMobile}" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
                         <div v-for="func in contextmenuFunction" :key="func.command" class="block ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer py-[2px]" @click="commandFor(func.command)">{{ func.text }}</div>
                     </div>
                 </OnClickOutside>

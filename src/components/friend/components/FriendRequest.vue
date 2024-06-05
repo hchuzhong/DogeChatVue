@@ -71,7 +71,7 @@ export default {
 <template>
     <div class="flex flex-col">
         <!-- header -->
-        <div class="flex items-center w-full p-2 border-b-2">
+        <div class="flex items-center w-full p-2 border-b-[0.2px]">
             <button class="flex items-center" @click="$emit('returnFriendList')">
                 <svg class="icon text-gray-400 dark:text-gray-200 h-4 w-4" aria-hidden="true">
                     <use xlink:href="#icon-xiangzuojiantou"></use>
@@ -88,7 +88,7 @@ export default {
             </div>
         </div>
         <div>
-            <div v-for="friendRequest in friendRequestHistory" :key="friendRequest.friendRequestId" class="border-b p-2 flex justify-between items-center">
+            <div v-for="friendRequest in friendRequestHistory" :key="friendRequest.friendRequestId" class="p-2 flex justify-between items-center">
                 <UserInfoItem :userInfo="{username: friendRequest.friendRequester, avatarUrl: friendRequest.friendRequestedAvatarUrl}" :needBold="false">
                     <template v-slot:content>
                         <span class="text-gray-400 text-sm">{{ friendRequest.requestTime }}</span>
@@ -99,7 +99,7 @@ export default {
             </div>
         </div>
         <OnClickOutside @trigger="showSearchResult = false">
-            <div v-if="showSearchResult" class="absolute max-w-full h-60 top-14 left-24 border-2 rounded-lg py-2 px-4 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
+            <div v-if="showSearchResult" class="absolute max-w-full h-60 top-14 left-24 border rounded-lg py-2 px-4 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
                 <div class="font-semibold text-base text-gray-600 dark:text-gray-400 pb-1">搜索结果如下：</div>
                 <div v-if="searchResult.length">
                     <UserInfoItem v-for="friendInfo in searchResult" :key="friendInfo.userId + 'search'" class="py-1 cursor-pointer" :userInfo="{username: friendInfo.username, avatarUrl: friendInfo.avatarUrl}" size="middle" :needBold="false" @click="requestToBeFriend(friendInfo)" />

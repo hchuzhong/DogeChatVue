@@ -39,7 +39,7 @@ export default {
 </script>
 
 <template>
-    <div v-show="quoteMessage" class="flex items-center text-gray-800 dark:text-gray-400 text-sm border-t border-gray-300 py-1 px-3 max-h-[32px]">
+    <div v-show="quoteMessage" class="flex items-center text-gray-800 dark:text-gray-400 text-sm border-t-[0.2px] border-gray-300 py-1 px-3 max-h-[32px]">
         {{ void (messageData = getMessageData(quoteMessage)) }}
         <button class="outline-none focus:outline-none" @click="getQuoteMessage()">
             <svg class="icon text-cyan-500 h-6 w-6" aria-hidden="true">
