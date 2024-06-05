@@ -1,7 +1,7 @@
 <script lang="ts">
 import {mapActions} from 'pinia';
 import {FriendMessageType} from '../../../global/GlobalType';
-import {EventBus, EventName, getMessageData} from '../../../global/GlobalValue';
+import {EventBus, EventName, getMessageData, showFullScreenImage} from '../../../global/GlobalValue';
 import {useAuthStore} from '../../../store/module/auth';
 
 type dataType = {
@@ -32,7 +32,8 @@ export default {
         atQuoteMember() {
             this.$emit('atQuoteMember');
         },
-        getMessageData: getMessageData
+        getMessageData: getMessageData,
+        showFullScreenImage: showFullScreenImage
     }
 };
 </script>
@@ -48,7 +49,7 @@ export default {
         <span class="block text-left ml-1">{{ quoteMessage?.messageSender }}</span>
         <span v-if="showAt" class="text-cyan-500 cursor-pointer" @click="atQuoteMember">(点击@ta)</span>
         <span class="block text-left mr-2 ml-1">:</span>
-        <img v-if="messageData.isPicture" class="object-cover max-w-[24px] max-h-[24px]" :src="messageData.content" alt="" />
+        <img v-if="messageData.isPicture" class="object-cover max-w-[24px] max-h-[24px] cursor-pointer" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)"  />
         <span v-else class="block break-words whitespace-pre-line truncate flex-1 max-h-[24px]">{{ messageData.content }}</span>
     </div>
 </template>

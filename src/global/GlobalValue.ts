@@ -4,6 +4,21 @@ import {FriendMessageType, messageType, messageTypeToChinese} from './GlobalType
 
 export const wssBaseUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/webSocket';
 
+export const EventName = {
+    UnreadMessage: 'UnreadMessage',
+    UpdateMessageHistory: 'UpdateMessageHistory',
+    UpdateOneMessage: 'UpdateOneMessage',
+    QuoteMessage: 'QuoteMessage'
+};
+
+export const deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 7 : 6; // 6 for PC, 7 for mobile
+
+export const mobileMaxWidth = 768;
+
+export const autoLoginItem = 'autoLoginItem';
+
+export const textModeItem = 'textModeItem';
+
 export function getRsaKeys(callback: any) {
     return window.crypto.subtle
         .generateKey(
@@ -49,7 +64,7 @@ export function RSA2text(buffer: any) {
     }
     const base64 = window.btoa(binary);
     // eslint-disable-next-line
-        return base64.replace(/[^\x00-\xff]/g, "$&\x01").replace(/.{64}\x01?/g, "$&\n");
+    return base64.replace(/[^\x00-\xff]/g, "$&\x01").replace(/.{64}\x01?/g, "$&\n");
 }
 
 export function getImageInfo(file: File, cb: Function) {
@@ -66,22 +81,11 @@ export function getImageInfo(file: File, cb: Function) {
     };
 }
 
-// export function encrpypt(params: any) {}
-
 let eventBus: EventHub | null = null;
 export function EventBus(): EventHub {
     if (!eventBus) eventBus = new EventHub();
     return eventBus;
 }
-
-export const EventName = {
-    UnreadMessage: 'UnreadMessage',
-    UpdateMessageHistory: 'UpdateMessageHistory',
-    UpdateOneMessage: 'UpdateOneMessage',
-    QuoteMessage: 'QuoteMessage'
-};
-
-export const deviceType = 6;
 
 const PictureArr = [messageType.image, messageType.livePhoto, messageType.draw, messageType.sticker, messageType.photo];
 export function getMessageData(message?: FriendMessageType) {
@@ -120,8 +124,44 @@ export function getMessageData(message?: FriendMessageType) {
     return {content, isText, isPicture, width, height};
 }
 
-export const mobileMaxWidth = 768;
-
-export const autoLoginItem = 'autoLoginItem';
-
-export const textModeItem = 'textModeItem';
+export function showFullScreenImage(imageUrl: string) {
+    const image = new Image()
+    image.src = imageUrl
+    image.onload = () => {
+        //创建弹出层
+        const previewContatiner = document.createElement('div');
+        previewContatiner.style.position = 'fixed';
+        previewContatiner.style.top = 0;
+        previewContatiner.style.bottom = 0;
+        previewContatiner.style.left = 0;
+        previewContatiner.style.right = 0;
+        previewContatiner.style.zIndex = 9999;
+        previewContatiner.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        previewContatiner.style.display = 'flex';
+        previewContatiner.style.justifyContent = 'center';
+        previewContatiner.style.alignItems = 'center';
+        document.body.appendChild(previewContatiner);
+        //在弹出层增加图片
+        const previewImage = document.createElement('img');
+        previewImage.src = imageUrl;
+        previewImage.style.maxWidth = '90%';
+        previewImage.style.maxHeight = '90%';
+        previewImage.style.zIndex = 9999;
+        previewContatiner.appendChild(previewImage);
+        //点击弹出层，关闭预览
+        previewContatiner.addEventListener('click', () => {
+            document.body.removeChild(previewContatiner);
+            window.removeEventListener("keydown", clickEscape);
+        })
+        const clickEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                document.body.removeChild(previewContatiner);
+                window.removeEventListener("keydown", clickEscape);
+            }
+        }
+        window.addEventListener("keydown", clickEscape);
+    }
+    image.onerror = function () {
+        console.log('图片加载失败');
+    }
+}
