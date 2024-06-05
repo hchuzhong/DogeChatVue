@@ -2,7 +2,7 @@
 import type {PropType} from 'vue';
 import {FriendMessageType} from '../../../global/GlobalType';
 import dayjs from 'dayjs';
-import {getMessageData} from '../../../global/GlobalValue';
+import {getMessageData, showFullScreenImage} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
 
 export default {
@@ -23,47 +23,7 @@ export default {
             return API.getPictureUrl(this.message?.avatarUrl);
         },
         getMessageData: getMessageData,
-        imgShow(imageUrl: string) {
-            const image = new Image()
-            image.src = imageUrl
-            image.onload = () => {
-                //创建弹出层
-                const previewContatiner = document.createElement('div');
-                previewContatiner.style.position = 'fixed';
-                previewContatiner.style.top = 0;
-                previewContatiner.style.bottom = 0;
-                previewContatiner.style.left = 0;
-                previewContatiner.style.right = 0;
-                previewContatiner.style.zIndex = 9999;
-                previewContatiner.style.backgroundColor = 'rgba(0,0,0,0.8)';
-                previewContatiner.style.display = 'flex';
-                previewContatiner.style.justifyContent = 'center';
-                previewContatiner.style.alignItems = 'center';
-                document.body.appendChild(previewContatiner);
-                //在弹出层增加图片
-                const previewImage = document.createElement('img');
-                previewImage.src = imageUrl;
-                previewImage.style.maxWidth = '90%';
-                previewImage.style.maxHeight = '90%';
-                previewImage.style.zIndex = 9999;
-                previewContatiner.appendChild(previewImage);
-                //点击弹出层，关闭预览
-                previewContatiner.addEventListener('click', () => {
-                    document.body.removeChild(previewContatiner);
-                    window.removeEventListener("keydown", clickEscape);
-                })
-                const clickEscape = (event: KeyboardEvent) => {
-                    if (event.key === "Escape") {
-                        document.body.removeChild(previewContatiner);
-                        window.removeEventListener("keydown", clickEscape);
-                    }
-                }
-                window.addEventListener("keydown", clickEscape);
-            }
-            image.onerror = function () {
-                console.log('图片加载失败');
-            }
-        },
+        showFullScreenImage: showFullScreenImage
     },
 };
 </script>
@@ -80,7 +40,7 @@ export default {
                     <span class="text-gray-400 text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
                 </div>
                 {{ void (messageData = getMessageData(message)) }}
-                <img v-if="messageData.isPicture" class="object-cover rounded" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => imgShow(messageData.content)" />
+                <img v-if="messageData.isPicture" class="object-cover rounded cursor-pointer" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)" />
                 <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
                 <div class="absolute top-0 right-0 w-8 h-full" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
@@ -95,7 +55,7 @@ export default {
                 </svg>
                 <span class="block mx-1">{{ message?.referMessage?.messageSender }}:</span>
                 <span v-if="referMessageData.isText" class="block break-words whitespace-pre-line flex-1 max-h-[16px] truncate">{{ referMessageData.content }}</span>
-                <img v-if="referMessageData.isPicture" class="object-cover rounded max-w-[20px] max-h-[20px]" :src="referMessageData.content" alt="" />
+                <img v-if="referMessageData.isPicture" class="object-cover rounded max-w-[20px] max-h-[20px] cursor-pointer" :src="referMessageData.content" alt="" @click="() => showFullScreenImage(referMessageData.content)" />
             </div>
         </div>
     </div>

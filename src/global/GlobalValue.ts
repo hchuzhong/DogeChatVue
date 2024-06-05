@@ -123,3 +123,45 @@ export function getMessageData(message?: FriendMessageType) {
     }
     return {content, isText, isPicture, width, height};
 }
+
+export function showFullScreenImage(imageUrl: string) {
+    const image = new Image()
+    image.src = imageUrl
+    image.onload = () => {
+        //创建弹出层
+        const previewContatiner = document.createElement('div');
+        previewContatiner.style.position = 'fixed';
+        previewContatiner.style.top = 0;
+        previewContatiner.style.bottom = 0;
+        previewContatiner.style.left = 0;
+        previewContatiner.style.right = 0;
+        previewContatiner.style.zIndex = 9999;
+        previewContatiner.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        previewContatiner.style.display = 'flex';
+        previewContatiner.style.justifyContent = 'center';
+        previewContatiner.style.alignItems = 'center';
+        document.body.appendChild(previewContatiner);
+        //在弹出层增加图片
+        const previewImage = document.createElement('img');
+        previewImage.src = imageUrl;
+        previewImage.style.maxWidth = '90%';
+        previewImage.style.maxHeight = '90%';
+        previewImage.style.zIndex = 9999;
+        previewContatiner.appendChild(previewImage);
+        //点击弹出层，关闭预览
+        previewContatiner.addEventListener('click', () => {
+            document.body.removeChild(previewContatiner);
+            window.removeEventListener("keydown", clickEscape);
+        })
+        const clickEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                document.body.removeChild(previewContatiner);
+                window.removeEventListener("keydown", clickEscape);
+            }
+        }
+        window.addEventListener("keydown", clickEscape);
+    }
+    image.onerror = function () {
+        console.log('图片加载失败');
+    }
+}
