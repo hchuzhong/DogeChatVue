@@ -3,12 +3,22 @@ import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 import {useGlobalStore} from '../store/module/global';
 import {textModeItem} from '../global/GlobalValue';
+import VConsole from 'vconsole';
+
+interface dataType {
+    openDarkMode: boolean;
+    openTextMode: boolean;
+    openVConsole: boolean;
+    VConsole: VConsole | null;
+}
 
 export default {
-    data() {
+    data(): dataType {
         return {
             openDarkMode: false,
-            openTextMode: false
+            openTextMode: false,
+            openVConsole: false,
+            VConsole: null
         };
     },
     computed: {
@@ -30,6 +40,12 @@ export default {
         changeTextMode(event: Event) {
             this.openTextMode = event.target?.checked ?? false;
             localStorage.setItem(textModeItem, JSON.stringify({openTextMode: this.openTextMode}));
+        },
+        changeVConsole(event: Event) {
+            console.log('change v console');
+            this.openVConsole = event.target?.checked ?? false;
+            this.openVConsole && (this.VConsole = new VConsole({theme: this.isDarkMode ? 'dark' : 'light'}));
+            !this.openVConsole && this.VConsole?.destroy();
         }
     }
 };
@@ -57,6 +73,10 @@ export default {
             <div class="flex justify-between mt-1">
                 纯文本模式
                 <input type="checkbox" class="cursor-pointer" :checked="openTextMode" @change="changeTextMode" />
+            </div>
+            <div class="flex justify-between mt-1">
+                VConsole
+                <input type="checkbox" class="cursor-pointer" :checked="openVConsole" @change="changeVConsole" />
             </div>
             <div class="cursor-pointer mt-1" @click="logoutAccount">退出</div>
         </div>
