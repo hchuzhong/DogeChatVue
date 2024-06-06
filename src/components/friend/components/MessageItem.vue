@@ -41,7 +41,7 @@ export default {
                 </div>
                 {{ void (messageData = getMessageData(message)) }}
                 <img v-if="messageData.isPicture" class="object-cover rounded cursor-pointer" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)" />
-                <span v-else class="block break-words whitespace-pre-line">{{ messageData.content }}</span>
+                <span v-else v-html="messageData.content" class="block break-words whitespace-pre-line"></span>
                 <div class="absolute top-0 right-0 w-8 h-full" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
                         <use xlink:href="#icon-dog1"></use>

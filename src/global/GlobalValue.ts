@@ -1,4 +1,5 @@
 import {API} from '../request/api';
+import {useAuthStore} from '../store/module/auth';
 import EventHub from './EventHub';
 import {FriendMessageType, messageType, messageTypeToChinese} from './GlobalType';
 
@@ -121,6 +122,26 @@ export function getMessageData(message?: FriendMessageType) {
     } else {
         content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
+
+    // @ts-ignore
+    // change notified person text color
+    const notifiedParty = JSON.parse(message.notifiedParty);
+    if (notifiedParty.length && isText) {
+        const AuthStore = useAuthStore();
+        for (const notifiedMember of notifiedParty) {
+            const userId = Object.keys(notifiedMember)[0];
+            const atAll = message.isGroup === '1' && userId === message.messageReceiverId;
+            if (AuthStore.isSelf(userId) || atAll) {
+                const notifyParams = new URLSearchParams(`${notifiedMember[userId]}`);
+                const location = Number(notifyParams.get('location') ?? 0);
+                const length = Number(notifyParams.get('length') ?? 0);
+                if (!location || !length) return;
+                const replaceStr = content.slice(location - 1, location + length);
+                content = content.replace(replaceStr, `<span class="text-rose-600">${replaceStr}</span>`)
+            }
+        }
+    }
+
     return {content, isText, isPicture, width, height};
 }
 

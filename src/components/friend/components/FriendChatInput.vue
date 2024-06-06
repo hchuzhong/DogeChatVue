@@ -157,7 +157,7 @@ export default {
         },
         getQuoteMessage(messageInfo: FriendMessageType) {
             this.quoteMessage = messageInfo;
-            (this.$refs?.messageInput as HTMLInputElement).focus();
+            messageInfo && (this.$refs?.messageInput as HTMLInputElement).focus();
         },
         atQuoteMember() {
             const memberInfo = this.groupMembersData?.find(memberInfo => memberInfo.userId === this.quoteMessage?.messageSenderId);
