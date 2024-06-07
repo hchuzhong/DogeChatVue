@@ -82,7 +82,8 @@ export default {
                     }
                 }
             }
-            readMessage(this.chooseItemId as string, this.unReadMessageList[this.unReadMessageList.length - 1].messageId);
+            const lastUnreadMessage = this.unReadMessageList[this.unReadMessageList.length - 1];
+            lastUnreadMessage.messageStatus === 0 && readMessage(this.chooseItemId as string, lastUnreadMessage.messageId);
         }
     }
 };
