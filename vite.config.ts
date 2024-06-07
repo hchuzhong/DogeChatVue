@@ -72,6 +72,16 @@ export default defineConfig(({mode}) => {
         // base: "",
         build: {
             minify: 'esbuild', // 默认
+            rollupOptions:{
+                manualChunks:(id) => {
+                    if (id.includes('vue')) {
+                        return 'vue';
+                    }
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
+                }
+            }
         },
         esbuild: {
             drop: ['console', 'debugger'],//打包去除
