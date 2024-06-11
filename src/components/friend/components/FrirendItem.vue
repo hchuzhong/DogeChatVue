@@ -46,7 +46,7 @@ export default {
             if (chooseItemId === oldVal) return;
             this.isChoose = this.friendItemInfo?.userId === this.chooseItemId;
             if (!this.isChoose || !this.unReadMessageList?.length) return;
-            readMessage(chooseItemId, this.unReadMessageList[this.unReadMessageList.length - 1].messageId);
+            readMessage(chooseItemId, this.unReadMessageList[this.unReadMessageList.length - 1]);
         }
     },
     created() {
@@ -82,7 +82,7 @@ export default {
                     }
                 }
             }
-            readMessage(this.chooseItemId as string, this.unReadMessageList[this.unReadMessageList.length - 1].messageId);
+            readMessage(this.chooseItemId as string, this.unReadMessageList[this.unReadMessageList.length - 1]);
         }
     }
 };
