@@ -152,7 +152,7 @@ export const useFriendStore = defineStore('friend', {
         },
         removeUnreadMessage(data: {userId: string}) {
             this.friendListObj[data.userId].unreadMessageHistory = [];
-            EventBus().dispatchEvent(EventName.UnreadMessage);
+            EventBus().dispatchEvent(EventName.UnreadMessage, data.userId);
         }
     }
 });

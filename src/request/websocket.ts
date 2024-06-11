@@ -127,8 +127,10 @@ export function getHistoryMessages(friendUserId: string, pageNum: number, pageSi
     send(paras);
 }
 
-export function readMessage(userId: string, readId: number) {
-    if (!userId || !readId) return;
+export function readMessage(userId: string, messageInfo?: FriendMessageType) {
+    if (!messageInfo) return;
+    const readId = messageInfo.messageId;
+    if (!userId || !readId || (messageInfo.messageStatus === 1)) return;
     send({method: 'readMessage', userId, readId});
 }
 
