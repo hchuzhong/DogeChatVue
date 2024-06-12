@@ -12,7 +12,11 @@ export const EventName = {
     QuoteMessage: 'QuoteMessage'
 };
 
-export const deviceType = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 7 : 6; // 6 for PC, 7 for mobile
+const testIsMobileResult = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+export const isMobileDevice = () => {
+    return testIsMobileResult;
+}
+export const deviceType = testIsMobileResult ? 7 : 6; // 6 for PC, 7 for mobile
 
 export const mobileMaxWidth = 768;
 

@@ -204,7 +204,7 @@ export default {
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
-            <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
+            <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" autocomplete="off" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
                 <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
