@@ -83,9 +83,6 @@ export default defineConfig(({mode}) => {
                 }
             }
         },
-        esbuild: {
-            drop: ['console', 'debugger'],//打包去除
-        },
         plugins
     }
 })
