@@ -92,6 +92,7 @@ export default {
             this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
             websocket.send(JSON.stringify(messageData));
             EventBus().dispatchEvent(EventName.QuoteMessage);
+            this.$emit('sendMessage')
         },
         inputPaste(event: ClipboardEvent) {
             event.preventDefault();

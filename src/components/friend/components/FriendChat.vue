@@ -234,7 +234,7 @@ export default {
             <div v-else class="h-self-screen m-auto text-center text-gray-600 dark:text-gray-400">暂无数据</div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" @showEmoji="updateScrollPosition" />
+                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" @showEmoji="updateScrollPosition" @sendMessage="scrollToBottom" />
             </div>
         </div>
     </div>
