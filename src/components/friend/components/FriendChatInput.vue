@@ -17,6 +17,7 @@ type dataType = {
     inputMessage: string;
     emojiVisible: boolean;
     groupMembersVisible: boolean;
+    selectedGroupMemberIndex: number;
     notifiedArr: {userId: string; location: number; length: number; username: string; nickName: string}[];
     quoteMessage: null | FriendMessageType;
 };
@@ -42,6 +43,7 @@ export default {
             inputMessage: '',
             emojiVisible: false,
             groupMembersVisible: false,
+            selectedGroupMemberIndex: 0,
             notifiedArr: [],
             quoteMessage: null
         };
@@ -169,6 +171,36 @@ export default {
         showEmoji() {
             this.emojiVisible = true;
             this.$emit('showEmoji');
+        },
+        clickKeyboardDown() {
+            if (!(this.groupMembersVisible && this.isGroup)) return;
+            if (!this.groupMembersData) return;
+            if (this.selectedGroupMemberIndex < this.groupMembersData.length - 1) {
+                this.selectedGroupMemberIndex += 1;
+                // 计算当前展示的 item 的位置
+                this.calculateCurrentItemPosition();
+            }
+        },
+        clickKeyboardUp() {
+            if (!(this.groupMembersVisible && this.isGroup)) return;
+            if (this.selectedGroupMemberIndex > 0) {
+                this.selectedGroupMemberIndex -= 1;
+                this.calculateCurrentItemPosition();
+            }
+        },
+        clickKeyboardEnter() {
+            if (this.groupMembersVisible && this.isGroup && this.groupMembersData) {
+                this.atMember(this.groupMembersData[this.selectedGroupMemberIndex]);
+                this.selectedGroupMemberIndex = 0;
+                this.calculateCurrentItemPosition();
+            } else {
+                this.sendTextMessage();
+            }
+        },
+        calculateCurrentItemPosition() {
+            const refGroupMembers = this.$refs.groupMembers as HTMLDivElement;
+            // item height is 32
+            refGroupMembers.scrollTop = this.selectedGroupMemberIndex * 32;
         }
     },
     async created() {
@@ -187,8 +219,8 @@ export default {
 <template>
     <div>
         <OnClickOutside @trigger="groupMembersVisible = false">
-            <div v-show="groupMembersVisible && isGroup" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border rounded-lg p-2 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
-                <UserInfoItem v-for="member in groupMembersData" :key="member.userId" class="py-1 cursor-pointer" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
+            <div v-show="groupMembersVisible && isGroup" ref="groupMembers" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border rounded-lg p-2 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
+                <UserInfoItem v-for="(member, memberIndex) in groupMembersData" :key="member.userId" class="py-1 cursor-pointer" :class="{'bg-gray-400': memberIndex === selectedGroupMemberIndex}" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
             </div>
         </OnClickOutside>
         <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />
@@ -205,7 +237,7 @@ export default {
                 <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
             </button>
 
-            <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" autocomplete="off" required @keypress.enter="sendTextMessage" @paste="inputPaste" @input="checkForAtSymbol" />
+            <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" autocomplete="off" required @keypress.enter="clickKeyboardEnter" @keyup.down="clickKeyboardDown" @keyup.up="clickKeyboardUp" @paste="inputPaste" @input="checkForAtSymbol" />
 
             <button class="outline-none focus:outline-none" type="submit" @click="sendTextMessage">
                 <svg class="icon text-gray-400 h-7 w-7 origin-center transform rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
