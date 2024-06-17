@@ -192,6 +192,7 @@ export default {
             if (this.groupMembersVisible && this.isGroup && this.groupMembersData) {
                 this.atMember(this.groupMembersData[this.selectedGroupMemberIndex]);
                 this.selectedGroupMemberIndex = 0;
+                this.calculateCurrentItemPosition();
             } else {
                 this.sendTextMessage();
             }
