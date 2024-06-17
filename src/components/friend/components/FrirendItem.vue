@@ -51,8 +51,7 @@ export default {
     },
     created() {
         if (this.friendItemInfo?.message?.messageContent) {
-            const {type, messageContent} = this.friendItemInfo.message;
-            this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+            this.getMessageContent(this.friendItemInfo?.message);
         }
         this.checkUnreadMessage(this.friendItemInfo?.userId);
         EventBus().addEventListener(EventName.UnreadMessage, this.checkUnreadMessage);
@@ -69,8 +68,7 @@ export default {
             this.hadUnreadMessage = newUnreadMessageList.length !== 0;
             if (!this.hadUnreadMessage) return;
             this.unReadMessageList = JSON.parse(JSON.stringify(newUnreadMessageList));
-            const {type, messageContent} = newUnreadMessageList[newUnreadMessageList.length - 1];
-            this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+            this.getMessageContent(newUnreadMessageList[newUnreadMessageList.length - 1])
             this.someoneAtYou = false;
             for (const unReadMessage of this.unReadMessageList) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -83,6 +81,13 @@ export default {
                 }
             }
             readMessage(this.chooseItemId as string, this.unReadMessageList[this.unReadMessageList.length - 1]);
+        },
+        getMessageContent(message: FriendMessageType) {
+            const {type, messageContent, isGroup, messageSender} = message;
+            this.messageContent = type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`;
+            if (isGroup === '1') {
+                this.messageContent = `${messageSender}: ${this.messageContent}`;
+            }
         }
     }
 };
