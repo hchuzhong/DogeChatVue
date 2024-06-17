@@ -59,7 +59,7 @@ export default {
         sendPhotoMessage(url: string) {
             this.sendMessage(url, messageType.photo);
         },
-        sendMessage(content: string, type = messageType.text) {
+        sendMessage(content: string, type = messageType.text, senQuoteMessage = true) {
             const selfData = this.selfData;
             const msg = serverEncrypt(encodeURIComponent(content));
             const notifiedParty: any[] = [];
@@ -89,9 +89,9 @@ export default {
             };
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
+            senQuoteMessage && this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
             websocket.send(JSON.stringify(messageData));
-            EventBus().dispatchEvent(EventName.QuoteMessage);
+            senQuoteMessage && EventBus().dispatchEvent(EventName.QuoteMessage);
             this.$emit('sendMessage')
         },
         inputPaste(event: ClipboardEvent) {

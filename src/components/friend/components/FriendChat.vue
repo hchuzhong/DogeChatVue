@@ -187,7 +187,7 @@ export default {
             if (command === 'recall') recallMessage(this.clickMessageInfo);
         },
         repeatMessage(messafeInfo: FriendMessageType) {
-            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type);
+            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type, false);
         },
         touchStart(event: TouchEvent, messageInfo: FriendMessageType) {
             if (!this.isMobile || this.showContextMenu) return;
