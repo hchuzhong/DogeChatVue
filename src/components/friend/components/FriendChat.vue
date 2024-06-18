@@ -47,6 +47,7 @@ type dataType = {
     clickMessageInfo: undefined | FriendMessageType;
     isBottom: boolean;
     touch: TouchType;
+    isDelaying: boolean;
 };
 
 const pageSize = 20;
@@ -88,7 +89,8 @@ export default {
             contextMenuY: 0,
             clickMessageInfo: undefined,
             isBottom: true,
-            touch: {isTouching: false, startPosition: {x: 0, y: 0}}
+            touch: {isTouching: false, startPosition: {x: 0, y: 0}},
+            isDelaying: false,
         };
     },
     watch: {
@@ -187,7 +189,12 @@ export default {
             if (command === 'recall') recallMessage(this.clickMessageInfo);
         },
         repeatMessage(messafeInfo: FriendMessageType) {
+            if (this.isDelaying) return;
             (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type, false);
+            this.isDelaying = true;
+            setTimeout(() => {
+                this.isDelaying = false;
+            }, 300);
         },
         touchStart(event: TouchEvent, messageInfo: FriendMessageType) {
             if (!this.isMobile || this.showContextMenu) return;
