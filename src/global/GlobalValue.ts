@@ -22,7 +22,7 @@ export const mobileMaxWidth = 768;
 
 export const autoLoginItem = 'autoLoginItem';
 
-export const textModeItem = 'textModeItem';
+export const settingItem = 'settingItem';
 
 export function getRsaKeys(callback: any) {
     return window.crypto.subtle

@@ -2,7 +2,7 @@
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../store/module/auth';
 import {useGlobalStore} from '../store/module/global';
-import {textModeItem} from '../global/GlobalValue';
+import {settingItem} from '../global/GlobalValue';
 import VConsole from 'vconsole';
 
 interface dataType {
@@ -25,8 +25,17 @@ export default {
         ...mapState(useAuthStore, ['selfData']),
         ...mapState(useGlobalStore, ['isDarkMode'])
     },
+    watch: {
+        openVConsole() {
+            this.openVConsole && (this.VConsole = new VConsole({theme: this.isDarkMode ? 'dark' : 'light'}));
+            !this.openVConsole && this.VConsole?.destroy();
+            this.updateSettingItem({key: 'openVConsole', value: this.openVConsole})
+        }
+    },
     mounted() {
-        this.openTextMode = JSON.parse(localStorage.getItem(textModeItem) ?? '{}')?.openTextMode;
+        const settingItemValue = JSON.parse(localStorage.getItem(settingItem) ?? '{}');
+        this.openTextMode = settingItemValue?.openTextMode;
+        this.openVConsole = settingItemValue?.openVConsole;
     },
     methods: {
         ...mapActions(useAuthStore, ['logout']),
@@ -39,13 +48,15 @@ export default {
         },
         changeTextMode(event: Event) {
             this.openTextMode = event.target?.checked ?? false;
-            localStorage.setItem(textModeItem, JSON.stringify({openTextMode: this.openTextMode}));
+            this.updateSettingItem({key: 'openTextMode', value: this.openTextMode});
         },
         changeVConsole(event: Event) {
             console.log('change v console');
             this.openVConsole = event.target?.checked ?? false;
-            this.openVConsole && (this.VConsole = new VConsole({theme: this.isDarkMode ? 'dark' : 'light'}));
-            !this.openVConsole && this.VConsole?.destroy();
+        },
+        updateSettingItem({key, value}: {key: string, value: boolean}) {
+            const settingItemValue = JSON.parse(localStorage.getItem(settingItem) ?? '{}');
+            localStorage.setItem(settingItem, JSON.stringify({...settingItemValue, [key]: value}));
         }
     }
 };
