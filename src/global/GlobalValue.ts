@@ -120,7 +120,8 @@ export function getMessageData(message?: FriendMessageType) {
             width = Number(params.get('width') ?? 0);
             height = Number(params.get('height') ?? 0);
         }
-        width > 300 && (height = height * 300 / width);
+        // 260 = 300(max width) - 20(padding) * 2
+        width > 260 && (height = height * 260 / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
     } else {
