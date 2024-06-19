@@ -122,6 +122,8 @@ export default {
                     <FrirendItem v-for="item in friendList" :key="item.userId" :chooseItemId="chooseItemId" :friendItemInfo="item" @click="actionChoose(item.userId)" />
                 </ul>
                 <div v-else class="text-center text-gray-600 dark:text-gray-400">暂无好友</div>
+                <!-- init vConsole visible -->
+                <Setting v-show="false" @returnFriendList="showSetting = false" />
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">

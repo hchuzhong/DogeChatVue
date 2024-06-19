@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {FriendRequestPostType, userInfoType} from '../global/GlobalType';
-import {deviceType, getRsaKeys, textModeItem} from '../global/GlobalValue';
+import {deviceType, getRsaKeys, settingItem} from '../global/GlobalValue';
 
 // 添加响应拦截器
 axios.interceptors.request.use(
@@ -166,7 +166,7 @@ export namespace API {
     }
 
     export function getPictureUrl(url?: string) {
-        const openTextMode = JSON.parse(localStorage.getItem(textModeItem) ?? '{}')?.openTextMode ?? false;
+        const openTextMode = JSON.parse(localStorage.getItem(settingItem) ?? '{}')?.openTextMode ?? false;
         if (!url || openTextMode) return '';
         const strArr = url.split('/');
         return `/api/star/fileDownload/${strArr[strArr.length - 1]}`;
