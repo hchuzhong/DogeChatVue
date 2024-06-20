@@ -195,7 +195,7 @@ export default {
         },
         repeatMessage(messafeInfo: FriendMessageType) {
             if (this.isDelaying) return;
-            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type, false);
+            (this.$refs.friendChatInput as typeof FriendChatInput).sendMessage(messafeInfo?.messageContent, messafeInfo?.type, false, messafeInfo?.notifiedParty);
             this.isDelaying = true;
             setTimeout(() => {
                 this.isDelaying = false;

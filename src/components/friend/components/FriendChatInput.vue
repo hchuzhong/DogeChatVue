@@ -61,7 +61,7 @@ export default {
         sendPhotoMessage(url: string) {
             this.sendMessage(url, messageType.photo);
         },
-        sendMessage(content: string, type = messageType.text, sendQuoteMessage = true) {
+        sendMessage(content: string, type = messageType.text, sendQuoteMessage = true, repeatNotifiedParty = '') {
             const selfData = this.selfData;
             const msg = serverEncrypt(encodeURIComponent(content));
             const notifiedParty: any[] = [];
@@ -82,7 +82,7 @@ export default {
                     // 只有 messageContent 需要加密
                     messageContent: msg,
                     messageSender: selfData.username,
-                    notifiedParty,
+                    notifiedParty: repeatNotifiedParty ? repeatNotifiedParty : notifiedParty,
                     messageReceiver: this.chooseFriendInfo?.username,
                     isGroup: this.isGroup || false,
                     messageReceiverId: this.chooseFriendInfo?.userId,
@@ -94,7 +94,7 @@ export default {
             sendQuoteMessage && this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
             websocket.send(JSON.stringify(messageData));
             sendQuoteMessage && EventBus().dispatchEvent(EventName.QuoteMessage);
-            this.$emit('sendMessage')
+            this.$emit('sendMessage');
         },
         inputPaste(event: ClipboardEvent) {
             event.preventDefault();
