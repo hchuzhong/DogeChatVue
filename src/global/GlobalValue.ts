@@ -124,7 +124,10 @@ export function getMessageData(message?: FriendMessageType) {
         width > 260 && (height = height * 260 / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
-        isValidURL(content) && (content = `<a href="${content}" target="_blank">${content}</a>`);
+        if(isValidURL(content)) {
+            const jumpUrl = content.includes('https://') || content.includes('http://') ? content : `//${content}`;
+            content = `<a href="${jumpUrl}" target="_blank" class="underline">${content}</a>`;
+        }
     } else {
         content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
