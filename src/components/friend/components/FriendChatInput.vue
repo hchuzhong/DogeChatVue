@@ -199,8 +199,8 @@ export default {
         },
         calculateCurrentItemPosition() {
             const refGroupMembers = this.$refs.groupMembers as HTMLDivElement;
-            // item height is 32
-            refGroupMembers.scrollTop = this.selectedGroupMemberIndex * 32;
+            // item height is 32, scroll when the selected item invisible
+            refGroupMembers.scrollTop = (this.selectedGroupMemberIndex >= 5 ? this.selectedGroupMemberIndex : 0) * 32;
         }
     },
     async created() {
