@@ -124,6 +124,10 @@ export function getMessageData(message?: FriendMessageType) {
         width > 260 && (height = height * 260 / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
+        if(isValidURL(content)) {
+            const jumpUrl = content.includes('https://') || content.includes('http://') ? content : `//${content}`;
+            content = `<a href="${jumpUrl}" target="_blank" class="underline">${content}</a>`;
+        }
     } else {
         content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
@@ -190,4 +194,9 @@ export function showFullScreenImage(imageUrl: string) {
     image.onerror = function () {
         console.log('图片加载失败');
     }
+}
+
+function isValidURL(text: string): boolean  {
+    const regex = /^(https?:\/\/)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})(:[0-9]{1,5})?(\/.*)?$/;
+    return regex.test(text);
 }
