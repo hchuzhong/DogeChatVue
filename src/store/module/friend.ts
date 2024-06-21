@@ -43,7 +43,10 @@ export const useFriendStore = defineStore('friend', {
         setFriendMessageHistory(messageHistory: FriendMessageHistoryType) {
             // messageHistory 只在 friendListObj 中维护
             const records = messageHistory?.records;
-            if (!records || records.length === 0) return;
+            if (!records || records.length === 0) {
+                EventBus().dispatchEvent(EventName.UpdateMessageHistory);
+                return;
+            }
             const AuthStore = useAuthStore();
             const isSelf = AuthStore.isSelf(records[0].messageReceiverId);
             const friendId = isSelf ? records[0].messageSenderId : records[0].messageReceiverId;
