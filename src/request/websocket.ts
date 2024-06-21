@@ -70,6 +70,7 @@ export function initWebSocket() {
                 case 'getHistory':
                     hadRecords = data?.records?.length > 0;
                     if (!hadRecords) {
+                        FriendStore.setFriendMessageHistory(data);
                         console.log('当前用户无聊天信息');
                     } else {
                         FriendStore.setFriendMessageHistory(data);
