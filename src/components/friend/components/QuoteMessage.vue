@@ -3,6 +3,7 @@ import {mapActions} from 'pinia';
 import {FriendMessageType} from '../../../global/GlobalType';
 import {EventBus, EventName, getMessageData, showFullScreenImage} from '../../../global/GlobalValue';
 import {useAuthStore} from '../../../store/module/auth';
+import VideoPlayer from '../../common/VideoPlayer.vue';
 
 type dataType = {
     quoteMessage: undefined | FriendMessageType;
@@ -10,6 +11,7 @@ type dataType = {
 };
 
 export default {
+    components: {VideoPlayer},
     created() {
         EventBus().addEventListener(EventName.QuoteMessage, this.getQuoteMessage);
     },
@@ -34,7 +36,7 @@ export default {
         },
         getMessageData: getMessageData,
         showFullScreenImage: showFullScreenImage
-    }
+    },
 };
 </script>
 
@@ -50,6 +52,7 @@ export default {
         <span v-if="showAt" class="text-cyan-500 cursor-pointer" @click="atQuoteMember">(点击@ta)</span>
         <span class="block text-left mr-2 ml-1">:</span>
         <img v-if="messageData.isPicture" class="object-cover max-w-[24px] max-h-[24px] cursor-pointer" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)"  />
+        <VideoPlayer v-else-if="messageData.isVideo" :videoSource="messageData.content" />
         <span v-else v-html="messageData.content" class="block break-words whitespace-pre-line truncate flex-1 max-h-[24px]"></span>
     </div>
 </template>
