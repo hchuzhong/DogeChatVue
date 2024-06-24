@@ -97,13 +97,15 @@ export function getMessageData(message?: FriendMessageType) {
     if (!message) return '';
     const isText = message.type === messageType.text;
     const isPicture = PictureArr.includes(message.type);
+    const isVideo = message.type === messageType.video;
     let content = '';
     let width = 0, height = 0;
-    if (isPicture) {
+    if (isPicture || isVideo) {
         switch (message?.type) {
             case messageType.sticker:
             case messageType.photo:
             case messageType.image:
+            case messageType.video:
                 content = API.getPictureUrl(message.messageContent);
                 break;
             case messageType.draw:
@@ -132,10 +134,11 @@ export function getMessageData(message?: FriendMessageType) {
         content = `暂不支持 【${messageTypeToChinese[message.type]}】 类型数据`;
     }
 
-    // @ts-ignore
     // change notified person text color
-    const notifiedParty = JSON.parse(message.notifiedParty);
-    if (notifiedParty.length && isText) {
+    let notifiedParty = null;
+    // @ts-ignore
+    message.notifiedParty && (notifiedParty = JSON.parse(message.notifiedParty));
+    if (notifiedParty?.length && isText) {
         const AuthStore = useAuthStore();
         for (const notifiedMember of notifiedParty) {
             const userId = Object.keys(notifiedMember)[0];
@@ -151,7 +154,7 @@ export function getMessageData(message?: FriendMessageType) {
         }
     }
 
-    return {content, isText, isPicture, width, height};
+    return {content, isText, isPicture, isVideo, width, height};
 }
 
 export function showFullScreenImage(imageUrl: string) {

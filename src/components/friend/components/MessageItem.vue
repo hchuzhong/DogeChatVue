@@ -4,8 +4,10 @@ import {FriendMessageType} from '../../../global/GlobalType';
 import dayjs from 'dayjs';
 import {getMessageData, showFullScreenImage} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
+import VideoPlayer from '../../common/VideoPlayer.vue';
 
 export default {
+    components: {VideoPlayer},
     props: {
         message: {} as PropType<FriendMessageType>,
         isSelf: Boolean,
@@ -23,7 +25,7 @@ export default {
             return API.getPictureUrl(this.message?.avatarUrl);
         },
         getMessageData: getMessageData,
-        showFullScreenImage: showFullScreenImage
+        showFullScreenImage: showFullScreenImage,
     },
 };
 </script>
@@ -41,6 +43,7 @@ export default {
                 </div>
                 {{ void (messageData = getMessageData(message)) }}
                 <img v-if="messageData.isPicture" class="object-cover rounded cursor-pointer" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)" />
+                <video v-else-if="messageData.isVideo" controls :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`"><source :src="messageData.content" type="video/mp4" /></video>
                 <span v-else v-html="messageData.content" class="block break-words whitespace-pre-line"></span>
                 <div class="absolute top-0 right-0 w-8 h-full" @click="$emit('repeatMessage', message)">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-3 w-3 absolute bottom-2 right-1" aria-hidden="true">
@@ -56,6 +59,7 @@ export default {
                 <span class="block mx-1">{{ message?.referMessage?.messageSender }}:</span>
                 <span v-if="referMessageData.isText" v-html="referMessageData.content" class="block break-words whitespace-pre-line flex-1 max-h-[16px] truncate"></span>
                 <img v-if="referMessageData.isPicture" class="object-cover rounded max-w-[20px] max-h-[20px] cursor-pointer" :src="referMessageData.content" alt="" @click="() => showFullScreenImage(referMessageData.content)" />
+                <VideoPlayer v-if="referMessageData.isVideo" :videoSource="referMessageData.content" />
             </div>
         </div>
     </div>
