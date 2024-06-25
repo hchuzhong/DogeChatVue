@@ -86,6 +86,20 @@ export function getImageInfo(file: File, cb: Function) {
     };
 }
 
+export function getVideoInfo(file: File, cb: Function) {
+    const videoSrc = window.URL.createObjectURL(file);
+    const videoElement = document.createElement('video');
+    videoElement.src = videoSrc;
+    document.body.appendChild(videoElement);
+    videoElement.onloadedmetadata = () => {
+        const width = videoElement.offsetWidth;
+        const height = videoElement.offsetHeight;
+        document.body.removeChild(videoElement);
+        const infoStr = `width=${width}&height=${height}`;
+        cb?.(infoStr);
+    };
+}
+
 let eventBus: EventHub | null = null;
 export function EventBus(): EventHub {
     if (!eventBus) eventBus = new EventHub();
