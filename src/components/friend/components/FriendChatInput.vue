@@ -7,7 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import type {PropType} from 'vue';
 import {API} from '../../../request/api';
 import {useFriendStore} from '../../../store/module/friend';
-import {EventBus, EventName, getImageInfo} from '../../../global/GlobalValue';
+import {EventBus, EventName, getImageInfo, getVideoInfo} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import QuoteMessage from './QuoteMessage.vue';
 import toast from '../../common/toast';
@@ -58,8 +58,9 @@ export default {
         sendEmojiMessage(url: string) {
             this.sendMessage(url, messageType.sticker);
         },
-        sendPhotoMessage(url: string) {
-            this.sendMessage(url, messageType.photo);
+        sendPhotoAndVideoMessage(url: string, isVideo: boolean) {
+            const type = isVideo ? messageType.video : messageType.photo;
+            this.sendMessage(url, type);
         },
         sendMessage(content: string, type = messageType.text, sendQuoteMessage = true, repeatNotifiedParty = '') {
             const selfData = this.selfData;
@@ -105,30 +106,27 @@ export default {
                 const isFile = item.type.includes('image');
                 if (!isFile) continue;
                 const blob = item.getAsFile();
-                return blob && this.beforeSendPhoto(blob);
+                return blob && this.beforeSend(blob);
             }
             this.inputMessage += event.clipboardData?.getData('text') ?? '';
         },
         onFileChange(event: Event) {
             const files = (event?.target as HTMLInputElement)?.files;
             if (!files?.length) return;
-            this.beforeSendPhoto(files[0]);
+            this.beforeSend(files[0]);
         },
-        beforeSendPhoto(file: File) {
-            const maxSize = 5 * 1024 * 1024; // 图片大小限制 5M
-            if (file.size > maxSize) {
-                toast('图片大小不能超过 5MB');
-                this.$refs.fileInput.value = '';
-                return;
-            }
+        beforeSend(file: File) {
+            const isVideo = file.type.includes('video');
             const cb = async (infoStr: string) => {
                 const formData = new FormData();
                 formData.append('upload', file);
                 const result = await API.uploadImg(formData);
+                if (result.data?.status === 'fail') return toast(result.data?.message);
                 const filePath = clientDecrypt(result.data.filePath);
-                this.sendPhotoMessage(`${filePath}?${infoStr}`);
+                this.sendPhotoAndVideoMessage(`${filePath}?${infoStr}`, isVideo);
             };
-            getImageInfo(file, cb);
+            const fn = isVideo ? getVideoInfo: getImageInfo;
+            fn(file, cb)
         },
         clickUploadImage() {
             const fileInput = this.$refs?.fileInput as HTMLInputElement;
@@ -234,7 +232,7 @@ export default {
                 <svg class="icon text-gray-400 h-6 w-6" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
                     <use xlink:href="#icon-tupianshangchuan"></use>
                 </svg>
-                <input ref="fileInput" class="hidden" type="file" accept="image/*" :multiple="false" @change="onFileChange" />
+                <input ref="fileInput" class="hidden" type="file" accept="image/*, video/*" :multiple="false" @change="onFileChange" />
             </button>
 
             <input ref="messageInput" v-model="inputMessage" aria-placeholder="想说点啥" placeholder="想说点啥" class="py-2 mx-3 px-5 block w-full rounded-full bg-gray-100 outline-none focus:text-gray-700" type="text" name="message" autocomplete="off" required @keypress.enter="clickKeyboardEnter" @keyup.down="clickKeyboardDown" @keyup.up="clickKeyboardUp" @paste="inputPaste" @input="checkForAtSymbol" />
