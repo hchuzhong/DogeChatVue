@@ -151,7 +151,7 @@ function send(data: any) {
 
 export function clientDecrypt(data: string) {
     const a = clientEncryptor.decrypt(data);
-    return decodeURIComponent(a as string);
+    return decodeURI(a as string);
 }
 
 export function serverEncrypt(data: string) {
