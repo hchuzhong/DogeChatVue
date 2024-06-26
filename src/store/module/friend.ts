@@ -85,15 +85,23 @@ export const useFriendStore = defineStore('friend', {
             if (this.friendListObj[friendId].isMuted === '1') return;
             const {messageContent, type, messageSender, messageReceiver} = data;
             const notifyContent = `${messageSender}:` + (type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`);
-            const options = { body: notifyContent };
+            const options = {
+                body: notifyContent,
+                data: { url: window.location.href, friendId }
+            };
+            const createNotification = () => {
+                navigator.serviceWorker.getRegistration().then(registration => {
+                    registration && registration.showNotification(messageReceiver, options);
+                });
+            }
             if (!('Notification' in window)) {
                 console.warn('This browser does not support desktop notification');
             } else if (Notification.permission === 'granted') {
-                new Notification(messageReceiver, options);
+                createNotification();
             } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
-                        new Notification(messageReceiver, options);
+                        createNotification();
                     }
                 });
             }
