@@ -2,7 +2,7 @@
 import type {PropType} from 'vue';
 import {FriendMessageType} from '../../../global/GlobalType';
 import dayjs from 'dayjs';
-import {getMessageData, showFullScreenImage} from '../../../global/GlobalValue';
+import {getMessageData, isMobileDevice, showFullScreenImage} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
 import VideoPlayer from '../../common/VideoPlayer.vue';
 
@@ -26,12 +26,13 @@ export default {
         },
         getMessageData: getMessageData,
         showFullScreenImage: showFullScreenImage,
+        isMobileDevice: isMobileDevice
     },
 };
 </script>
 
 <template>
-    <div class="w-full flex items-center mb-2" :class="{'flex-row-reverse': isSelf, 'cannotselect': true}">
+    <div class="w-full flex items-center mb-2" :class="{'flex-row-reverse': isSelf, 'cannotselect': isMobileDevice()}">
         <div class="h-6 w-6">
             <img v-if="!hideIcon" class="rounded-full object-cover" :src="getImageSrc()" alt="avatar" />
         </div>

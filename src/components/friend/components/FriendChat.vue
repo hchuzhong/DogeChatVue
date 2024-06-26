@@ -187,8 +187,19 @@ export default {
             if (command === 'copy') this.copyText();
         },
         async copyText() {
+            const getSelectedText = () => {
+                let selectedText = '';
+                if (window.getSelection) {
+                    selectedText = window?.getSelection()?.toString() ?? '';
+                    // @ts-ignore
+                } else if (document?.selection && document?.selection.type !== 'Control') {
+                    // @ts-ignore
+                    selectedText = document.selection.createRange().text;
+                }
+                return selectedText;
+            }
             try {
-                await navigator.clipboard.writeText(this.clickMessageInfo?.messageContent ?? '');
+                await navigator.clipboard.writeText((getSelectedText() || this.clickMessageInfo?.messageContent) ?? '');
             } catch (err) {
                 console.error('Failed to copy text: ', err);
             }
