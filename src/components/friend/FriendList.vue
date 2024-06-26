@@ -12,6 +12,7 @@ import Loading from '../common/Loading.vue';
 import UserInfoItem from './components/UserInfoItem.vue';
 import FriendRequest from './components/FriendRequest.vue';
 import Setting from '../Setting.vue';
+import {EventBus, EventName} from '../../global/GlobalValue';
 
 interface dataType {
     chooseItemId: string;
@@ -82,6 +83,7 @@ export default {
     },
     async created() {
         this.initData();
+        EventBus().addEventListener(EventName.ChooseFriendId, this.actionChoose);
     },
     mounted() {
         this.setClientWidth(document.body.clientWidth);
@@ -92,6 +94,9 @@ export default {
                 this.resizeTimer = null;
             }, 100);
         });
+    },
+    unmounted() {
+        EventBus().removeEventListener(EventName.ChooseFriendId, this.actionChoose);
     }
 };
 </script>

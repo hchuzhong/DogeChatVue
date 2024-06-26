@@ -90,7 +90,6 @@ export default {
                     uuid: uuidv4()
                 }
             };
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             sendQuoteMessage && this.quoteMessage && (messageData.message.referMessageUuid = this.quoteMessage.uuid);
             websocket.send(JSON.stringify(messageData));
@@ -103,7 +102,7 @@ export default {
             if (!items?.length) return;
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
-                const isFile = item.type.includes('image');
+                const isFile = item.type.includes('image') || item.type.includes('video');
                 if (!isFile) continue;
                 const blob = item.getAsFile();
                 return blob && this.beforeSend(blob);
