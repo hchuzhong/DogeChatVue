@@ -7,7 +7,8 @@ export const useGlobalStore = defineStore('global', {
         return {
             clientWidth: 0,
             isMobile: false,
-            isDarkMode: false
+            isDarkMode: false,
+            pageVisible: false
         };
     },
     actions: {
@@ -21,6 +22,10 @@ export const useGlobalStore = defineStore('global', {
         setDarkMode(isDarkMode: boolean) {
             this.isDarkMode = isDarkMode;
             useToggle(this.isDarkMode);
+        },
+        setPageVisible(pageVisible: boolean) {
+            this.pageVisible = pageVisible;
+            console.log('pageVisible', this.pageVisible);
         }
     }
 });
