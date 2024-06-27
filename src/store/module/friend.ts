@@ -4,6 +4,7 @@ import {EventBus, EventName} from '../../global/GlobalValue';
 import {API} from '../../request/api';
 import {clientDecrypt} from '../../request/websocket';
 import {useAuthStore} from './auth';
+import {useGlobalStore}  from './global';
 
 export const useFriendStore = defineStore('friend', {
     state: (): FriendStoreType => {
@@ -74,8 +75,10 @@ export const useFriendStore = defineStore('friend', {
             const friendId = AuthStore.isSelf(data.messageReceiverId) ? data.messageSenderId : data.messageReceiverId;
             this.decryptMessageContent(data);
             this.pushOneUnreadMessage(friendId, data);
+
+            const GlobalStore = useGlobalStore();
             // 推送消息
-            !AuthStore.isSelf(data.messageSenderId) && document.hidden && this.notifyMessage(data, friendId);
+            !AuthStore.isSelf(data.messageSenderId) && !GlobalStore.pageVisible && this.notifyMessage(data, friendId);
             if (!this.friendListObj[friendId].messageHistory) return;
             this.friendListObj[friendId].messageHistory.records.push(data);
             const eventData = {friendId, needScroll: true};

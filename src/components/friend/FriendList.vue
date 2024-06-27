@@ -12,7 +12,7 @@ import Loading from '../common/Loading.vue';
 import UserInfoItem from './components/UserInfoItem.vue';
 import FriendRequest from './components/FriendRequest.vue';
 import Setting from '../Setting.vue';
-import {EventBus, EventName} from '../../global/GlobalValue';
+import {EventBus, EventName, isMobileDevice} from '../../global/GlobalValue';
 
 interface dataType {
     chooseItemId: string;
@@ -27,9 +27,9 @@ interface dataType {
 export default {
     components: {FrirendItem, FriendChat, Loading, UserInfoItem, FriendRequest, Setting},
     computed: {
-        ...mapState(useGlobalStore, ['isMobile']),
+        ...mapState(useGlobalStore, ['isMobile', 'pageVisible']),
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['friendList'])
+        ...mapState(useFriendStore, ['friendList']),
     },
     data(): dataType {
         return {
@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         ...mapActions(useFriendStore, ['setFriendList']),
-        ...mapActions(useGlobalStore, ['setClientWidth']),
+        ...mapActions(useGlobalStore, ['setClientWidth', 'setPageVisible']),
         ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
         actionChoose(chooseItemId: string) {
             this.chooseItemId = chooseItemId;
@@ -93,6 +93,10 @@ export default {
                 this.setClientWidth(document.body.clientWidth);
                 this.resizeTimer = null;
             }, 100);
+        });
+        document.addEventListener("visibilitychange", () => {
+            this.setPageVisible(document.visibilityState === 'visible')
+            isMobileDevice() && this.pageVisible && this.initData();
         });
     },
     unmounted() {
