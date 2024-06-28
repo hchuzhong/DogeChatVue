@@ -3,8 +3,8 @@ import {mapActions, mapState} from 'pinia';
 import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
-import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
-import {getHistoryMessages, recallMessage} from '../../../request/websocket';
+import {FriendInfoType, FriendMessageType, GroupMemberType, messageType, SaveStarDataType} from '../../../global/GlobalType';
+import {clientDecrypt, getHistoryMessages, recallMessage, serverEncrypt} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
@@ -66,6 +66,8 @@ export default {
             showRecall && contextmenuFunction.push({text: '撤回', command: 'recall'});
             const showCopy = this.clickMessageInfo?.type === messageType.text;
             showCopy && contextmenuFunction.push({text: '复制', command: 'copy'});
+            const canSave = this.clickMessageInfo?.type && [messageType.image, messageType.livePhoto, messageType.draw, messageType.photo].includes(this.clickMessageInfo?.type);
+            canSave && contextmenuFunction.push({text: '收藏', command: 'save'});
             return contextmenuFunction;
         },
         draggingElement(): HTMLDivElement {
@@ -185,6 +187,27 @@ export default {
             if (command === 'quote') EventBus().dispatchEvent(EventName.QuoteMessage, this.clickMessageInfo);
             if (command === 'recall') recallMessage(this.clickMessageInfo);
             if (command === 'copy') this.copyText();
+            if (command === 'save') this.saveImageToSticker();
+        },
+        async saveImageToSticker() {
+            if (!this.clickMessageInfo) return;
+            const {messageContent, messageSenderId, messageSender} = this.clickMessageInfo;
+            const content = serverEncrypt(messageContent);
+            if (!content) return;
+            const data: SaveStarDataType = {
+                content,
+                starTime: new Date().toISOString(),
+                starType: 'file',
+                type: '0',
+                userId: messageSenderId,
+                username: messageSender,
+            }
+            const result = await API.saveStar(data);
+            if (result.data.status === 'success') {
+                (this.$refs.friendChatInput as typeof FriendChatInput).getStar();
+                return toast('表情收藏成功');
+            }
+            toast('操作失败');
         },
         async copyText() {
             const getSelectedText = () => {

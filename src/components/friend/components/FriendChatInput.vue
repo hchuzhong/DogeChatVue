@@ -1,5 +1,5 @@
 <script lang="ts">
-import {FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
+import {EmojiType, FriendInfoType, FriendMessageType, GroupMemberType, messageType} from '../../../global/GlobalType';
 import {clientDecrypt, serverEncrypt, websocket} from '../../../request/websocket';
 import {mapActions, mapState} from 'pinia';
 import {useAuthStore} from '../../../store/module/auth';
@@ -198,16 +198,29 @@ export default {
             const refGroupMembers = this.$refs.groupMembers as HTMLDivElement;
             // item height is 32, scroll when the selected item invisible
             refGroupMembers.scrollTop = (this.selectedGroupMemberIndex >= 5 ? this.selectedGroupMemberIndex : 0) * 32;
+        },
+        async removeSticker(starId: string) {
+            const result = await API.removeStar(starId);
+            if (result.data.status === "success") {
+                this.getStar();
+                return toast("表情已删除");
+            }
+            return toast("操作失败");
+        },
+        async getStar() {
+            try {
+                const data = await API.getStar();
+                const publiEmojiArr = data?.data?.data.filter((item: EmojiType) => item.type === '');
+                const personalEmojiArr = data?.data?.data.filter((item: EmojiType) => item.type === 'favorite');
+                this.setEmojiArr(publiEmojiArr);
+            } catch (error) {
+                console.log(error);
+            }
         }
     },
     async created() {
         if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
-            try {
-                const data = await API.getStar();
-                this.setEmojiArr(data?.data?.data);
-            } catch (error) {
-                console.log(error);
-            }
+            this.getStar();
         }
     }
 };
@@ -243,9 +256,14 @@ export default {
             </button>
         </div>
         <OnClickOutside @trigger="emojiVisible = false">
-            <div v-show="emojiVisible" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center">
-                <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer" @click="sendEmojiMessage(item.content)">
-                    <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" />
+            <div v-show="emojiVisible" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center cannotselect">
+                <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer relative" >
+                    <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" @click="sendEmojiMessage(item.content)" />
+                    <button class="outline-none focus:outline-none absolute right-0 top-0 opacity-30" @click="removeSticker(item.starId)">
+                        <svg class="icon text-gray-400 dark:text-white h-5 w-5" aria-hidden="true" stroke="currentColor">
+                            <use xlink:href="#icon-cancel"></use>
+                        </svg>
+                    </button>
                 </span>
                 <div v-if="!emojiArr.length">暂无表情包</div>
             </div>

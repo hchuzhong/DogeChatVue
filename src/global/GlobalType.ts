@@ -178,3 +178,12 @@ export type FriendRequestHistoryType = {
     groupId?: null;
     groupName?: null;
 };
+
+export type SaveStarDataType = {
+    content: string;
+    starTime: string;
+    starType: string;
+    type: string;
+    userId: string;
+    username: string;
+}

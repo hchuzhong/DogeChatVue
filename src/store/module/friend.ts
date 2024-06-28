@@ -85,7 +85,8 @@ export const useFriendStore = defineStore('friend', {
             EventBus().dispatchEvent(EventName.UpdateOneMessage, eventData);
         },
         notifyMessage(data: FriendMessageType, friendId: string) {
-            if (this.friendListObj[friendId].isMuted === '1') return;
+            // TODO 能选择是否屏蔽消息再把下面的代码还原
+            // if (this.friendListObj[friendId].isMuted === '1') return;
             const {messageContent, type, messageSender, messageReceiver} = data;
             const notifyContent = `${messageSender}:` + (type === messageType.text ? messageContent : `[${messageTypeToChinese[type]}]`);
             const options = {
