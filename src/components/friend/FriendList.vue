@@ -30,6 +30,9 @@ export default {
         ...mapState(useGlobalStore, ['isMobile', 'pageVisible']),
         ...mapState(useAuthStore, ['selfData']),
         ...mapState(useFriendStore, ['friendList']),
+        hadChooseItem(): boolean {
+            return this.chooseItemId !== '';
+        },
     },
     data(): dataType {
         return {
@@ -48,9 +51,6 @@ export default {
         ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
         actionChoose(chooseItemId: string) {
             this.chooseItemId = chooseItemId;
-        },
-        hadChooseItem() {
-            return this.chooseItemId !== '';
         },
         getImageSrc(src: string) {
             return API.getPictureUrl(src);
@@ -94,9 +94,14 @@ export default {
                 this.resizeTimer = null;
             }, 100);
         });
-        document.addEventListener("visibilitychange", () => {
+        document.addEventListener("visibilitychange", async () => {
             this.setPageVisible(document.visibilityState === 'visible')
-            isMobileDevice() && this.pageVisible && this.initData();
+            if (isMobileDevice() && this.pageVisible) {
+                const chooseItemId = this.chooseItemId;
+                this.actionChoose("");
+                await this.initData();
+                this.actionChoose(chooseItemId);
+            }
         });
     },
     unmounted() {
@@ -108,7 +113,7 @@ export default {
 <template>
     <div class="w-screen h-self-screen overflow-hidden">
         <div class="flex min-w-full rounded min-h-[80%] max-h-full">
-            <div v-show="!isMobile || !hadChooseItem()" class="col-span-1 bg-white dark:bg-gray-800 border-r-[0.2px] border-gray-400 h-self-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
+            <div v-show="!isMobile || !hadChooseItem" class="col-span-1 bg-white dark:bg-gray-800 border-r-[0.2px] border-gray-400 h-self-screen overflow-y-auto" :class="isMobile ? 'w-full' : 'w-80 '">
                 <div v-if="!(showFriendRequestVisible || showSetting)" class="border-b-[0.2px] py-2 px-4 flex items-center justify-between">
                     <button class="flex" @click="showSetting = true">
                         <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
@@ -135,7 +140,7 @@ export default {
                 <Setting v-show="false" @returnFriendList="showSetting = false" />
             </div>
             <!-- {/* 聊天界面 */} -->
-            <div v-show="!isMobile || hadChooseItem()" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">
+            <div v-show="!isMobile || hadChooseItem" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">
                 <button v-if="isMobile" class="absolute left-2 top-4" @click="chooseItemId = ''">
                     <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                         <use xlink:href="#icon-xiangzuojiantou"></use>
