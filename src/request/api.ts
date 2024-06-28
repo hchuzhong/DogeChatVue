@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {FriendRequestPostType, userInfoType} from '../global/GlobalType';
+import {FriendRequestPostType, SaveStarDataType, userInfoType} from '../global/GlobalType';
 import {deviceType, getRsaKeys, settingItem} from '../global/GlobalValue';
 
 // 添加响应拦截器
@@ -111,6 +111,24 @@ export namespace API {
                 'Content-Type': 'application/json'
             },
             withCredentials: true
+        });
+    }
+
+    export function saveStar(data: SaveStarDataType) {
+        return axios.post(`${baseUrl}/star/saveStar`, data, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true,
+        });
+    }
+
+    export function removeStar(starId: string) {
+        return axios.post(`${baseUrl}/star/delStar`, {starId}, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true,
         });
     }
 
