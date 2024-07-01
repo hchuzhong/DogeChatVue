@@ -12,6 +12,7 @@ import {OnClickOutside} from '@vueuse/components';
 import QuoteMessage from './QuoteMessage.vue';
 import toast from '../../common/toast';
 import UserInfoItem from './UserInfoItem.vue';
+import EmojiList from './EmojiList.vue';
 
 type dataType = {
     inputMessage: string;
@@ -30,10 +31,10 @@ export default {
         groupMembersData: Array as PropType<GroupMemberType[]>,
         chooseItemId: String
     },
-    components: {OnClickOutside, QuoteMessage, UserInfoItem},
+    components: {OnClickOutside, QuoteMessage, UserInfoItem, EmojiList},
     computed: {
         ...mapState(useAuthStore, ['selfData']),
-        ...mapState(useFriendStore, ['emojiArr']),
+        ...mapState(useFriendStore, ['publicEmojiArr', 'personalEmojiArr']),
         isGroup(): boolean {
             return this.chooseFriendInfo?.isGroup === '1';
         }
@@ -49,7 +50,7 @@ export default {
         };
     },
     methods: {
-        ...mapActions(useFriendStore, ['setEmojiArr']),
+        ...mapActions(useFriendStore, ['setPublicEmojiArr', 'setPersonalEmojiArr']),
         sendTextMessage() {
             if (!this.inputMessage) return toast('请输入信息');
             this.sendMessage(this.inputMessage);
@@ -210,16 +211,17 @@ export default {
         async getStar() {
             try {
                 const data = await API.getStar();
-                const publiEmojiArr = data?.data?.data.filter((item: EmojiType) => item.type === '');
+                const publicEmojiArr = data?.data?.data.filter((item: EmojiType) => item.type === '');
                 const personalEmojiArr = data?.data?.data.filter((item: EmojiType) => item.type === 'favorite');
-                this.setEmojiArr(publiEmojiArr);
+                this.setPublicEmojiArr(publicEmojiArr);
+                this.setPersonalEmojiArr(personalEmojiArr);
             } catch (error) {
                 console.log(error);
             }
         }
     },
     async created() {
-        if (!this.emojiArr || (this.emojiArr && this.emojiArr.length === 0)) {
+        if (!this.publicEmojiArr || (this.publicEmojiArr && this.publicEmojiArr.length === 0)) {
             this.getStar();
         }
     }
@@ -257,15 +259,7 @@ export default {
         </div>
         <OnClickOutside @trigger="emojiVisible = false">
             <div v-show="emojiVisible" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center cannotselect">
-                <span v-for="item in emojiArr" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer relative" >
-                    <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" @click="sendEmojiMessage(item.content)" />
-                    <button class="outline-none focus:outline-none absolute right-0 top-0 opacity-30" @click="removeSticker(item.starId)">
-                        <svg class="icon text-gray-400 dark:text-white h-5 w-5" aria-hidden="true" stroke="currentColor">
-                            <use xlink:href="#icon-cancel"></use>
-                        </svg>
-                    </button>
-                </span>
-                <div v-if="!emojiArr.length">暂无表情包</div>
+                <emoji-list @sendEmojiMessage="sendEmojiMessage" @removeSticker="removeSticker" />
             </div>
         </OnClickOutside>
     </div>

@@ -117,7 +117,8 @@ export type FriendStoreType = {
     friendList: FriendInfoType[];
     unreadMessage: FriendMessageType[];
     friendListObj: {[key: string]: FriendInfoType};
-    emojiArr: EmojiType[];
+    publicEmojiArr: EmojiType[];
+    personalEmojiArr: EmojiType[];
 };
 
 export type userInfoType = {
