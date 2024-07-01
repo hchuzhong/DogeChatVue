@@ -103,6 +103,19 @@ export default {
                 this.actionChoose(chooseItemId);
             }
         });
+        if (this.$route.query?.userId) {
+            if (websocket.readyState === 1 && this.friendList.length) this.actionChoose(this.$route.query?.userId as string);
+            else {
+                let choose = false;
+                const timer = setInterval(() => {
+                    if (choose) return clearInterval(timer);
+                    if (websocket.readyState === 1 && this.friendList.length) {
+                        this.actionChoose(this.$route.query?.userId as string);
+                        choose = true;
+                    }
+                }, 1000)
+            }
+        }
     },
     unmounted() {
         EventBus().removeEventListener(EventName.ChooseFriendId, this.actionChoose);

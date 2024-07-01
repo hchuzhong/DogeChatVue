@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia';
 import {API} from '../../request/api';
 import {SelfDataType} from '../../global/GlobalType';
-import {Router} from 'vue-router';
+import {RouteLocation, Router} from 'vue-router';
 import {useFriendStore} from './friend';
 import {autoLoginItem} from '../../global/GlobalValue';
 import toast from '../../components/common/toast';
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore('auth', {
             this.selfData = data;
         },
 
-        login(username: string, password: string, router: Router) {
+        login(username: string, password: string, router: Router, route: RouteLocation) {
             this.setUsername(username);
             this.setPassword(password);
             return new Promise((resolve, reject) => {
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', {
                             this.fromLogout = false;
                             this.setSelfData(data?.data?.userInfo);
                             localStorage.setItem('selfData', JSON.stringify(data?.data?.userInfo));
-                            router.push('/friend-list');
+                            router.push(route.query?.userId ? `/friend-list?userId=${route.query?.userId}` : '/friend-list');
                         }
                         resolve(data);
                     })
