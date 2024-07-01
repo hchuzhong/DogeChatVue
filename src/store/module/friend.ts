@@ -14,7 +14,8 @@ export const useFriendStore = defineStore('friend', {
             friendList: [],
             unreadMessage: [],
             friendListObj: {},
-            emojiArr: []
+            publicEmojiArr: [],
+            personalEmojiArr: []
         };
     },
     actions: {
@@ -142,17 +143,20 @@ export const useFriendStore = defineStore('friend', {
             this.resetFriendList();
             this.resetUnreadMessage();
         },
-        setEmojiArr(data: EmojiType[]) {
-            if (!data || !data?.length) return (this.emojiArr = []);
-            this.emojiArr = [];
+        processEmojiData(data: EmojiType[], targetArray: EmojiType[]) {
+            if (!data || !data.length) return (targetArray.length = 0);
+            targetArray.length = 0;
             let start = 0;
             const dataNum = data.length;
+            const processBatch = () => {
+                for (let i = start; i < Math.min(start + 100, dataNum); i++) {
+                    data[i].content = API.getPictureUrl(clientDecrypt(data[i].content));
+                    targetArray.push(data[i]);
+                }
+            };
             const delayFn = () => {
                 setTimeout(() => {
-                    for (let i = start; i < Math.min(start + 100, dataNum); i++) {
-                        data[i].content = API.getPictureUrl(clientDecrypt(data[i].content));
-                        this.emojiArr.push(data[i]);
-                    }
+                    processBatch();
                     if (start + 100 < dataNum) {
                         start += 100;
                         delayFn();
@@ -160,6 +164,12 @@ export const useFriendStore = defineStore('friend', {
                 }, 1000);
             };
             delayFn();
+        },
+        setPublicEmojiArr(data: EmojiType[]) {
+            this.processEmojiData(data, this.publicEmojiArr);
+        },
+        setPersonalEmojiArr(data: EmojiType[]) {
+            this.processEmojiData(data, this.personalEmojiArr);
         },
         decryptMessageContent(message: FriendMessageType) {
             message.messageContent = clientDecrypt(message.messageContent);
