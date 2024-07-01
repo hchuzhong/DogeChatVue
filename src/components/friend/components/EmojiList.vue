@@ -20,7 +20,7 @@
                 <div v-if="!publicEmojiArr.length">暂无表情包</div>
             </div>
         </div>
-        <div class="absolute top-0 left-1/2 translate-x-[-50%] flex gap-2 bg-white rounded-full">
+        <div class="absolute top-0 left-1/2 translate-x-[-50%] flex gap-2 bg-white dark:bg-gray-800 rounded-full">
             <span
                 v-for="(content, index) in contents"
                 :key="index"
