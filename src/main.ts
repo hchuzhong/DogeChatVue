@@ -4,7 +4,7 @@ import './index.css';
 import router from './router';
 import piniaStore from './store';
 import VueLazyload from 'vue-lazyload';
-import { EventBus, EventName } from './global/GlobalValue';
+import {EventBus, EventName} from './global/GlobalValue';
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {

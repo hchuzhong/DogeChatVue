@@ -4,7 +4,7 @@ import {useFriendStore} from '../../../store/module/friend';
 import {useAuthStore} from '../../../store/module/auth';
 import MessageItem from './MessageItem.vue';
 import {FriendInfoType, FriendMessageType, GroupMemberType, messageType, SaveStarDataType} from '../../../global/GlobalType';
-import {clientDecrypt, getHistoryMessages, recallMessage, serverEncrypt} from '../../../request/websocket';
+import {getHistoryMessages, recallMessage, serverEncrypt} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
 import {EventBus, EventName} from '../../../global/GlobalValue';
@@ -13,16 +13,6 @@ import {useGlobalStore} from '../../../store/module/global';
 import UserInfoItem from './UserInfoItem.vue';
 import toast from '../../common/toast';
 
-type DomRectType = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-};
 
 type PositionType = {x: number; y: number};
 

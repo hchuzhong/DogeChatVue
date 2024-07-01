@@ -32,7 +32,7 @@ export default {
             try {
                 const data = await method(this.form);
                 const {status, message} = data.data;
-                if (status === 'success') this.login(this.form.username, this.form.password, this.$router);
+                if (status === 'success') this.login(this.form.username, this.form.password, this.$router, this.$route);
                 else toast(message);
             } catch (error) {
                 console.log(error);

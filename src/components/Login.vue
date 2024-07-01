@@ -37,7 +37,7 @@ export default {
             if (this.form.password === '') {
                 return toast('请输入密码');
             }
-            this.login(this.form.username, this.form.password, this.$router);
+            this.login(this.form.username, this.form.password, this.$router, this.$route);
         },
         autoLogin() {
             const infoItem = JSON.parse(localStorage.getItem(autoLoginItem) || '{}');
