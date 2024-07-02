@@ -31,9 +31,8 @@
 </template>
 
 <script lang="ts">
-import { useFriendStore } from '../../../store/module/friend';
-import { mapState } from 'pinia';
 import { EmojiType } from '../../../global/GlobalType';
+import { PropType } from 'vue';
 
 type dataType = {
     startX: number;
@@ -44,8 +43,17 @@ type dataType = {
 }
 
 export default {
+    props: {
+        publicEmojiArr: {
+            type: Array as PropType<EmojiType[]>,
+            required: true
+        },
+        personalEmojiArr: {
+            type: Array as PropType<EmojiType[]>,
+            required: true
+        },
+    },
     computed: {
-        ...mapState(useFriendStore, ['publicEmojiArr', 'personalEmojiArr']),
         contents(): EmojiType[][] {
             return [this.publicEmojiArr, this.personalEmojiArr]
         }
@@ -58,10 +66,6 @@ export default {
             currentIndex: 0,
             isDragging: false,
         }
-    },
-    mounted() {
-    },
-    unmounted() {
     },
     methods: {
         onTouchStart(event: TouchEvent) {

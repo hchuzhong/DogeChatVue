@@ -259,7 +259,7 @@ export default {
         </div>
         <OnClickOutside @trigger="emojiVisible = false">
             <div v-show="emojiVisible" class="w-full h-52 overflow-y-auto flex flex-wrap justify-center cannotselect">
-                <emoji-list @sendEmojiMessage="sendEmojiMessage" @removeSticker="removeSticker" />
+                <emoji-list :publicEmojiArr="publicEmojiArr" :personalEmojiArr="personalEmojiArr" @sendEmojiMessage="sendEmojiMessage" @removeSticker="removeSticker" />
             </div>
         </OnClickOutside>
     </div>
