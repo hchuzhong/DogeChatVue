@@ -3,7 +3,7 @@ import {useFriendStore} from '../../store/module/friend';
 import FrirendItem from './components/FrirendItem.vue';
 import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
-import {initWebSocket, websocket} from '../../request/websocket';
+import {initWebSocket, sendPageVisible, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
 import {FriendRequestHistoryType} from '../../global/GlobalType';
@@ -95,7 +95,9 @@ export default {
             }, 100);
         });
         document.addEventListener("visibilitychange", async () => {
-            this.setPageVisible(document.visibilityState === 'visible')
+            const visible = document.visibilityState === 'visible';
+            this.setPageVisible(visible);
+            sendPageVisible(visible);
             if (isMobileDevice() && this.pageVisible) {
                 const chooseItemId = this.chooseItemId;
                 this.actionChoose("");
