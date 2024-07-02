@@ -1,8 +1,20 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import obfuscator from 'rollup-plugin-obfuscator';
-export default defineConfig(({mode}) => {
-    const plugins = [vue()];
+
+export default defineConfig(async ({mode}) => {
+    const { viteStaticCopy } = await import('vite-plugin-static-copy');
+    const plugins = [
+        vue(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'service-worker.js',
+                    dest: '.' // 复制到输出目录的根目录
+                }
+            ]
+        })
+    ];
     if (mode === 'production') {
         plugins.push(
             obfuscator({
@@ -72,6 +84,7 @@ export default defineConfig(({mode}) => {
         // base: "",
         build: {
             minify: 'esbuild', // 默认
+            outDir: 'dist', // 输出目录
             rollupOptions:{
                 manualChunks:(id) => {
                     if (id.includes('vue')) {

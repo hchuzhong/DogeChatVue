@@ -20,11 +20,11 @@
                 <div v-if="!publicEmojiArr.length">暂无表情包</div>
             </div>
         </div>
-        <div class="absolute top-0 left-1/2 translate-x-[-50%] flex gap-2 bg-white rounded-full">
+        <div class="absolute top-0 left-1/2 translate-x-[-50%] flex gap-2 bg-white dark:bg-gray-800 rounded-full">
             <span
                 v-for="(content, index) in contents"
                 :key="index"
-                :class="{'w-2 h-2 rounded-full bg-gray-800  dark:bg-white': true, 'bg-cyan-500': currentIndex === index}"
+                :class="{'w-2 h-2 rounded-full bg-gray-800  dark:bg-white': true, '!bg-cyan-500': currentIndex === index}"
             ></span>
         </div>
     </div>
@@ -41,7 +41,6 @@ type dataType = {
     offset: number;
     currentIndex: number;
     isDragging: boolean;
-    containerWidth: number;
 }
 
 export default {
@@ -58,40 +57,25 @@ export default {
             offset: 0,
             currentIndex: 0,
             isDragging: false,
-            containerWidth: 0,
         }
     },
     mounted() {
-        // this.$nextTick(() => {
-        //     this.updateContainerWidth();
-        //     window.addEventListener('resize', this.updateContainerWidth);
-        // });
     },
     unmounted() {
-        // window.removeEventListener('resize', this.updateContainerWidth);
     },
     methods: {
-        // updateContainerWidth() {
-        //     if (this.$refs.swipeContainer) {
-        //         containerWidth = swipeContainer.clientWidth;
-        //     }
-        // },
-
         onTouchStart(event: TouchEvent) {
             this.startX = event.touches[0].clientX;
             this.currentX = this.startX;
         },
-
         onTouchMove(event: TouchEvent) {
             if (!this.isDragging) {
                 this.currentX = event.touches[0].clientX;
             }
         },
-
         onTouchEnd () {
             this.handleSwipeEnd();
         },
-
         onMouseDown(event: MouseEvent) {
             this.startX = event.clientX;
             this.currentX = this.startX;
@@ -99,20 +83,17 @@ export default {
             document.addEventListener('mousemove', this.onMouseMove);
             document.addEventListener('mouseup', this.onMouseUp);
         },
-
         onMouseMove(event: MouseEvent) {
             if (this.isDragging) {
                 this.currentX = event.clientX;
             }
         },
-
         onMouseUp() {
             this.isDragging = false;
             document.removeEventListener('mousemove', this.onMouseMove);
             document.removeEventListener('mouseup', this.onMouseUp);
             this.handleSwipeEnd();
         },
-
         handleSwipeEnd() {
             const diffX = this.currentX - this.startX;
             if (Math.abs(diffX) > 50) {
@@ -122,6 +103,7 @@ export default {
                     this.currentIndex -= 1;
                 }
             }
+            // @ts-ignore
             this.offset = -this.currentIndex * (this.$refs?.swipeContainer?.clientWidth ?? 0);
         }
     }
