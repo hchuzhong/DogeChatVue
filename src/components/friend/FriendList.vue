@@ -104,12 +104,12 @@ export default {
             }
         });
         if (this.$route.query?.userId) {
-            if (websocket.readyState === 1 && this.friendList.length) this.actionChoose(this.$route.query?.userId as string);
+            if (websocket && websocket.readyState === 1 && this.friendList.length) this.actionChoose(this.$route.query?.userId as string);
             else {
                 let choose = false;
                 const timer = setInterval(() => {
                     if (choose) return clearInterval(timer);
-                    if (websocket.readyState === 1 && this.friendList.length) {
+                    if (websocket && websocket.readyState === 1 && this.friendList.length) {
                         this.actionChoose(this.$route.query?.userId as string);
                         choose = true;
                     }
