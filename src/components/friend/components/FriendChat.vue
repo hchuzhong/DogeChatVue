@@ -13,7 +13,6 @@ import {useGlobalStore} from '../../../store/module/global';
 import UserInfoItem from './UserInfoItem.vue';
 import toast from '../../common/toast';
 
-
 type PositionType = {x: number; y: number};
 
 type TouchType = {
@@ -244,12 +243,35 @@ export default {
                 this.touch.isTouching = false;
             }
         },
+        handleDragOver(event: DragEvent) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        handleDragLeave(event: DragEvent) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        handleDrop(event: DragEvent) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const files = event?.dataTransfer?.files;
+            if (files && files.length > 0) {
+                this.handleFiles(files);
+            }
+        },
+        handleFiles(files: FileList) {
+            const file = files[0];
+            const isImageOrVideo = file.type.includes('video') || file.type.includes('image')
+            if (!isImageOrVideo) return toast("拖拽发送只支持图片或视频");
+            (this.$refs.friendChatInput as typeof FriendChatInput).beforeSend(files[0]);
+        }
     }
 };
 </script>
 
 <template>
-    <div class="w-full overflow-hidden">
+    <div class="w-full overflow-hidden" ref="chatWrapper" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
         <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b-[0.2px] border-gray-400 py-2" />
             <div v-if="!!(messageRecords && messageRecords.length)" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
