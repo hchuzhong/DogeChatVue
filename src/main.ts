@@ -5,6 +5,7 @@ import router from './router';
 import piniaStore from './store';
 import VueLazyload from 'vue-lazyload';
 import {EventBus, EventName} from './global/GlobalValue';
+import loadingGif from './assets/loading.gif';
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {
@@ -20,4 +21,11 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-createApp(App).use(router).use(piniaStore).use(VueLazyload).mount('#app');
+const LazyLoadConfig = {
+    preLoad: 1.5,
+    loading: loadingGif,
+    attempt: 1,
+    lazyComponent: true,
+};
+
+createApp(App).use(router).use(piniaStore).use(VueLazyload, LazyLoadConfig).mount('#app');
