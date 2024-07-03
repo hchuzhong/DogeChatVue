@@ -141,6 +141,10 @@ export function recallMessage(messageInfo?: FriendMessageType) {
     send({method: 'revokeMessage', id: messageId, receiverId: messageReceiverId, senderId: messageSenderId});
 }
 
+export function sendPageVisible(visible: boolean) {
+    send({method: "deviceStatusReport", data: visible});
+}
+
 function send(data: any) {
     if (!websocket) {
         // 目前先返回登陆页面，后面再看看要不要自动登录

@@ -3,7 +3,7 @@ import {useFriendStore} from '../../store/module/friend';
 import FrirendItem from './components/FrirendItem.vue';
 import FriendChat from './components/FriendChat.vue';
 import {API} from '../../request/api';
-import {initWebSocket, websocket} from '../../request/websocket';
+import {initWebSocket, sendPageVisible, websocket} from '../../request/websocket';
 import {useAuthStore} from '../../store/module/auth';
 import {mapActions, mapState} from 'pinia';
 import {FriendRequestHistoryType} from '../../global/GlobalType';
@@ -95,7 +95,9 @@ export default {
             }, 100);
         });
         document.addEventListener("visibilitychange", async () => {
-            this.setPageVisible(document.visibilityState === 'visible')
+            const visible = document.visibilityState === 'visible';
+            this.setPageVisible(visible);
+            sendPageVisible(visible);
             if (isMobileDevice() && this.pageVisible) {
                 const chooseItemId = this.chooseItemId;
                 this.actionChoose("");
@@ -104,12 +106,12 @@ export default {
             }
         });
         if (this.$route.query?.userId) {
-            if (websocket.readyState === 1 && this.friendList.length) this.actionChoose(this.$route.query?.userId as string);
+            if (websocket && websocket.readyState === 1 && this.friendList.length) this.actionChoose(this.$route.query?.userId as string);
             else {
                 let choose = false;
                 const timer = setInterval(() => {
                     if (choose) return clearInterval(timer);
-                    if (websocket.readyState === 1 && this.friendList.length) {
+                    if (websocket && websocket.readyState === 1 && this.friendList.length) {
                         this.actionChoose(this.$route.query?.userId as string);
                         choose = true;
                     }
