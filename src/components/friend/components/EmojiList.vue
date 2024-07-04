@@ -10,7 +10,7 @@
         <div class="flex transition" :style="{ transform: `translateX(${offset}px)` }">
             <div class="min-w-full h-52 overflow-y-auto flex flex-wrap justify-center cannotselect" v-for="(content, index) in contents" :key="index">
                 <span v-for="item in content" :key="item.starId" class="w-24 h-24 flex justify-center items-center cursor-pointer relative" >
-                    <img :id="item.starId" v-lazy="item.content" alt="表情" class="max-w-[80px] max-h-20" @click="$emit('sendEmojiMessage', item.content)" />
+                    <img :id="item.starId" v-lazy="item.showContent" alt="表情" class="max-w-[80px] max-h-20" @click="$emit('sendEmojiMessage', item.content)" />
                     <button class="outline-none focus:outline-none absolute right-0 top-0 opacity-30" @click="$emit('removeSticker', item.starId)">
                         <svg class="icon text-gray-400 dark:text-white h-5 w-5" aria-hidden="true" stroke="currentColor">
                             <use xlink:href="#icon-cancel"></use>

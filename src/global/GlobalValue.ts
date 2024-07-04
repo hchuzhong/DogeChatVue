@@ -10,7 +10,7 @@ export const EventName = {
     UpdateMessageHistory: 'UpdateMessageHistory',
     UpdateOneMessage: 'UpdateOneMessage',
     QuoteMessage: 'QuoteMessage',
-    ChooseFriendId: 'ChooseFriendId'
+    ChooseFriendId: 'ChooseFriendId',
 };
 
 const testIsMobileResult = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);

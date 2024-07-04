@@ -111,6 +111,7 @@ export type EmojiType = {
     type: string;
     userId: string;
     username: string;
+    showContent: string;
 };
 
 export type FriendStoreType = {

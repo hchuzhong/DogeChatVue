@@ -150,7 +150,9 @@ export const useFriendStore = defineStore('friend', {
             const dataNum = data.length;
             const processBatch = () => {
                 for (let i = start; i < Math.min(start + 100, dataNum); i++) {
-                    data[i].content = API.getPictureUrl(clientDecrypt(data[i].content));
+                    const decryptContent = clientDecrypt(data[i].content);
+                    data[i].content = decryptContent;
+                    data[i].showContent = API.getPictureUrl(decryptContent);
                     targetArray.push(data[i]);
                 }
             };

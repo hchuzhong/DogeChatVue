@@ -25,7 +25,6 @@ export const useGlobalStore = defineStore('global', {
         },
         setPageVisible(pageVisible: boolean) {
             this.pageVisible = pageVisible;
-            console.log('pageVisible', this.pageVisible);
         }
     }
 });
