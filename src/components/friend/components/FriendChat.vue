@@ -145,7 +145,7 @@ export default {
         },
         scrollChat(event: any) {
             let el = event.target;
-            if (el.scrollTop <= 0) {
+            if (el.scrollTop <= 0 && !this.isLoading) {
                 // 请求上一页聊天消息的数据
                 this.getHistoryMessages();
                 const chat = this.$refs.chat as HTMLDivElement;
