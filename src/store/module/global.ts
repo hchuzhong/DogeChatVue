@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {mobileMaxWidth} from '../../global/GlobalValue';
+import {messageItemDefaultMaxWidth, mobileMaxWidth} from '../../global/GlobalValue';
 import {useToggle} from '@vueuse/core';
 
 export const useGlobalStore = defineStore('global', {
@@ -8,7 +8,8 @@ export const useGlobalStore = defineStore('global', {
             clientWidth: 0,
             isMobile: false,
             isDarkMode: false,
-            pageVisible: false
+            pageVisible: false,
+            messageItemWidth: messageItemDefaultMaxWidth,
         };
     },
     actions: {
@@ -25,6 +26,9 @@ export const useGlobalStore = defineStore('global', {
         },
         setPageVisible(pageVisible: boolean) {
             this.pageVisible = pageVisible;
-        }
+        },
+        setMessageItemWidth(messageItemWidth: number) {
+            this.messageItemWidth = messageItemWidth;
+        },
     }
 });

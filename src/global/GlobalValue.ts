@@ -1,5 +1,6 @@
 import {API} from '../request/api';
 import {useAuthStore} from '../store/module/auth';
+import {useGlobalStore} from '../store/module/global';
 import EventHub from './EventHub';
 import {FriendMessageType, messageType, messageTypeToChinese} from './GlobalType';
 
@@ -20,6 +21,8 @@ export const isMobileDevice = () => {
 export const deviceType = testIsMobileResult ? 7 : 6; // 6 for PC, 7 for mobile
 
 export const mobileMaxWidth = 768;
+
+export const messageItemDefaultMaxWidth = 300;
 
 export const autoLoginItem = 'autoLoginItem';
 
@@ -137,8 +140,9 @@ export function getMessageData(message?: FriendMessageType) {
             width = Number(params.get('width') ?? 0);
             height = Number(params.get('height') ?? 0);
         }
-        // 260 = 300(max width) - 20(padding) * 2
-        width > 260 && (height = height * 260 / width);
+        // width = max width - padding * 2
+        const maxWidth = useGlobalStore().messageItemWidth - 20 * 2;
+        width > maxWidth && (height = height * maxWidth / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
         if(isValidURL(content)) {
