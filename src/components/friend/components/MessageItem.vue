@@ -5,6 +5,8 @@ import dayjs from 'dayjs';
 import {getMessageData, isMobileDevice, showFullScreenImage} from '../../../global/GlobalValue';
 import {API} from '../../../request/api';
 import VideoPlayer from '../../common/VideoPlayer.vue';
+import {mapState} from 'pinia';
+import {useGlobalStore} from '../../../store/module/global';
 
 export default {
     components: {VideoPlayer},
@@ -13,9 +15,11 @@ export default {
         isSelf: Boolean,
         hideIcon: Boolean,
     },
-    data() {
-        return {
-        };
+    computed: {
+        ...mapState(useGlobalStore, ['messageItemWidth']),
+        maxWidthStyle(): {maxWidth: string} {
+            return {maxWidth: this.messageItemWidth + 'px'}
+        }
     },
     methods: {
         parseTimeStamp(timeStamp: number) {
@@ -37,7 +41,7 @@ export default {
             <img v-if="!hideIcon" class="rounded-full object-cover" :src="getImageSrc()" alt="avatar" />
         </div>
         <div class="flex flex-col mx-1">
-            <div class="bg-gray-100 dark:bg-gray-700 rounded px-5 py-2 mt-2 text-gray-700 dark:text-gray-300 relative max-w-[300px]">
+            <div class="bg-gray-100 dark:bg-gray-700 rounded px-5 py-2 mt-2 text-gray-700 dark:text-gray-300 relative" :style="maxWidthStyle">
                 <div class="flex justify-start items-center text-xs">
                     <span class="block text-left mr-2">{{ isSelf ? '我' : message?.messageSender }}</span>
                     <span class="text-gray-400 text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
@@ -52,7 +56,7 @@ export default {
                     </svg>
                 </div>
             </div>
-            <div v-if="message?.referMessage" class="text-xs text-gray-400 flex items-center max-w-[300px] mt-1">
+            <div v-if="message?.referMessage" class="text-xs text-gray-400 flex items-center mt-1" :style="maxWidthStyle">
                 {{ void (referMessageData = getMessageData(message.referMessage)) }}
                 <svg class="icon h-3 w-3" aria-hidden="true">
                     <use xlink:href="#icon-yinyong"></use>

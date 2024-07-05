@@ -7,7 +7,7 @@ import {FriendInfoType, FriendMessageType, GroupMemberType, messageType, SaveSta
 import {getHistoryMessages, recallMessage, serverEncrypt} from '../../../request/websocket';
 import {API} from '../../../request/api';
 import FriendChatInput from './FriendChatInput.vue';
-import {EventBus, EventName} from '../../../global/GlobalValue';
+import {EventBus, EventName, messageItemDefaultMaxWidth} from '../../../global/GlobalValue';
 import {OnClickOutside} from '@vueuse/components';
 import {useGlobalStore} from '../../../store/module/global';
 import UserInfoItem from './UserInfoItem.vue';
@@ -101,19 +101,23 @@ export default {
             }
             this.oldChooseItemId = chooseItemId;
             this.scrollToBottom(200);
+            this.calculateMessageItemMaxWidth();
             EventBus().dispatchEvent(EventName.QuoteMessage);
         }
     },
-    created() {
+    mounted() {
         EventBus().addEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
         EventBus().addEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
+        window.addEventListener('resize', this.calculateMessageItemMaxWidth);
     },
     unmounted() {
         EventBus().removeEventListener(EventName.UpdateMessageHistory, this.updateMessageHistory);
         EventBus().removeEventListener(EventName.UpdateOneMessage, this.updateMessageHistory);
+        window.removeEventListener('resize', this.calculateMessageItemMaxWidth);
     },
     methods: {
         ...mapActions(useAuthStore, ['isSelf']),
+        ...mapActions(useGlobalStore, ['setMessageItemWidth']),
         ...mapActions(useFriendStore, ['getFriendMessageHistory', 'getFriendMessagePage']),
         scrollToBottom(delayTime = 0) {
             this.$nextTick(() => {
@@ -265,6 +269,11 @@ export default {
             const isImageOrVideo = file.type.includes('video') || file.type.includes('image')
             if (!isImageOrVideo) return toast("拖拽发送只支持图片或视频");
             (this.$refs.friendChatInput as typeof FriendChatInput).beforeSend(files[0]);
+        },
+        calculateMessageItemMaxWidth() {
+            const messageItemMaxWidth = Math.floor((this.$refs.chatWrapper as HTMLDivElement)?.clientWidth * 0.75) ?? 0;
+            const maxWidth = Math.max(messageItemMaxWidth, messageItemDefaultMaxWidth);
+            this.setMessageItemWidth(maxWidth);
         }
     }
 };
