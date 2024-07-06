@@ -140,9 +140,15 @@ export function getMessageData(message?: FriendMessageType) {
             width = Number(params.get('width') ?? 0);
             height = Number(params.get('height') ?? 0);
         }
+        // limit sticker's width and height
+        const isSticker = message?.type === messageType.sticker;
+        if (isSticker) {
+            height = height * 300 / width;
+            width = 300;
+        }
         // width = max width - padding * 2
-        const maxWidth = useGlobalStore().messageItemWidth - 20 * 2;
-        width > maxWidth && (height = height * maxWidth / width);
+        const messageItemMaxWidth = useGlobalStore().messageItemWidth - 20 * 2;
+        (width > messageItemMaxWidth) && (height = height * messageItemMaxWidth / width);
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
         if(isValidURL(content)) {
