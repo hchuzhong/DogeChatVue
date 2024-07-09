@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {FriendRequestPostType, SaveStarDataType, userInfoType} from '../global/GlobalType';
+import {FriendRequestPostType, MutedFriendNotificationType, SaveStarDataType, userInfoType} from '../global/GlobalType';
 import {deviceType, getRsaKeys, settingItem} from '../global/GlobalValue';
 
 // 添加响应拦截器
@@ -98,6 +98,24 @@ export namespace API {
 
     export function getFriendList() {
         return axios.get(`${baseUrl}/friendship/getAllFriends`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function getFriend(friendId: string) {
+        return axios.get(`${baseUrl}/friendship/getFriend/${friendId}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+    }
+
+    export function mutedFriendNotification(data: MutedFriendNotificationType) {
+        return axios.post(`${baseUrl}/friendship/doNotDisturb`, data, {
             headers: {
                 'Content-Type': 'application/json'
             },

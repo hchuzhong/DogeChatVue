@@ -142,7 +142,7 @@ export function getMessageData(message?: FriendMessageType) {
         }
         // limit sticker's width and height
         const isSticker = message?.type === messageType.sticker;
-        if (isSticker) {
+        if (isSticker && width > 300) {
             height = height * 300 / width;
             width = 300;
         }

@@ -156,12 +156,7 @@ export default {
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">
-                <button v-if="isMobile" class="absolute left-2 top-4" @click="chooseItemId = ''">
-                    <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
-                        <use xlink:href="#icon-xiangzuojiantou"></use>
-                    </svg>
-                </button>
-                <FriendChat :chooseItemId="chooseItemId" />
+                <FriendChat :chooseItemId="chooseItemId" @resetChooseItemId="chooseItemId = ''" />
             </div>
         </div>
     </div>
