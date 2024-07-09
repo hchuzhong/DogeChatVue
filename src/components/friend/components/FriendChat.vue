@@ -12,6 +12,7 @@ import {OnClickOutside} from '@vueuse/components';
 import {useGlobalStore} from '../../../store/module/global';
 import UserInfoItem from './UserInfoItem.vue';
 import toast from '../../common/toast';
+import FriendInfo from './FriendInfo.vue';
 
 type PositionType = {x: number; y: number};
 
@@ -29,6 +30,7 @@ type dataType = {
     isLoading: boolean;
     currentScrollHeight: number;
     groupMembersData: GroupMemberType[];
+    atGroupMembersData: GroupMemberType[];
     showContextMenu: boolean;
     contextMenuX: number;
     contextMenuY: number;
@@ -36,6 +38,7 @@ type dataType = {
     isBottom: boolean;
     touch: TouchType;
     isDelaying: boolean;
+    showFriendInfo: boolean;
 };
 
 const pageSize = 20;
@@ -44,10 +47,9 @@ export default {
     props: {
         chooseItemId: String
     },
-    components: {MessageItem, FriendChatInput, OnClickOutside, UserInfoItem},
+    components: {MessageItem, FriendChatInput, OnClickOutside, UserInfoItem, FriendInfo},
     computed: {
         ...mapState(useFriendStore, ['friendList']),
-        ...mapState(useAuthStore, ['selfData']),
         ...mapState(useGlobalStore, ['isMobile']),
         contextmenuFunction(): {text: string; command: string}[] {
             const contextmenuFunction = [{text: '引用', command: 'quote'}];
@@ -73,6 +75,7 @@ export default {
             isLoading: false,
             currentScrollHeight: 0,
             groupMembersData: [],
+            atGroupMembersData: [],
             showContextMenu: false,
             contextMenuX: 0,
             contextMenuY: 0,
@@ -80,10 +83,12 @@ export default {
             isBottom: true,
             touch: {isTouching: false, startPosition: {x: 0, y: 0}},
             isDelaying: false,
+            showFriendInfo: false
         };
     },
     watch: {
         chooseItemId: async function (chooseItemId: string, oldVal: string) {
+            this.showFriendInfo = false;
             this.chooseItem = chooseItemId !== '';
             if (this.chooseItem) {
                 this.curChooseFriendInfo = this.friendList.find((friendInfo: FriendInfoType) => friendInfo.userId === chooseItemId);
@@ -96,7 +101,9 @@ export default {
                 if (this.curChooseFriendInfo?.isGroup === '1') {
                     const membersResponse = await API.getGroupMembers(this.chooseItemId as string);
                     this.groupMembersData = membersResponse?.data ?? [];
-                    this.groupMembersData.unshift({username: '所有人', avatarUrl: this.curChooseFriendInfo.avatarUrl, userId: this.curChooseFriendInfo.userId});
+                    this.atGroupMembersData = [];
+                    this.atGroupMembersData.push({username: '所有人', avatarUrl: this.curChooseFriendInfo.avatarUrl, userId: this.curChooseFriendInfo.userId});
+                    this.atGroupMembersData = this.atGroupMembersData.concat(membersResponse?.data ?? []);
                 }
             }
             this.oldChooseItemId = chooseItemId;
@@ -274,6 +281,10 @@ export default {
             const messageItemMaxWidth = Math.floor((this.$refs.chatWrapper as HTMLDivElement)?.clientWidth * 0.75) ?? 0;
             const maxWidth = Math.max(messageItemMaxWidth, messageItemDefaultMaxWidth);
             this.setMessageItemWidth(maxWidth);
+        },
+        returnToChat() {
+            this.showFriendInfo = false;
+            this.scrollToBottom();
         }
     }
 };
@@ -281,8 +292,13 @@ export default {
 
 <template>
     <div class="w-full overflow-hidden" ref="chatWrapper" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
-        <div v-if="chooseItem" class="w-full h-self-screen overflow-hidden flex flex-col">
-            <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b-[0.2px] border-gray-400 py-2" />
+        <div v-if="chooseItem && !showFriendInfo" class="w-full h-self-screen overflow-hidden flex flex-col">
+            <button v-if="isMobile" class="absolute w-[50px] h-[50px] flex justify-center items-center" @click="$emit('resetChooseItemId')">
+                <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
+                    <use xlink:href="#icon-xiangzuojiantou"></use>
+                </svg>
+            </button>
+            <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" class="justify-center border-b-[0.2px] border-gray-400 py-2 cursor-pointer" @click="showFriendInfo = true" />
             <div v-if="!!(messageRecords && messageRecords.length)" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
                     <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove" @repeatMessage="repeatMessage"/>
@@ -301,8 +317,9 @@ export default {
             <div v-else class="h-self-screen m-auto text-center text-gray-600 dark:text-gray-400">暂无数据</div>
 
             <div class="sticky bottom-0">
-                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" :chooseItemId="chooseItemId" @showEmoji="updateScrollPosition" @sendMessage="scrollToBottom" />
+                <FriendChatInput ref="friendChatInput" :chooseFriendInfo="curChooseFriendInfo" :groupMembersData="atGroupMembersData" :chooseItemId="chooseItemId" @showEmoji="updateScrollPosition" @sendMessage="scrollToBottom" />
             </div>
         </div>
+        <friendInfo v-if="showFriendInfo" :friendInfo="curChooseFriendInfo" :groupMembersData="groupMembersData" @returnFriendChat="returnToChat" />
     </div>
 </template>

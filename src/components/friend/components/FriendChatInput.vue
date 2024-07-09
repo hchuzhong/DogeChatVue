@@ -231,8 +231,8 @@ export default {
 <template>
     <div>
         <OnClickOutside @trigger="groupMembersVisible = false">
-            <div v-show="groupMembersVisible && isGroup" ref="groupMembers" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border rounded-lg p-2 border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
-                <UserInfoItem v-for="(member, memberIndex) in groupMembersData" :key="member.userId" class="py-1 cursor-pointer" :class="{'bg-gray-400': memberIndex === selectedGroupMemberIndex}" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
+            <div v-show="groupMembersVisible && isGroup" ref="groupMembers" class="absolute bottom-[56px] left-20 w-40 max-h-40 z-10 border rounded-lg border-solid shadow bg-white dark:bg-gray-800 overflow-y-auto">
+                <UserInfoItem v-for="(member, memberIndex) in groupMembersData" :key="member.userId" class="px-2 py-1 cursor-pointer rounded-lg" :class="{'bg-gray-400': memberIndex === selectedGroupMemberIndex}" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" size="small" :needBold="false" @click="atMember(member)" />
             </div>
         </OnClickOutside>
         <QuoteMessage @quoteMessage="getQuoteMessage" @atQuoteMember="atQuoteMember" />

@@ -189,3 +189,10 @@ export type SaveStarDataType = {
     userId: string;
     username: string;
 }
+
+export type MutedFriendNotificationType = {
+    friend: string;
+    isGroup: string;
+    isMuted: string;
+    userId: string;
+}
