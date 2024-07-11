@@ -6,30 +6,31 @@ import { API } from '../../../request/api';
 import toast from '../../common/toast';
 import { mapActions, mapState } from 'pinia';
 import { useFriendStore } from '../../../store/module/friend';
-import { useAuthStore } from '../../../store/module/auth';
+
+type dataType = {
+    friendInfo: FriendInfoType | undefined;
+    isGroup: boolean;
+    isMuted: boolean;
+}
 
 export default {
     components: { UserInfoItem },
     props: {
-        friendInfo: {} as PropType<FriendInfoType>,
+        chooseItemId: String,
         groupMembersData: Array as PropType<GroupMemberType[]>,
     },
     computed: {
-        ...mapState(useAuthStore, ['selfData']),
-        isGroup(): boolean {
-            return this.friendInfo?.isGroup === '1';
-        },
-        isMuted(): boolean {
-            return this.friendInfo?.isMuted === '1';
-        },
-        userId(): string {
-            return this.selfData?.userId ?? '';
-        }
+        ...mapState(useFriendStore, ['friendListObj']),
     },
-    data() {
-        return {};
+    data(): dataType {
+        return {
+            friendInfo: undefined,
+            isGroup: false,
+            isMuted: false,
+        };
     },
     mounted() {
+        this.initData();
     },
     methods: {
         ...mapActions(useFriendStore, ['setFriend']),
@@ -55,19 +56,25 @@ export default {
             const success = response.data.status === 'success';
             if (!success) return;
             this.setFriend(response.data.data);
+            this.initData();
+        },
+        initData() {
+            this.friendInfo = this.friendListObj[this.chooseItemId ?? ''] ?? {};
+            this.isGroup = this.friendInfo?.isGroup === '1';
+            this.isMuted = this.friendInfo?.isMuted === '1';
         }
     },
 };
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative text-gray-600 dark:text-gray-400">
         <button class="absolute w-[50px] h-[50px] flex justify-center items-center" @click="$emit('returnFriendChat')">
             <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                 <use xlink:href="#icon-xiangzuojiantou"></use>
             </svg>
         </button>
-        <UserInfoItem :userInfo="friendInfo" class="justify-center border-b-[0.2px] border-gray-400 py-2 cursor-pointer" />
+        <UserInfoItem :userInfo="friendInfo" :notificationConfig="{show: true, muted: isMuted}" class="justify-center border-b-[0.2px] border-gray-400 py-2 cursor-pointer" />
         <div v-show="isGroup" ref="groupMembers" class="p-2">
             <div>群组成员</div>
             <UserInfoItem v-for="member in groupMembersData" :key="member.userId" class="p-1 cursor-pointer" :userInfo="{username: `${member.username}${member.nickName ? '(' + member.nickName + ')' : ''}`, avatarUrl: member.avatarUrl}" :needBold="false" size="middle" @click="removeUser(member)" />
