@@ -98,7 +98,16 @@ export default {
         <a class="max-h-20 px-3 py-2 cursor-pointer flex items-center text-sm focus:outline-none focus:border-gray-500 transition duration-150 ease-in-out" :class="{'bg-gray-100 dark:bg-gray-600': isChoose, 'hover:bg-gray-100 dark:hover:bg-gray-600': !isChoose}">
             <img class="h-10 w-10 rounded-full object-cover" :src="imageSrc" alt="avatar" />
             <div class="flex-1" :style="`max-width: ${maxMessageWidth}px`">
-                <span class="block ml-2 font-semibold text-base text-gray-600 dark:text-gray-400"> {{ friendItemInfo?.nickName || friendItemInfo?.username }} </span>
+                <div class="flex items-center">
+                    <span class="block ml-2 font-semibold text-base text-gray-600 dark:text-gray-400"> {{ friendItemInfo?.nickName || friendItemInfo?.username }} </span>
+                    <div class="ml-2">
+                        <div v-if="friendItemInfo?.isMuted === '1'">
+                            <svg class="icon text-gray-400" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                                <use xlink:href="#icon-tongzhi-guanbi"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <span class="block ml-2 text-sm text-gray-600 dark:text-gray-400 truncate">
                     <span v-if="hadUnreadMessage && someoneAtYou" class="text-rose-600">[有人@你]</span>
                     {{ messageContent }}

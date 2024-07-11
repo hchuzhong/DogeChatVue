@@ -26,8 +26,9 @@ export const useFriendStore = defineStore('friend', {
             });
         },
         setFriend(friendInfo: FriendInfoType) {
+            const index = this.friendList.findIndex(friend => friend.userId === friendInfo.userId);
+            this.friendList[index] = friendInfo;
             this.friendListObj[friendInfo.userId] = friendInfo;
-            
         },
         setUnreadMessage(unreadMessage: FriendMessageType[]) {
             const unreadMessageObj: {[key: string]: FriendMessageType[]} = {};

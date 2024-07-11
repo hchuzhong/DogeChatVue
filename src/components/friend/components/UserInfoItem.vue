@@ -8,6 +8,11 @@ type UserInfoItemType = {
     avatarUrl: string;
 };
 
+type NotificationConfigType = {
+    show: boolean;
+    muted: boolean;
+}
+
 export default {
     props: {
         userInfo: {} as PropType<UserInfoItemType>,
@@ -26,7 +31,8 @@ export default {
         size: {
             type: String,
             default: 'normal'
-        }
+        },
+        notificationConfig: {} as PropType<NotificationConfigType>,
     },
     components: {Loading},
     methods: {
@@ -48,7 +54,7 @@ export default {
             };
             return styleObj[(this.size as 'normal' | 'small') ?? 'normal'] + (this.needBold ? 'font-bold' : '');
         }
-    }
+    },
 };
 </script>
 
@@ -57,7 +63,16 @@ export default {
         <Loading v-if="isLoading && showLoading" class="my-1" />
         <img v-else class="rounded-full object-cover" :class="getImageStyle()" :src="getImageSrc()" alt="avatar" />
         <div class="flex flex-col ml-2">
-            <span class="block text-gray-800 dark:text-gray-300" :class="getTextStyle()"> {{ isLoading && showLoading ? '加载数据中' : userInfo?.username }} </span>
+            <div class="flex items-center">
+                <span class="block text-gray-800 dark:text-gray-300" :class="getTextStyle()"> {{ isLoading && showLoading ? '加载数据中' : userInfo?.username }} </span>
+                <div v-if="notificationConfig?.show" class="ml-2">
+                    <div v-if="notificationConfig?.muted">
+                        <svg class="icon text-gray-400" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor">
+                            <use xlink:href="#icon-tongzhi-guanbi"></use>
+                        </svg>
+                    </div>
+                </div>
+            </div>
             <slot name="content" />
         </div>
     </div>
