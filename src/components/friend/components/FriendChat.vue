@@ -35,9 +35,10 @@ type dataType = {
     contextMenuY: number;
     clickMessageInfo: undefined | FriendMessageType;
     isBottom: boolean;
-    touch: TouchType;
+    messageItemTouch: TouchType;
     isDelaying: boolean;
     showFriendInfo: boolean;
+    friendChatTouch: TouchType;
 };
 
 const pageSize = 20;
@@ -82,9 +83,10 @@ export default {
             contextMenuY: 0,
             clickMessageInfo: undefined,
             isBottom: true,
-            touch: {isTouching: false, startPosition: {x: 0, y: 0}},
+            messageItemTouch: {isTouching: false, startPosition: {x: 0, y: 0}},
             isDelaying: false,
-            showFriendInfo: false
+            showFriendInfo: false,
+            friendChatTouch: {isTouching: false, startPosition: {x: 0, y: 0}},
         };
     },
     watch: {
@@ -235,23 +237,23 @@ export default {
                 this.isDelaying = false;
             }, 300);
         },
-        touchStart(event: TouchEvent, messageInfo: FriendMessageType) {
+        touchStartMessageItem(event: TouchEvent, messageInfo: FriendMessageType) {
             if (!this.isMobile || this.showContextMenu) return;
-            this.touch.isTouching = true;
-            this.touch.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+            this.messageItemTouch.isTouching = true;
+            this.messageItemTouch.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
             setTimeout(() => {
-                if (!this.touch.isTouching) return;
+                if (!this.messageItemTouch.isTouching) return;
                 this.showSelfContextMenu(event, messageInfo);
-                this.touch.isTouching = false;
+                this.messageItemTouch.isTouching = false;
             }, 500);
         },
-        touchMove(event: TouchEvent) {
-            if (!this.touch.isTouching) return;
+        touchMoveMessageItem(event: TouchEvent) {
+            if (!this.messageItemTouch.isTouching) return;
             const curPosition = event.touches[0];
             const cache = 10;
-            const {x, y} = this.touch.startPosition;
+            const {x, y} = this.messageItemTouch.startPosition;
             if (Math.abs(curPosition.clientX - x) > cache || Math.abs(curPosition.clientY - y) > cache) {
-                this.touch.isTouching = false;
+                this.messageItemTouch.isTouching = false;
             }
         },
         handleDragOver(event: DragEvent) {
@@ -285,14 +287,29 @@ export default {
         returnToChat() {
             this.showFriendInfo = false;
             this.scrollToBottom();
-        }
+        },
+        touchStartFriendChat(event: TouchEvent) {
+            if (!this.isMobile) return;
+            this.friendChatTouch.isTouching = true;
+            this.friendChatTouch.startPosition = {x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY};
+        },
+        touchEndFriendChat(event: TouchEvent) {
+            if (!this.isMobile || !this.friendChatTouch.isTouching) return;
+            this.friendChatTouch.isTouching = false;
+            const limitDistance = 50;
+            const endPosition = {x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY};
+            if (Math.abs(this.friendChatTouch.startPosition.y - endPosition.y) > limitDistance) return;
+            if (this.friendChatTouch.startPosition.x < endPosition.x - limitDistance) {
+                this.$emit('resetChooseItemId');
+            }
+        },
     }
 };
 </script>
 
 <template>
     <div class="w-full overflow-hidden" ref="chatWrapper" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
-        <div v-if="chooseItem && !showFriendInfo" class="w-full h-self-screen overflow-hidden flex flex-col">
+        <div v-if="chooseItem && !showFriendInfo" class="w-full h-self-screen overflow-hidden flex flex-col" @touchstart="touchStartFriendChat" @touchend="touchEndFriendChat">
             <button v-if="isMobile" class="absolute w-[50px] h-[50px] flex justify-center items-center" @click="$emit('resetChooseItemId')">
                 <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                     <use xlink:href="#icon-xiangzuojiantou"></use>
@@ -301,7 +318,7 @@ export default {
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" :notificationConfig="{show: true, muted: curChooseFriendInfo?.isMuted === '1'}" class="justify-center border-b-[0.2px] border-gray-400 py-2 cursor-pointer" @click="showFriendInfo = true" />
             <div v-if="!!(messageRecords && messageRecords.length)" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
                 <ul>
-                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @touchstart="event => touchStart(event, message)" @touchend="() => (touch.isTouching = false)" @touchmove="touchMove" @repeatMessage="repeatMessage"/>
+                    <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @touchstart="event => touchStartMessageItem(event, message)" @touchend="() => (messageItemTouch.isTouching = false)" @touchmove="touchMoveMessageItem" @repeatMessage="repeatMessage"/>
                 </ul>
                 <OnClickOutside @trigger="showContextMenu = false">
                     <div v-if="showContextMenu" class="absolute z-10 w-20 max-h-40 border dark:border-gray-300 rounded-lg p-2 border-solid shadow bg-white/[0.8] dark:bg-gray-800/[0.8] overflow-y-auto" :class="{'cannotselect': isMobile}" :style="`top: ${contextMenuY}px; left: ${contextMenuX}px;`">
