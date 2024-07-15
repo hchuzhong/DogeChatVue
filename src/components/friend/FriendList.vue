@@ -49,7 +49,7 @@ export default {
         ...mapActions(useFriendStore, ['setFriendList']),
         ...mapActions(useGlobalStore, ['setClientWidth', 'setPageVisible']),
         ...mapActions(useAuthStore, ['setSelfData', 'isSelf']),
-        actionChoose(chooseItemId: string) {
+        actionChoose(chooseItemId: string = '') {
             this.chooseItemId = chooseItemId;
         },
         getImageSrc(src: string) {
@@ -100,7 +100,7 @@ export default {
             sendPageVisible(visible);
             if (isMobileDevice() && this.pageVisible) {
                 const chooseItemId = this.chooseItemId;
-                this.actionChoose("");
+                this.actionChoose();
                 await this.initData();
                 this.actionChoose(chooseItemId);
             }
@@ -156,7 +156,7 @@ export default {
             </div>
             <!-- {/* 聊天界面 */} -->
             <div v-show="!isMobile || hadChooseItem" class="flex-1 h-self-screen col-span-2 bg-white dark:bg-gray-800">
-                <FriendChat :chooseItemId="chooseItemId" @resetChooseItemId="chooseItemId = ''" />
+                <FriendChat :chooseItemId="chooseItemId" @resetChooseItemId="actionChoose()" />
             </div>
         </div>
     </div>
