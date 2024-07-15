@@ -310,14 +310,14 @@ export default {
 
 <template>
     <div class="w-full overflow-hidden" ref="chatWrapper" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
-        <div v-if="chooseItem && !showFriendInfo" class="w-full h-self-screen overflow-hidden flex flex-col" @touchstart="touchStartFriendChat" @touchend="touchEndFriendChat">
+        <div v-if="chooseItem && !showFriendInfo" class="w-full h-self-screen overflow-hidden flex flex-col">
             <button v-if="isMobile" class="absolute w-[50px] h-[50px] flex justify-center items-center" @click="$emit('resetChooseItemId')">
                 <svg class="icon text-gray-400 dark:text-gray-200 h-5 w-5" aria-hidden="true">
                     <use xlink:href="#icon-xiangzuojiantou"></use>
                 </svg>
             </button>
             <UserInfoItem :isLoading="isLoading" :showLoading="true" :userInfo="curChooseFriendInfo" :notificationConfig="{show: true, muted: curChooseFriendInfo?.isMuted === '1'}" class="justify-center border-b-[0.2px] border-gray-400 py-2 cursor-pointer" @click="showFriendInfo = true" />
-            <div v-if="!!(messageRecords && messageRecords.length)" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat">
+            <div v-if="!!(messageRecords && messageRecords.length)" id="chat" ref="chat" class="w-full h-self-screen overflow-y-auto py-2 px-4 relative" @scroll="scrollChat" @touchstart="touchStartFriendChat" @touchend="touchEndFriendChat">
                 <ul>
                     <MessageItem v-for="(message, index) in messageRecords" :id="`message${index}`" :key="message.uuid" :isSelf="isSelf(message.messageSenderId)" :message="message" :hideIcon="index > 0 && messageRecords[index - 1].messageSenderId === message.messageSenderId" @contextmenu="event => showSelfContextMenu(event, message, true)" @touchstart="event => touchStartMessageItem(event, message)" @touchend="() => (messageItemTouch.isTouching = false)" @touchmove="touchMoveMessageItem" @repeatMessage="repeatMessage"/>
                 </ul>
