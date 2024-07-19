@@ -3,6 +3,7 @@ import {useAuthStore} from '../store/module/auth';
 import {useGlobalStore} from '../store/module/global';
 import EventHub from './EventHub';
 import {FriendMessageType, messageType, messageTypeToChinese} from './GlobalType';
+import heic2any from "heic2any";
 
 export const wssBaseUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/webSocket';
 
@@ -76,7 +77,10 @@ export function RSA2text(buffer: any) {
     return base64.replace(/[^\x00-\xff]/g, "$&\x01").replace(/.{64}\x01?/g, "$&\n");
 }
 
-export function getImageInfo(file: File, cb: Function) {
+export async function getImageInfo(file: File, cb: Function) {
+    if (file.name.includes('heic')) {
+        file = await convertHeicToPng(file);
+    }
     const imgSrc = window.URL.createObjectURL(file);
     const img = new Image();
     img.src = imgSrc;
@@ -86,7 +90,7 @@ export function getImageInfo(file: File, cb: Function) {
         const height = img.offsetHeight;
         document.body.removeChild(img);
         const infoStr = `width=${width}&height=${height}`;
-        cb?.(infoStr);
+        cb?.(infoStr, file);
     };
 }
 
@@ -100,7 +104,7 @@ export function getVideoInfo(file: File, cb: Function) {
         const height = videoElement.offsetHeight;
         document.body.removeChild(videoElement);
         const infoStr = `width=${width}&height=${height}`;
-        cb?.(infoStr);
+        cb?.(infoStr, file);
     };
 }
 
@@ -142,13 +146,17 @@ export function getMessageData(message?: FriendMessageType) {
         }
         // limit sticker's width and height
         const isSticker = message?.type === messageType.sticker;
-        if (isSticker && width > 300) {
-            height = height * 300 / width;
-            width = 300;
+        const stickerMaxWidth = 150;
+        if (isSticker && width > stickerMaxWidth) {
+            height = height * stickerMaxWidth / width;
+            width = stickerMaxWidth;
         }
         // width = max width - padding * 2
-        const messageItemMaxWidth = useGlobalStore().messageItemWidth - 20 * 2;
-        (width > messageItemMaxWidth) && (height = height * messageItemMaxWidth / width);
+        const messageItemMaxWidth = Math.min(useGlobalStore().messageItemWidth - 20 * 2, 500);
+        if (width > messageItemMaxWidth) {
+            height = height * messageItemMaxWidth / width;
+            width = messageItemMaxWidth;
+        }
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
         if(isValidURL(content)) {
@@ -227,4 +235,17 @@ export function showFullScreenImage(imageUrl: string) {
 function isValidURL(text: string): boolean  {
     const regex = /^(https?:\/\/)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})(:[0-9]{1,5})?(\/.*)?$/;
     return regex.test(text);
+}
+
+async function convertHeicToPng(heicFile: File) {
+    try {
+        const conversionResult = await heic2any({
+            blob: heicFile,
+            toType: "image/png",
+        });
+        return conversionResult;
+    } catch (error) {
+        console.error("HEIC 转 PNG 失败:", error);
+        throw error;
+    }
 }

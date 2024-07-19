@@ -117,9 +117,9 @@ export default {
         },
         beforeSend(file: File) {
             const isVideo = file.type.includes('video');
-            const cb = async (infoStr: string) => {
+            const cb = async (infoStr: string, cbFile: File) => {
                 const formData = new FormData();
-                formData.append('upload', file);
+                formData.append('upload', cbFile);
                 const result = await API.uploadImg(formData);
                 if (result.data?.status === 'fail') return toast(result.data?.message);
                 const filePath = clientDecrypt(result.data.filePath);
@@ -131,7 +131,7 @@ export default {
         clickUploadImage() {
             const fileInput = this.$refs?.fileInput as HTMLInputElement;
             if (!fileInput) return;
-            fileInput.value = null;
+            fileInput.value = '';
             fileInput.click();
         },
         getImageSrc(src: string) {
@@ -141,6 +141,7 @@ export default {
             // 同一个人只能 @ 一次
             if (this.notifiedArr.find(item => item.username === memberInfo.username)) return;
             const name = memberInfo.nickName ? memberInfo.nickName : memberInfo.username;
+            // @ts-ignore
             this.notifiedArr.push({...memberInfo, location: this.inputMessage.length, length: name.length});
             this.inputMessage += name;
             this.groupMembersVisible = false;
