@@ -47,7 +47,7 @@ export default {
                     <span class="text-gray-400 text-right"> {{ parseTimeStamp(message.timeStamp) }} </span>
                 </div>
                 {{ void (messageData = getMessageData(message)) }}
-                <img v-if="messageData.isPicture" class="object-cover rounded cursor-pointer" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)" />
+                <img v-if="messageData.isPicture" class="object-cover rounded cursor-pointer max-w-[500px]" :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`" :src="messageData.content" alt="" @click="() => showFullScreenImage(messageData.content)" />
                 <video v-else-if="messageData.isVideo" controls :style="`${messageData.height && `height: ${messageData.height}px; width: ${messageData.width}px`}`"><source :src="messageData.content" type="video/mp4" /></video>
                 <span v-else v-html="messageData.content" class="block break-words whitespace-pre-line"></span>
                 <div class="absolute top-0 right-0 w-8 h-full" @click="$emit('repeatMessage', message)">

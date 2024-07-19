@@ -146,13 +146,17 @@ export function getMessageData(message?: FriendMessageType) {
         }
         // limit sticker's width and height
         const isSticker = message?.type === messageType.sticker;
-        if (isSticker && width > 300) {
-            height = height * 300 / width;
-            width = 300;
+        const stickerMaxWidth = 150;
+        if (isSticker && width > stickerMaxWidth) {
+            height = height * stickerMaxWidth / width;
+            width = stickerMaxWidth;
         }
         // width = max width - padding * 2
-        const messageItemMaxWidth = useGlobalStore().messageItemWidth - 20 * 2;
-        (width > messageItemMaxWidth) && (height = height * messageItemMaxWidth / width);
+        const messageItemMaxWidth = Math.min(useGlobalStore().messageItemWidth - 20 * 2, 500);
+        if (width > messageItemMaxWidth) {
+            height = height * messageItemMaxWidth / width;
+            width = messageItemMaxWidth;
+        }
     } else if (isText) {
         content = (message as FriendMessageType).messageContent;
         if(isValidURL(content)) {
