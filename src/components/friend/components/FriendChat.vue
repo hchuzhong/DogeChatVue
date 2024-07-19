@@ -294,7 +294,7 @@ export default {
             this.friendChatTouch.startPosition = {x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY};
         },
         touchEndFriendChat(event: TouchEvent) {
-            event.preventDefault();
+            // event.preventDefault();
             if (!this.isMobile || !this.friendChatTouch.isTouching) return;
             this.friendChatTouch.isTouching = false;
             const limitDistance = 50;
