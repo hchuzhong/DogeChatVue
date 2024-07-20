@@ -146,13 +146,13 @@ export function getMessageData(message?: FriendMessageType) {
         }
         // limit sticker's width and height
         const isSticker = message?.type === messageType.sticker;
-        const stickerMaxWidth = 150;
+        const stickerMaxWidth = 200;
         if (isSticker && width > stickerMaxWidth) {
             height = height * stickerMaxWidth / width;
             width = stickerMaxWidth;
         }
         // width = max width - padding * 2
-        const messageItemMaxWidth = Math.min(useGlobalStore().messageItemWidth - 20 * 2, 500);
+        const messageItemMaxWidth = Math.min(useGlobalStore().messageItemWidth - 20 * 2, 300);
         if (width > messageItemMaxWidth) {
             height = height * messageItemMaxWidth / width;
             width = messageItemMaxWidth;
